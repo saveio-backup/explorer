@@ -1,0 +1,22 @@
+@import './reset.scss';
+@import './global.scss';
+@import './atom.scss';
+@import './ele-style.scss';
+
+// color
+.white {
+  color: white;
+}
+
+.fontImportant {
+  color: $fontImportant;
+}
+
+.fontImportantThree {
+  color: $fontImportantThree;
+}
+
+// flex
+.flex {
+  display: flex;
+}
