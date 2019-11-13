@@ -7,7 +7,14 @@
 						Block Height
 					</h4>
 					<p>
-						{{countStat && countStat.BlockHeight}}
+						<template v-if="countStat">
+							<router-link
+								class="link-fontImportant"
+								:to="`/blocks/detail?height=${countStat.BlockHeight}`"
+							>
+								{{countStat.BlockHeight}}
+							</router-link>
+						</template>
 					</p>
 				</li>
 				<li>
@@ -15,8 +22,11 @@
 						Total Transactions
 					</h4>
 					<p>
-						<!-- 8,395,962 -->
-						{{countStat && countStat.TotalTxCount}}
+						<template v-if="countStat">
+							<router-link class="link-fontImportant" to="/transactions/index">
+								{{countStat.TotalTxCount}}
+							</router-link>
+						</template>
 					</p>
 				</li>
 				<li>
@@ -24,62 +34,108 @@
 						Nodes
 					</h4>
 					<p>
-						<!-- 288 -->
-						{{countStat && (countStat.DNSNodeCount + countStat.FSNodeCount)}}
+						<template v-if="countStat">
+							<router-link to="/node" class="link-fontImportant">
+								{{countStat.DNSNodeCount + countStat.FSNodeCount}}
+							</router-link>
+						</template>
 					</p>
 				</li>
 				<li>
 					<h4>Total Address</h4>
-					<p>{{countStat && countStat.TotalAddrs}}</p>
+					<p>
+						<template v-if="countStat">
+							<router-link to="/chartDetail/Addresswarehouse" class="link-fontImportant">
+								{{countStat.TotalAddrs}}
+							</router-link>
+						</template>
+					</p>
 				</li>
 				<li class="last-child">
 					<h4>Channels</h4>
-					<p>{{countStat && countStat.TotalChannels}}</p>
+					<p>
+						<template v-if="countStat">
+							<router-link to="/chartDetail/channelNumber" class="link-fontImportant">
+								{{countStat.TotalChannels}}
+							</router-link>
+						</template>
+					</p>
 				</li>
 			</ul>
 		</section>
 		<p class="ft14 chart-more">
-			<router-link to="/chartMore">
-				更多 <i class="ofont el-icon-d-arrow-right ft14"></i>
+			<router-link
+				to="/chartMore"
+				class="click-link no-user-select"
+				title="more"
+			>
+				more <i class="ofont el-icon-d-arrow-right ft14"></i>
 			</router-link>
 		</p>
 		<charts-component :type="1"></charts-component>
 		<section class="home-other-info">
 			<section class="blocks loading-content home-info">
 				<div class="info-top ft16">
-					<h3>Blocks</h3>
-					<router-link to="/blocks">
+					<h3 class="no-user-select">Blocks</h3>
+					<router-link
+						to="/blocks"
+					>
 						<i class="more-content-icon el-icon-d-arrow-right"></i>
 					</router-link>
 				</div>
 				<ul class="blocks-list home-info-list">
-					<li v-for="(item,index) in blockList" :key="index">
+					<li
+						v-for="(item,index) in blockList"
+						:key="index"
+					>
 						<div class="block-left-area">
-							<h4>{{ item.Height }}</h4>
+							<h4 class="link-fontImportant">
+								<router-link
+									:to="`/blocks/detail?height=${item.Height}`"
+									:title="item.Height"
+								>
+									{{ item.Height }}
+								</router-link>
+							</h4>
 							<p>{{ util.bytesToSize(item.Size*1024) }}</p>
 						</div>
 						<div class="block-right-area">
 							<p>{{item.TxCount}} Txns</p>
-							<p>32s ago</p>
+							<p>{{item.ago || 'Computing'}}</p>
 						</div>
 					</li>
 				</ul>
 			</section>
 			<section class="transactions loading-content home-info">
 				<div class="info-top ft16">
-					<h3>Transactions</h3>
-					<router-link to="/transactions">
+					<h3 class="no-user-select">Transactions</h3>
+					<router-link
+						to="/transactions"
+					>
 						<i class="more-content-icon el-icon-d-arrow-right"></i>
 					</router-link>
 				</div>
 				<ul class="blocks-list home-info-list">
-					<li v-for="(item, index) in transactionsList" :key="index">
+					<li
+						v-for="(item, index) in transactionsList"
+						:key="index"
+					>
 						<div class="block-left-area">
-							<h4>{{item.Hash.slice(0,7)+'...'+item.Hash.slice(item.Hash.length - 8)}}</h4>
+							<h4
+								:title="item.Hash"
+								class="link-fontImportant"
+							>
+								<router-link
+									:to="`transactions/detail?hash=${item.Hash}`"
+									:title="item.Hash"
+								>
+									{{item.Hash.slice(0,7)+'...'+item.Hash.slice(item.Hash.length - 8)}}
+								</router-link>
+							</h4>
 							<p>Invoke Smart Contract</p>
 						</div>
 						<div class="block-right-area">
-							<p>32s ago</p>
+							<p>{{item.ago || 'Computing'}}</p>
 						</div>
 					</li>
 				</ul>
@@ -89,8 +145,9 @@
 </template>
 
 <script>
-import chartsComponent from './../components/ChartsComponent'
+import chartsComponent from "./../components/ChartsComponent";
 import util from "../assets/config/util";
+import moment from 'moment'
 export default {
 	name: "Home",
 	components: {
@@ -101,9 +158,9 @@ export default {
 			util,
 			countStat: null,
 			storageStat: null,
-			// block data
 			blockList: [],
-			transactionsList: []
+			transactionsList: [],
+			timeAgoIntervalObj: null
 		};
 	},
 	methods: {
@@ -111,48 +168,103 @@ export default {
 			this.getCountStat();
 			this.getBlocksStat();
 			this.getTransactions();
+			clearTimeout(this.timeAgoIntervalObj);
+			this.toGetTimeAgo();
+			this.timeAgoIntervalObj = setInterval(() => {
+				this.toGetTimeAgo();
+			}, 1000);
 		},
 		getCountStat() {
-			this.$axios.get(this.$api.getcountstat,{},
-			{
-				loading: {
-					text: '加载中...',
-					target: ".loading-content.base-info"
-				}
-			}).then(res => {
-				console.log(res);
-				if(res.Error === 0) {
-					this.countStat = res.Result;
-				} else {
-					this.$message.error('数据加载失败');
-				}
-			})
+			this.$axios
+				.get(
+					this.$api.getcountstat,
+					{},
+					{
+						loading: {
+							text: "Loading...",
+							target: ".loading-content.base-info"
+						}
+					}
+				)
+				.then(res => {
+					console.log(res);
+					if (res.Error === 0) {
+						this.countStat = res.Result;
+					} else {
+						this.$message.error("Data load failure!!!");
+					}
+				});
 		},
 		getBlocksStat() {
-			this.$axios.get(this.$api.getblocks + '/0/5' , {}, 
-			{
-				loading: {
-					text: '加载中...',
-					target: ".loading-content.blocks"
-				}
-			}).then(res => {
-				if(res.Error === 0) {
-					this.blockList = res.Result['Blocks'];
-				}
-			})
+			this.$axios
+				.get(
+					this.$api.getblocks + "/0/5",
+					{},
+					{
+						loading: {
+							text: "Loading...",
+							target: ".loading-content.blocks"
+						}
+					}
+				)
+				.then(res => {
+					if (res.Error === 0) {
+						this.blockList = res.Result["Blocks"];
+					}
+				});
 		},
 		getTransactions() {
-			this.$axios.get(this.$api.gettransactions + '/0/5' , {}, 
-			{
-				loading: {
-					text: '加载中...',
-					target: ".loading-content.transactions"
-				}
-			}).then(res => {
-				if(res.Error === 0) {
-					this.transactionsList = res.Result['Txs'];
-				}
-			})
+			this.$axios
+				.get(
+					this.$api.gettransactions + "/0/5",
+					{},
+					{
+						loading: {
+							text: "Loading...",
+							target: ".loading-content.transactions"
+						}
+					}
+				)
+				.then(res => {
+					if (res.Error === 0) {
+						this.transactionsList = res.Result["Txs"];
+					}
+				});
+		},
+		computedTimeAgo({currentTimestamp, timestamp}) {
+			let result = '';
+			let today = new Date()
+			let yesterday = moment(new Date()).subtract(1, 'days')  // 昨天 subtract方法
+			if (moment(today).isSame(new Date(timestamp), 'day')) {  // 判断 isSame方法
+				let hours = parseInt(((currentTimestamp - timestamp) % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+				if (hours > 0) {
+						return hours + " hours ago";
+				};
+				let minutes = parseInt(((currentTimestamp - timestamp) % (1000 * 60 * 60)) / (1000 * 60));
+				if (minutes > 0) {
+						return minutes + " minutes ago";
+				};
+				let seconds = parseInt(((currentTimestamp - timestamp) % (1000 * 60)) / 1000);
+				return seconds + ' seconds ago'
+			} else if (moment(yesterday).isSame(new Date(timestamp), 'day')) {
+				return 'yesterday'
+			} else {
+				return moment(timestamp).format('YYYY-MM-DD');
+			}
+			return result;
+		},
+		toGetTimeAgo() {
+			let currentTimestamp = new Date().getTime();
+			for(let value of this.blockList) {
+				let ago = this.computedTimeAgo({currentTimestamp, timestamp: value.CreatedAt*1000});
+				value['ago'] = ago;
+			}
+
+			for(let value of this.transactionsList) {
+				let ago = this.computedTimeAgo({currentTimestamp, timestamp: value.CreatedAt*1000});
+				value['ago'] = ago;
+			}
+			this.$forceUpdate();
 		}
 	},
 	mounted() {
@@ -174,7 +286,7 @@ export default {
 		border-radius: 2px;
 		margin: 0 auto;
 		padding: 50px 0;
-		transition: width 0.5s;
+		transition: width 0.1s;
 
 		@media (max-width: 1200px) {
 			margin: 0 auto 35px;
@@ -241,20 +353,11 @@ export default {
 	}
 
 	.chart-more {
-		color: #CDDC39;
+		color: #cddc39;
 		max-width: 1170px;
 		width: calc(100% - 30px);
 		margin: 60px auto 30px;
 		text-align: right;
-		cursor: pointer;
-
-		&:hover {
-			opacity: 0.7;
-		}
-
-		&:active {
-			opacity: 1;
-		}
 	}
 
 	.home-other-info {
@@ -276,7 +379,7 @@ export default {
 			box-shadow: 0px -4px 40px 0px rgba(0, 0, 0, 0.32);
 			border-radius: 4px;
 			padding: 5px 32px;
-			transition: width 0.5s;
+			transition: width 0.1s;
 
 			@media (max-width: 1200px) {
 				width: 100%;
@@ -292,7 +395,7 @@ export default {
 
 				.more-content-icon {
 					&:hover {
-						color: #CDDC39;
+						color: #cddc39;
 					}
 
 					&:active {
@@ -362,41 +465,42 @@ export default {
 
 		.transactions {
 			.blocks-list {
-        li {
-          display: flex;
-          justify-content: space-between;
+				li {
+					display: flex;
+					justify-content: space-between;
 
-          .block-left-area {
-            h4 {
-              font-size: 16px;
-              font-weight: 600;
-              color: rgba(205, 220, 57, 1);
-              line-height: 20px;
-            }
-            p {
-              font-size: 14px;
-              font-weight: 400;
-              color: rgba(175, 172, 172, 1);
-              line-height: 18px;
-            }
-          }
-  
-          .block-right-area {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 380px;
+					.block-left-area {
+						min-width: 150px;
 
-            p {
-              font-size: 14px;
-              font-weight: 400;
-              color: rgba(175, 172, 172, 1);
-              line-height: 18px;
-              text-align: center;
-            }
-          }
-        }
+						h4 {
+							font-size: 16px;
+							font-weight: 600;
+							color: rgba(205, 220, 57, 1);
+							line-height: 20px;
+						}
+						p {
+							font-size: 14px;
+							font-weight: 400;
+							color: rgba(175, 172, 172, 1);
+							line-height: 18px;
+						}
+					}
 
+					.block-right-area {
+						display: flex;
+						align-items: center;
+						justify-content: flex-end;
+						width: 380px;
+
+						p {
+							font-size: 14px;
+							font-weight: 400;
+							color: rgba(175, 172, 172, 1);
+							line-height: 18px;
+							text-align: center;
+						}
+					}
+				}
 			}
 		}
 	}

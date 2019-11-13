@@ -1,12 +1,19 @@
 <template>
 	<div id="node">
-    <!-- <map-component class="node-map">
-    </map-component> -->
-		<h3>
+		<map-component
+			class="node-map"
+			ref="nodeMap"
+			:mapNodes="mapNodes"
+		>
+		</map-component>
+		<h3 class="no-user-select">
 			DNS
 		</h3>
-		<section class="dns-wrapper">
-			<el-table :data="dnsList" style="width:100%;">
+		<section class="dns-wrapper loading-content">
+			<el-table
+				:data="dnsList"
+				style="width:100%;"
+			>
 				<el-table-column
 					fixed
 					label="No."
@@ -15,7 +22,7 @@
 				>
 				</el-table-column>
 				<el-table-column
-					prop="DNSNode"
+					prop="Alias"
 					label="DNS Node"
 					min-width="120"
 				>
@@ -27,7 +34,7 @@
 				>
 				</el-table-column>
 				<el-table-column
-					prop="Channels"
+					prop="ChannelCount"
 					label="Channels"
 					min-width="120"
 				>
@@ -38,26 +45,29 @@
 				>
 					<template slot-scope="scope">
 						<div>
-							{{scope.row.Pledge}} SAVE
+							{{scope.row.Stake}} SAVE
 						</div>
 					</template>
 				</el-table-column>
 			</el-table>
 		</section>
-		<h3>
+		<h3 class="no-user-select">
 			FS
 		</h3>
 		<section class="fs-wrapper">
-			<el-table :data="fsList" style="width: 100%;">
+			<el-table
+				:data="fsList"
+				style="width: 100%;"
+			>
 				<el-table-column
 					fixed
 					label="No."
-					type="index"
+					prop="Index"
 					min-width="50"
 				>
 				</el-table-column>
 				<el-table-column
-					prop="DNSNode"
+					prop="Alias"
 					label="DNS Node"
 					min-width="120"
 				>
@@ -69,115 +79,127 @@
 				>
 				</el-table-column>
 				<el-table-column
-					prop="Storage"
 					label="Storage"
 					min-width="120"
 				>
+					<template slot-scope="scope">
+						<div>
+							{{util.bytesToSize(scope.row.Storage*1000)}}
+						</div>
+					</template>
 				</el-table-column>
 				<el-table-column
-					prop="Profit"
-					label="Profit"
+					prop="ProfitFormat"
+					label="Profit(SAVE)"
 					width="120"
 				>
 				</el-table-column>
 				<el-table-column
-					prop="Address"
 					label="Address"
 					min-width="220"
 				>
+					<template slot-scope="scope">
+						<div
+							class="fontImportant"
+							:title="scope.row.Address"
+						>
+							<router-link
+								class="tb-link"
+								:to="`/address?address=${scope.row.Address}`"
+							>
+								{{scope.row.Address}}
+							</router-link>
+						</div>
+					</template>
 				</el-table-column>
 			</el-table>
 			<el-pagination
 				class="pagination"
+				@current-change="currentChange"
 				background
 				layout="prev, pager, next"
-				:total="100"
+				:total="total"
 			>
 			</el-pagination>
 		</section>
 	</div>
 </template>
 <script>
-// import MapComponent from "../components/MapComponent.vue";
+import util from "../assets/config/util";
+import mapComponent from "../components/MapComponent.vue";
 export default {
 	name: "Node",
-	// components: {
-	// 	MapComponent
-	// },
+	components: {
+		mapComponent
+	},
 	data() {
 		return {
-			dnsList: [
-				{
-					DNSNode: "Mixar",
-					Region: "Europ",
-					Channels: 145124,
-					Pledge: 123123
-				},
-				{
-					DNSNode: "Mixar",
-					Region: "Europ",
-					Channels: 145124,
-					Pledge: 123123
-				},
-				{
-					DNSNode: "Mixar",
-					Region: "Europ",
-					Channels: 145124,
-					Pledge: 123123
-				},
-				{
-					DNSNode: "Mixar",
-					Region: "Europ",
-					Channels: 145124,
-					Pledge: 123123
-				},
-				{
-					DNSNode: "Mixar",
-					Region: "Europ",
-					Channels: 145124,
-					Pledge: 123123
-				}
-			],
-			fsList: [
-				{
-					DNSNode: "Mixar",
-					Region: "Europ",
-					Storage: "100TB",
-					Profit: 1000,
-					Address: "gangdabubewjsbjkasdkjfajksdfa"
-				},
-				{
-					DNSNode: "Mixar",
-					Region: "Europ",
-					Storage: "100TB",
-					Profit: 1000,
-					Address: "gangdabubewjsbjkasdkjfajksdfa"
-				},
-				{
-					DNSNode: "Mixar",
-					Region: "Europ",
-					Storage: "100TB",
-					Profit: 1000,
-					Address: "gangdabubewjsbjkasdkjfajksdfa"
-				},
-				{
-					DNSNode: "Mixar",
-					Region: "Europ",
-					Storage: "100TB",
-					Profit: 1000,
-					Address: "gangdabubewjsbjkasdkjfajksdfa"
-				},
-				{
-					DNSNode: "Mixar",
-					Region: "Europ",
-					Storage: "100TB",
-					Profit: 1000,
-					Address: "gangdabubewjsbjkasdkjfajksdfa"
-				}
-			],
+			util,
+			nodeObj: null,
+			currentPage: 1,
+			mapNodes: []
 		};
 	},
+	computed: {
+		dnsList() {
+			if (!this.nodeObj) return [];
+			return this.nodeObj.DNS;
+		},
+		fsList() {
+			if (!this.nodeObj) return [];
+			return this.nodeObj.FS.slice(
+				(this.currentPage - 1) * 5,
+				this.currentPage * 5
+			);
+		},
+		total() {
+			if (!this.nodeObj) return 0;
+			return this.nodeObj.FS.length;
+		}
+	},
 	methods: {
+		currentChange(page) {
+			this.currentPage = page;
+		},
+		init() {
+			this.getNodes();
+		},
+		getNodes() {
+			this.$axios
+				.get(
+					`${this.$api.getnodes}`,
+					{},
+					{
+						loading: {
+							text: "Loading...",
+							target: ".loading-content.dns-wrapper"
+						}
+					}
+				)
+				.then(res => {
+					if (res.Error === 0) {
+						for (let i = 0; i < res.Result.FS.length; i++) {
+							let item = res.Result.FS[i];
+							item["Index"] = i + 1;
+						}
+						this.nodeObj = res.Result;
+						this.filterNodeObj(this.nodeObj);
+					}
+				});
+		},
+		filterNodeObj() {
+			let arr = [];
+			for(let value of this.nodeObj.DNS) {
+				arr.push(Object.assign(value, {type: 'dns'}))
+			}
+			for(let value of this.nodeObj.FS) {
+				arr.push(Object.assign(value, {type: 'fs'}));
+			}
+			this.mapNodes = arr;
+		}
+	},
+	mounted() {
+		this.init();
 	}
 };
 </script>
@@ -189,7 +211,7 @@ export default {
 	width: calc(100% - 30px);
 
 	.node-map {
-		height: 471px;
+		height: 520px;
 		margin-top: 73px;
 		margin-bottom: 14px;
 		background: #2a2a2b;

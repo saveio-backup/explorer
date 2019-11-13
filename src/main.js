@@ -5,6 +5,7 @@ import App from './App'
 import router from './router'
 import store from './store/store.js'
 import API from './assets/config/api'
+import dateFormat from './assets/tool/date'
 import elementUI from 'element-ui'
 import axios from './assets/config/http'
 import './assets/config/mock/index'
@@ -18,6 +19,7 @@ Vue.use(elementUI);
 
 Vue.prototype.$axios = axios;
 Vue.prototype.$api = API;
+Vue.prototype.$dateFormat = dateFormat;
 
 //   ak: '5Btum5dZ1Yg93cIGPoOZD41u0DZTrNoo'
 

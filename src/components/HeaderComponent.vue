@@ -4,7 +4,7 @@
 		:class="{scroll:scroll,pop:pop}"
 	>
 		<img
-			class="logo"
+			class="logo no-user-select"
 			@click.stop="goHome"
 			src="./../assets/images/logo.svg"
 			alt=""
@@ -41,19 +41,19 @@
 						v-model="searchContent"
 					></el-input>
 				</li>
-				<li @click.stop="goPage('/home')" :class="{'select': belong.home.indexOf(routerName) >= 0}">
+				<li class="no-user-select" @click.stop="goPage('/home')" :class="{'select': belong.home.indexOf(routerName) >= 0}">
           Explorer
 				</li>
-				<li @click.stop="goPage('/blocks/index')" :class="{'select': belong.blocks.indexOf(routerName) >= 0}">
-          Blokcs
+				<li class="no-user-select" @click.stop="goPage('/blocks/index')" :class="{'select': belong.blocks.indexOf(routerName) >= 0}">
+          Blocks
 				</li>
-				<li @click.stop="goPage('/transactions/index')" :class="{'select': belong.transactions.indexOf(routerName) >= 0}">
+				<li class="no-user-select" @click.stop="goPage('/transactions/index')" :class="{'select': belong.transactions.indexOf(routerName) >= 0}">
           Transactions
 				</li>
-				<li  @click.stop="goPage('/node')" :class="{'select': belong.node.indexOf(routerName) >= 0}">
+				<li class="no-user-select" @click.stop="goPage('/node')" :class="{'select': belong.node.indexOf(routerName) >= 0}">
           Node
 				</li>
-				<li>
+				<li class="no-user-select">
 					TestNet
 				</li>
 				<li class="search-input-li">
@@ -64,7 +64,7 @@
 						v-model="searchContent"
 					></el-input>
 				</li>
-				<li @click.stop="setLangOpen">
+				<li @click.stop="setLangOpen"  class="no-user-select">
 					<el-select
 						@change="setLanguage"
 						:class="{scroll:scroll}"
@@ -97,9 +97,10 @@ export default {
 			searchContent: "",
 			scroll: scrollTop > 0 ? true : false,
       pop: false,
-			routerName: this.$route.name,      
+			routerName: this.$route.name,
+			timeoutObj: null,
 			belong: {
-				home: ["Home",'ChartMore'],
+				home: ["Home",'ChartMore','Addresswarehouse','AllNetProfit','ChannelNumber','DayTransaction','FileTotal','StorageSpace','SumPledge'],
 				blocks: ["Blocks", "BlocksIndex", "BlocksDetail"],
 				transactions: ["Transactions", "TransactionIndex", "TransactionDetail"],
 				node: ["Node"]
@@ -123,6 +124,7 @@ export default {
 		}
 	},
 	mounted() {
+		const vm = this;
 		document.addEventListener("scroll", () => {
 			const scrollTop =
 				document.documentElement.scrollTop || window.pageYOffset;
@@ -132,8 +134,18 @@ export default {
 				this.scroll = false;
 			}
 		});
+		window.onresize = function(){
+			clearTimeout(vm.timeoutObj);
+			vm.timeoutObj = setTimeout(() => {
+				vm.changeScreenWidth();
+			}, 50);
+		}
 	},
 	methods: {
+		changeScreenWidth() {
+			let width = document.body.clientWidth;
+			this.$store.commit('SET_SCREEN_WIDTH', width);
+		},
 		stopPenetrate(e) {
 			console.log(e);
 			console.log("stop");

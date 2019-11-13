@@ -1,10 +1,10 @@
 const state = {
-    test: 0,
+    screenWidth: document.body.clientWidth,
 }
 
 const mutations = {
-    'SET_TEST' (state, result) {
-        state.test = result;
+    'SET_SCREEN_WIDTH' (state, result) {
+        state.screenWidth = result;
     }
 }
 

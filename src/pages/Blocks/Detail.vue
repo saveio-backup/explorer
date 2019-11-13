@@ -1,37 +1,43 @@
 <template>
   <div id="block-detail">
-    <h2>BLOCKS</h2>
-    <section class="block-content-wrapper">
+    <h2 class="no-user-select">BLOCKS</h2>
+    <section class="block-content-wrapper loading-content">
       <div>
-        <p class="content-title">Height:</p>
-        <p class="content-info">233432</p>
+        <p class="content-title no-user-select">Height:</p>
+        <p class="content-info">{{height || 0}}</p>
       </div>
       <div>
-        <p class="content-title">Hash:</p>
-        <p class="content-info">eafsafjkhsf</p>
+        <p class="content-title no-user-select">Hash:</p>
+        <p class="content-info link-fontImportant">
+          <template v-if="transactionObj">
+            <router-link :to="`/transactions/detail?hash=${transactionObj.Hash}`">
+              {{transactionObj.Hash}}
+            </router-link>
+          </template>
+        </p>
       </div>
       <div>
-        <p class="content-title">Timestamp:</p>
-        <p class="content-info">10 min ago [2019-02-28]</p>
+        <p class="content-title no-user-select">Timestamp:</p>
+        <p class="content-info">{{transactionObj && $dateFormat.formatTimeByTimestamp(transactionObj.CreatedAt*1000)}}</p>
       </div>
       <div>
-        <p class="content-title">Produced By:</p>
-        <p class="content-info fontImportantThree">TKhasbdghasdfasdf</p>
+        <p class="content-title no-user-select">Produced By:</p>
+        <p class="content-info fontImportantThree">{{transactionObj && transactionObj.Miner}}</p>
       </div>
       <div>
-        <p class="content-title">Status:</p>
-        <p class="content-info fontImportant">Confirmed</p>
+        <p class="content-title no-user-select">Status:</p>
+        <p class="content-info fontImportant">{{transactionObj && (transactionObj.Status === 1 ? 'Confirmed' : 'Unconfirmed')}}</p>
       </div>
       <div>
-        <p class="content-title">Transactions:</p>
-        <p class="content-info">28 transactions</p>
+        <p class="content-title no-user-select">Transactions:</p>
+        <p class="content-info">{{transactionObj && transactionObj.Txs.length}} transactions</p>
       </div>
       <div class="no-boder">
-        <p class="content-title">Size:</p>
-        <p class="content-info">2332 bytes</p>
+        <p class="content-title no-user-select">Size:</p>
+        <p class="content-info">{{transactionObj && util.bytesToSize(transactionObj.Size*1024)}}</p>
       </div>
     </section>
-    <h3>Transactions</h3>
+    <h3 class="no-user-select">Transactions</h3>
     <section class="transactions-wrapper">
       <el-table
         :data="transactionList"
@@ -39,37 +45,53 @@
       >
         <el-table-column
           fixed
-          prop="Hash"
           label="Hash"
           width="120"
         >
+          <template slot-scope="scope">
+            <div class="white tb-link" :title="scope.row.Hash">
+              <router-link :to="`/transactions/detail?hash=${scope.row.Hash}`">
+                {{scope.row.Hash}}
+              </router-link>
+            </div>
+          </template>
         </el-table-column>
         <el-table-column
-          prop="Token"
           label="Token"
           width="120"
         >
+        <template slot-scope="scope">
+          <div>
+            {{scope.row.Amount}} {{scope.row.Asset}}
+          </div>
+        </template>
         </el-table-column>
         <el-table-column
           label="Status"
           width="100"
         >
-          <template slot-scope="scope">
-            <span class="fontImportant">{{scope.row.Status}}</span>
+          <template>
+            <span class="fontImportant">{{transactionObj && (transactionObj.Status === 1 ? 'Confirmed' : 'Unconfirmed')}}</span>
           </template>
         </el-table-column>
         <el-table-column
           label="Height"
-          prop="Height"
           width="100"
         >
+          <template>
+            {{height || 0}}
+          </template>
         </el-table-column>
         <el-table-column
           label="From"
           min-width="200"
         >
           <template slot-scope="scope">
-            <span class="fontImportantThree">{{scope.row.From}}</span>
+            <div class="fontImportantThree tb-link" :title="scope.row.From">
+              <router-link :to="`/address?address=${scope.row.From}`">
+                {{scope.row.From}}
+              </router-link>
+            </div>
           </template>
         </el-table-column>
         <el-table-column
@@ -77,72 +99,64 @@
           min-width="200"
         >
           <template slot-scope="scope">
-            <span class="fontImportantThree">{{scope.row.To}}</span>
+            <div class="fontImportantThree tb-link" :title="scope.row.To">
+              <router-link :to="`/address?address=${scope.row.To}`">
+                {{scope.row.To}}
+              </router-link>
+            </div>
           </template>
         </el-table-column>
         <el-table-column
-          prop="Time"
           label="Time"
           width="200"
         >
+        <template>
+          <div>
+            {{transactionObj && $dateFormat.formatTimeByTimestamp(transactionObj.CreatedAt*1000)}}
+          </div>
+        </template>
         </el-table-column>
       </el-table>
     </section>
   </div>
 </template>
 <script>
+import util from '../../assets/config/util'
 export default {
   name: 'BlockDetail',
   data() {
     return {
-      transactionList: [
-        {
-          Hash: '123123',
-          Token: 1241241,
-          Status: 'Confirmed',
-          Height: 12312,
-          From: 'fabasfibvshakjfahskjdfalsdf',
-          To: 'sbjkgahsdfbajsbdfjabsdf',
-          Time: '2019-06-12 01:45:26'
-        },
-        {
-          Hash: '123123',
-          Token: 1241241,
-          Status: 'Confirmed',
-          Height: 12312,
-          From: 'fabasfibvshakjfahskjdfalsdf',
-          To: 'sbjkgahsdfbajsbdfjabsdf',
-          Time: '2019-06-12 01:45:26'
-        },
-        {
-          Hash: '123123',
-          Token: 1241241,
-          Status: 'Confirmed',
-          Height: 12312,
-          From: 'fabasfibvshakjfahskjdfalsdf',
-          To: 'sbjkgahsdfbajsbdfjabsdf',
-          Time: '2019-06-12 01:45:26'
-        },
-        {
-          Hash: '123123',
-          Token: 1241241,
-          Status: 'Confirmed',
-          Height: 12312,
-          From: 'fabasfibvshakjfahskjdfalsdf',
-          To: 'sbjkgahsdfbajsbdfjabsdf',
-          Time: '2019-06-12 01:45:26'
-        },
-        {
-          Hash: '123123',
-          Token: 1241241,
-          Status: 'Confirmed',
-          Height: 12312,
-          From: 'fabasfibvshakjfahskjdfalsdf',
-          To: 'sbjkgahsdfbajsbdfjabsdf',
-          Time: '2019-06-12 01:45:26'
-        }
-      ]
+      util,
+      transactionObj: null,
+      height: null
     }
+  },
+  computed: {
+    transactionList() {
+      if(!this.transactionObj) return [];
+      return this.transactionObj.Txs;
+    }
+  },
+  methods: {
+    init() {
+      this.height = this.$route.query.height;
+      this.getBlockbyHeight()
+    },
+    getBlockbyHeight() {
+      this.$axios.get(`${this.$api.getblockbyheight}/${this.height}`, {}, {
+        loading: {
+          text: "Loading...",
+          target: ".loading-content.block-content-wrapper"
+        }
+      }).then(res => {
+        if(res.Error === 0) {
+          this.transactionObj = res.Result;
+        }
+      })
+    }
+  },
+  mounted() {
+    this.init();
   }
 }
 </script>

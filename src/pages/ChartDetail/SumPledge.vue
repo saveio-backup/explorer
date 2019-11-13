@@ -2,7 +2,7 @@
 	<div id="sumPledge">
 		<div class="sum-pledge-wrapper">
 			<div
-				class="sum-pledge-chart"
+				class="sum-pledge-chart loading-content"
 				id="sumPledgeChart"
 			>
 			</div>
@@ -10,39 +10,49 @@
 		<div class="sum-pledge-tb">
 			<el-table
 				style="width: 100%;"
-				:data="sumPledgeList"
+				:data="tbList"
 			>
 				<el-table-column
 					fixed
-					prop="date"
-					label="月份"
+					label="Date"
 					min-width="100"
 				>
+					<template slot-scope="scope">
+						<div>
+							{{$dateFormat.formatTimeByTimestamp(scope.row.UpdatedAt*1000)}}
+						</div>
+					</template>
 				</el-table-column>
 				<el-table-column
-					prop="dnsPledge"
-					label="DNS质押(SAVE)"
+					prop="DNSFormat"
+					label="DNS Pledge(SAVE)"
 					width="180"
 				>
 				</el-table-column>
 				<el-table-column
-					prop="fsPledge"
-					label="FS质押(SAVE)"
+					prop="FSFormat"
+					label="FS Pledge(SAVE)"
 					width="180"
 				>
 				</el-table-column>
 				<el-table-column
 					prop="total"
-					label="质押总量(SAVE)"
+					label="Pledge Total(SAVE)"
 					width="180"
 				>
+					<template slot-scope="scope">
+						<div>
+							{{Number(scope.row.DNSFormat) + Number(scope.row.FSFormat)}}
+						</div>
+					</template>
 				</el-table-column>
 			</el-table>
 			<el-pagination
 				class="pagination"
+				@current-change="currentChange"
 				background
 				layout="prev, pager, next"
-				:total="100"
+				:total="total"
 			>
 			</el-pagination>
 		</div>
@@ -55,52 +65,81 @@ export default {
 	data() {
 		return {
 			sumPledgeChart: null,
-			sumPledgeList: [
-				{
-					date: "9/18",
-					dnsPledge: 1400,
-					fsPledge: 1412,
-					total: 124124
-				},
-				{
-					date: "9/18",
-					dnsPledge: 1400,
-					fsPledge: 1412,
-					total: 124124
-				},
-				{
-					date: "9/18",
-					dnsPledge: 1400,
-					fsPledge: 1412,
-					total: 124124
-				},
-				{
-					date: "9/18",
-					dnsPledge: 1400,
-					fsPledge: 1412,
-					total: 124124
-				}
-			]
+			sumPledgeList: null,
+			currentPage: 1
 		};
+	},
+	computed: {
+		tbList() {
+			if (!this.sumPledgeList) return [];
+			let _start = (this.currentPage - 1) * 10;
+			let _end = _start + 10 > this.sumPledgeList.length ? this.sumPledgeList.length : _start + 10;
+			let list = this.sumPledgeList.slice(_start, _end);
+			return list;
+		},
+		total() {
+			if(!this.sumPledgeList) return 0;
+			return this.sumPledgeList.length;
+		},
+		screenWidth() {
+			return this.$store.state.Home.screenWidth;
+		}
+	},
+	watch: {
+		screenWidth() {
+			this.sumPledgeChart.resize();
+		}
 	},
 	methods: {
 		init() {
-			this.setSumPledgeChart();
+			this.getstakestat();
+			// this.setSumPledgeChart();
+		},
+		currentChange(page) {
+			this.currentPage = page;
+		},
+		getstakestat() {
+			this.$axios.get(`${this.$api.getstakestat}/0`, {}, {
+				loading: {
+					text: "Loading...",
+					target: ".loading-content.sum-pledge-chart"
+				}
+			}).then(res => {
+				if(res.Error === 0) {
+					this.sumPledgeList = res.Result['Details'];
+					this.setSumPledgeChart();
+				}
+			})
 		},
 		setSumPledgeChart() {
+			let pledgeFsNumArr = [];
+			let pledgeDnsNumArr = [];
+			let timeArr = [];
+			for(let item of this.sumPledgeList) {
+				pledgeFsNumArr.unshift(item.FSFormat);
+				pledgeDnsNumArr.unshift(item.DNSFormat);
+				let timeFormat = this.$dateFormat.formatMonthDayByTimestamp(item.UpdatedAt * 1000);
+				timeArr.unshift(timeFormat);
+			}
+			let _scale = (1 - (29.5 / this.sumPledgeList.length > 1 ? 1 : 29.5 / this.sumPledgeList.length)) * 100;
 			let option = {
-				itemStyle: {
-					color: "#CDDC39"
-				},
 				grid: {
 					left: "13%",
 					right: "4%",
-					bottom: "12%"
+					bottom: "24%"
+				},
+				legend: {
+					data:['DNS Pledge','FS Pledge'],
+					left: 'center',
+					bottom: '4%',
+					textStyle: {
+						color: '#ffffff'
+					}
 				},
 				xAxis: {
 					type: "category",
 					boundaryGap: false,
-					data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+					data: timeArr,
 					axisLine: {
 						lineStyle: {
 							color: "rgba(255,255,255, 0.4)"
@@ -114,6 +153,9 @@ export default {
 							color: "rgba(255,255,255, 0.2)"
 						}
 					},
+					axisLabel: {
+            formatter: '{value} SAVE'
+					},
 					axisLine: {
 						lineStyle: {
 							color: "rgba(255,255,255, 0.4)"
@@ -122,6 +164,17 @@ export default {
 				},
 				tooltip: {
 					trigger: "axis",
+					// formatter: "{b}<br/>{c} SAVE",
+					formatter: function(params) {
+						console.log(params);
+						if(!params) return '';
+						let desc = params[0].name;
+						for(let i = 0;i < params.length;i ++) {
+							let value = params[i];
+							desc += `<br/>${value.marker}${value.seriesName}: ${value.value} SAVE`
+						}
+						return desc
+					},
 					axisPointer: {
 						type: "cross",
 						label: {
@@ -129,12 +182,54 @@ export default {
 						}
 					}
 				},
+				dataZoom: [
+					{
+						type: "inside",
+						start: _scale,
+						end: 100
+					},
+					{
+						start: 0,
+						end: 30,
+						bottom: "12%",
+						dataBackground: {
+							areaStyle: {
+								color: "rgba(255,255,255, 0.4)"
+							}
+						},
+						handleIcon:
+							"M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z",
+						handleSize: "80%",
+						handleStyle: {
+							color: "#fff",
+							shadowBlur: 3,
+							shadowColor: "rgba(0, 0, 0, 0.3)",
+							shadowOffsetX: 2,
+							shadowOffsetY: 2
+						}
+					}
+				],
 				series: [
 					{
-						data: [820, 932, 901, 934, 1290, 1330, 1320],
+						name: "DNS Pledge",
+						data: pledgeDnsNumArr,
 						type: "line",
 						areaStyle: {
 							color: "rgba(205, 220, 57, 0.2)"
+						},
+						itemStyle: {
+							color: "#CDDC39"
+						}
+					},
+					{
+						data: pledgeFsNumArr,
+						type: "line",
+						name: "FS Pledge",
+						areaStyle: {
+							color: "rgba(21, 164, 198, 0.24)"
+						},
+						itemStyle: {
+							color: "#15A4C6"
 						}
 					}
 				]

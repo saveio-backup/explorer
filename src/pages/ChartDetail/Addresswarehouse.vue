@@ -1,6 +1,6 @@
 <template>
 	<div id="addressWarehouse">
-		<div class="address-warehouse-wrapper">
+		<div class="address-warehouse-wrapper loading-content">
 			<div
 				class="address-warehouse-number-chart"
 				id="addressWarehouseNumberChart"
@@ -13,45 +13,50 @@
 		<div class="address-warehouse-tb">
 			<el-table
 				style="width: 100%;"
-				:data="addressWarehouseList"
+				:data="tbList"
 			>
 				<el-table-column
 					fixed
-					prop="number"
+					prop="Number"
 					label="#"
 					min-width="100"
 				>
 				</el-table-column>
 				<el-table-column
-					prop="address"
-					label="地址"
+					prop="Address"
+					label="Address"
 					width="180"
 				>
 				</el-table-column>
 				<el-table-column
-					prop="balance"
-					label="余额(SAVE)"
+					prop="BalanceFormat"
+					label="Balance(SAVE)"
 					width="180"
 				>
 				</el-table-column>
 				<el-table-column
-					prop="transactionNum"
-					label="近30天交易"
+					prop="TransferCountIn30D"
+					label="Transfer Count In 30 Day"
 					width="180"
 				>
 				</el-table-column>
 				<el-table-column
-					prop="firstTransaction"
-					label="首次交易时间"
+					label="First Transfer Date"
 					width="180"
 				>
+					<template slot-scope="scope">
+						<div>
+							{{$dateFormat.formatTimeByTimestamp(scope.row.FirstTransferDate*1000)}}
+						</div>
+					</template>
 				</el-table-column>
 			</el-table>
 			<el-pagination
 				class="pagination"
+				@current-change="currentChange"
 				background
 				layout="prev, pager, next"
-				:total="100"
+				:total="total"
 			>
 			</el-pagination>
 		</div>
@@ -65,40 +70,78 @@ export default {
 		return {
 			addressWarehouseNumberChart: null,
 			addressWarehouseBalanceChart: null,
-			addressWarehouseList: [
-				{
-					number: 0,
-					address: "sfasafasfeukgbkjskjd1213123",
-					balance: 12123,
-					transactionNum: 151,
-					firstTransaction: "2018-10-18 20:59:18"
-				},
-				{
-					number: 0,
-					address: "sfasafasfeukgbkjskjd1213123",
-					balance: 12123,
-					transactionNum: 151,
-					firstTransaction: "2018-10-18 20:59:18"
-				},
-				{
-					number: 0,
-					address: "sfasafasfeukgbkjskjd1213123",
-					balance: 12123,
-					transactionNum: 151,
-					firstTransaction: "2018-10-18 20:59:18"
-				}
-			]
+			addressWarehouseObj: null,
+			currentPage: 1
 		};
+	},
+	computed: {
+		tbList() {
+			if (!this.addressWarehouseObj) return [];
+			let _start = (this.currentPage - 1) * 10;
+			let _end =
+				_start + 10 > this.addressWarehouseObj.Details.length
+					? this.addressWarehouseObj.Details.length
+					: _start + 10;
+			let list = this.addressWarehouseObj.Details.slice(_start, _end);
+			return list;
+		},
+		total() {
+			if (!this.addressWarehouseObj) return 0;
+			return this.addressWarehouseObj.Details.length;
+		},
+		screenWidth() {
+			return this.$store.state.Home.screenWidth;
+		}
+	},
+	watch: {
+		screenWidth() {
+			this.addressWarehouseNumberChart.resize();
+			this.addressWarehouseBalanceChart.resize();
+		}
 	},
 	methods: {
 		init() {
-			this.setAddressWarehouseNumberChart();
-			this.setAddressWarehouseBalanceChart();
+			this.getAddressStat();
+		},
+		currentChange(page) {
+			this.currentPage = page;
+		},
+		getAddressStat() {
+			this.$axios
+				.get(
+					this.$api.getaddressstat,
+					{},
+					{
+						loading: {
+							text: "Loading...",
+							target: ".loading-content.day-transaction-chart"
+						}
+					}
+				)
+				.then(res => {
+					if (res.Error === 0) {
+						for (let i = 0; i < res.Result.Details.length; i++) {
+							let item = res.Result.Details[i];
+							item.Number = i + 1;
+						}
+						this.addressWarehouseObj = res.Result;
+						this.setAddressWarehouseNumberChart();
+						this.setAddressWarehouseBalanceChart();
+					}
+				});
 		},
 		setAddressWarehouseNumberChart() {
+			let addressWarehouseNumArr = [];
+			let addressWarehouseRatioArr = [];
+			let scopeArr = [];
+			for (let item of this.addressWarehouseObj.AddrCountList) {
+				addressWarehouseNumArr.push(item.Count);
+				addressWarehouseRatioArr.push(item.Ratio * 100);
+				scopeArr.push(item.Range);
+			}
 			let option = {
 				title: {
-					text: "地址数量分布",
+					text: "Address Count Distribution",
 					left: "center",
 					top: "20",
 					textStyle: {
@@ -109,6 +152,18 @@ export default {
 				},
 				tooltip: {
 					trigger: "axis",
+					formatter: function(params) {
+						if (!params) return "";
+						let desc = params[0].name + " SAVE";
+						for (let i = 0; i < params.length; i++) {
+							let value = params[i];
+							desc += `<br/>${value.marker}${value.seriesName}: ${value.value}`;
+							if (value.seriesName === "比例") {
+								desc += "%";
+							}
+						}
+						return desc;
+					},
 					axisPointer: {
 						type: "cross",
 						label: {
@@ -119,19 +174,10 @@ export default {
 				xAxis: [
 					{
 						type: "category",
-						data: [
-							"0-0.00001",
-							"0.00001-0.0001",
-							"0.0001-0.001",
-							"0.001-0.01",
-							"0.01-0.1",
-							"0.1-1",
-							"1-10",
-							"10-100",
-							"100-1000",
-							"1000-10000",
-							"10000-100000"
-						],
+						data: scopeArr,
+						axisLabel: {
+							formatter: "{value} SAVE"
+						},
 						axisPointer: {
 							type: "shadow"
 						},
@@ -145,10 +191,7 @@ export default {
 				yAxis: [
 					{
 						type: "value",
-						name: "数量",
-						axisLabel: {
-							formatter: "{value} ml"
-						},
+						name: "Count",
 						splitLine: {
 							lineStyle: {
 								color: "rgba(255,255,255, 0.2)"
@@ -162,7 +205,7 @@ export default {
 					},
 					{
 						type: "value",
-						name: "百分比",
+						name: "Ratio",
 						axisLabel: {
 							formatter: "{value} %"
 						},
@@ -181,34 +224,22 @@ export default {
 				],
 				series: [
 					{
-						name: "a数据",
+						name: "Count",
 						type: "bar",
-						data: [
-							2.0,
-							4.9,
-							7.0,
-							23.2,
-							25.6,
-							76.7,
-							135.6,
-							162.2,
-							32.6,
-							20.0,
-							6.4
-						],
+						data: addressWarehouseNumArr,
 						barMaxWidth: 30,
 						itemStyle: {
 							color: "#CDDC39"
 						}
 					},
 					{
-						name: "b数据",
+						name: "Ratio",
 						itemStyle: {
 							color: "#15A4C6"
 						},
 						type: "line",
 						yAxisIndex: 1,
-						data: [2.0, 2.2, 3.3, 4.5, 6.3, 10.2, 20.3, 23.4, 23.0, 16.5, 12.0]
+						data: addressWarehouseRatioArr
 					}
 				]
 			};
@@ -217,9 +248,17 @@ export default {
 			this.addressWarehouseNumberChart.setOption(option, true);
 		},
 		setAddressWarehouseBalanceChart() {
+			let addressWarehouseBalanceArr = [];
+			let addressWarehouseRatioArr = [];
+			let scopeArr = [];
+			for (let item of this.addressWarehouseObj.AmountCountList) {
+				addressWarehouseBalanceArr.push(item.Count);
+				addressWarehouseRatioArr.push(item.Ratio * 100);
+				scopeArr.push(item.Range);
+			}
 			let option = {
 				title: {
-					text: "地址余额分布",
+					text: "Address Balance Distribution",
 					left: "center",
 					top: "20",
 					textStyle: {
@@ -230,6 +269,20 @@ export default {
 				},
 				tooltip: {
 					trigger: "axis",
+					formatter: function(params) {
+						if (!params) return "";
+						let desc = params[0].name + " SAVE";
+						for (let i = 0; i < params.length; i++) {
+							let value = params[i];
+							desc += `<br/>${value.marker}${value.seriesName}: ${value.value}`;
+							if (value.seriesName === "Ratio") {
+								desc += "%";
+							} else {
+								desc += " SAVE";
+							}
+						}
+						return desc;
+					},
 					axisPointer: {
 						type: "cross",
 						label: {
@@ -240,19 +293,7 @@ export default {
 				xAxis: [
 					{
 						type: "category",
-						data: [
-							"0-0.00001",
-							"0.00001-0.0001",
-							"0.0001-0.001",
-							"0.001-0.01",
-							"0.01-0.1",
-							"0.1-1",
-							"1-10",
-							"10-100",
-							"100-1000",
-							"1000-10000",
-							"10000-100000"
-						],
+						data: scopeArr,
 						axisPointer: {
 							type: "shadow"
 						},
@@ -266,9 +307,9 @@ export default {
 				yAxis: [
 					{
 						type: "value",
-						name: "数量",
+						name: "Balance",
 						axisLabel: {
-							formatter: "{value} ml"
+							formatter: "{value} SAVE"
 						},
 						splitLine: {
 							lineStyle: {
@@ -283,7 +324,7 @@ export default {
 					},
 					{
 						type: "value",
-						name: "百分比",
+						name: "Ratio",
 						axisLabel: {
 							formatter: "{value} %"
 						},
@@ -302,34 +343,22 @@ export default {
 				],
 				series: [
 					{
-						name: "a数据",
+						name: "Balance",
 						type: "bar",
-						data: [
-							2.0,
-							4.9,
-							7.0,
-							23.2,
-							25.6,
-							76.7,
-							135.6,
-							162.2,
-							32.6,
-							20.0,
-							6.4
-						],
+						data: addressWarehouseBalanceArr,
 						barMaxWidth: 30,
 						itemStyle: {
 							color: "#CDDC39"
 						}
 					},
 					{
-						name: "b数据",
+						name: "Ratio",
 						itemStyle: {
 							color: "#15A4C6"
 						},
 						type: "line",
 						yAxisIndex: 1,
-						data: [2.0, 2.2, 3.3, 4.5, 6.3, 10.2, 20.3, 23.4, 23.0, 16.5, 12.0]
+						data: addressWarehouseRatioArr
 					}
 				]
 			};

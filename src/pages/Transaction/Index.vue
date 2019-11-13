@@ -1,7 +1,7 @@
 <template>
 	<div id="transaction-index">
-		<h2>TRANSACTIONS</h2>
-		<p>A total of <span class="fontImportant">23921</span> blocks</p>
+		<h2 class="no-user-select">TRANSACTIONS</h2>
+		<p class="no-user-select">A total of <span class="fontImportant">{{total}}</span> blocks</p>
 		<section class="transaction-wrapper">
 			<el-table
 				:data="transactionList"
@@ -9,16 +9,27 @@
 			>
 				<el-table-column
 					fixed
-					prop="Hash"
 					label="Hash"
 					min-width="100"
 				>
+					<template slot-scope="scope">
+            <div class="white tb-link" :title="scope.row.Hash">
+              <router-link :to="`/transactions/detail?hash=${scope.row.Hash}`">
+                {{scope.row.Hash}}
+              </router-link>
+            </div>
+          </template>
 				</el-table-column>
 				<el-table-column
 					prop="Token"
 					label="Token"
 					width="180"
 				>
+					<template slot-scope="scope">
+						<div>
+							{{scope.row.Amount}} {{scope.row.Asset}}
+						</div>
+					</template>
 				</el-table-column>
 				<el-table-column
 					prop="Status"
@@ -26,7 +37,9 @@
 					width="100"
 				>
 					<template slot-scope="scope">
-						<span class="fontImportant">{{scope.row.Status}}</span>
+						<span class="fontImportant">
+              {{scope.row.Status === 1 ? 'Confirmed' : 'UnConfirmed'}}
+						</span>
 					</template>
 				</el-table-column>
 				<el-table-column
@@ -40,7 +53,11 @@
 					min-width="200"
 				>
 					<template slot-scope="scope">
-						<span class="fontImportantThree">{{scope.row.From}}</span>
+						<div class="fontImportantThree tb-link" :title="scope.row.From">
+							<router-link :to="`/address?address=${scope.row.From}`">
+								{{scope.row.From}}
+							</router-link>
+						</div>
 					</template>
 				</el-table-column>
 				<el-table-column
@@ -48,21 +65,30 @@
 					min-width="200"
 				>
 					<template slot-scope="scope">
-						<span class="fontImportantThree">{{scope.row.To}}</span>
+						<div class="fontImportantThree tb-link" :title="scope.row.To">
+							<router-link :to="`/address?address=${scope.row.To}`">
+								{{scope.row.To}}
+							</router-link>
+						</div>
 					</template>
 				</el-table-column>
 				<el-table-column
-					prop="Time"
 					label="Time"
 					min-width="180"
 				>
+					<template slot-scope="scope">
+            <div>
+              {{$dateFormat.formatTimeByTimestamp(scope.row.CreatedAt*1000)}}
+            </div>
+          </template>
 				</el-table-column>
 			</el-table>
 			<el-pagination
 				class="pagination"
+				@current-change="currentChange"
 				background
 				layout="prev, pager, next"
-				:total="100"
+				:total="total"
 			>
 			</el-pagination>
 		</section>
@@ -73,99 +99,41 @@ export default {
 	name: "TransactionIndex",
 	data() {
 		return {
-			transactionList: [
-				{
-					Hash: "123123",
-					Token: 1241241,
-					Status: "Confirmed",
-					Height: 12312,
-					From: "fabasfibvshakjfahskjdfalsdf",
-					To: "sbjkgahsdfbajsbdfjabsdf",
-					Time: "2019-06-12 01:45:26"
-				},
-				{
-					Hash: "123123",
-					Token: 1241241,
-					Status: "Confirmed",
-					Height: 12312,
-					From: "fabasfibvshakjfahskjdfalsdf",
-					To: "sbjkgahsdfbajsbdfjabsdf",
-					Time: "2019-06-12 01:45:26"
-				},
-				{
-					Hash: "123123",
-					Token: 1241241,
-					Status: "Confirmed",
-					Height: 12312,
-					From: "fabasfibvshakjfahskjdfalsdf",
-					To: "sbjkgahsdfbajsbdfjabsdf",
-					Time: "2019-06-12 01:45:26"
-				},
-				{
-					Hash: "123123",
-					Token: 1241241,
-					Status: "Confirmed",
-					Height: 12312,
-					From: "fabasfibvshakjfahskjdfalsdf",
-					To: "sbjkgahsdfbajsbdfjabsdf",
-					Time: "2019-06-12 01:45:26"
-				},
-				{
-					Hash: "123123",
-					Token: 1241241,
-					Status: "Confirmed",
-					Height: 12312,
-					From: "fabasfibvshakjfahskjdfalsdf",
-					To: "sbjkgahsdfbajsbdfjabsdf",
-					Time: "2019-06-12 01:45:26"
-				},
-				{
-					Hash: "123123",
-					Token: 1241241,
-					Status: "Confirmed",
-					Height: 12312,
-					From: "fabasfibvshakjfahskjdfalsdf",
-					To: "sbjkgahsdfbajsbdfjabsdf",
-					Time: "2019-06-12 01:45:26"
-				},
-				{
-					Hash: "123123",
-					Token: 1241241,
-					Status: "Confirmed",
-					Height: 12312,
-					From: "fabasfibvshakjfahskjdfalsdf",
-					To: "sbjkgahsdfbajsbdfjabsdf",
-					Time: "2019-06-12 01:45:26"
-				},
-				{
-					Hash: "123123",
-					Token: 1241241,
-					Status: "Confirmed",
-					Height: 12312,
-					From: "fabasfibvshakjfahskjdfalsdf",
-					To: "sbjkgahsdfbajsbdfjabsdf",
-					Time: "2019-06-12 01:45:26"
-				},
-				{
-					Hash: "123123",
-					Token: 1241241,
-					Status: "Confirmed",
-					Height: 12312,
-					From: "fabasfibvshakjfahskjdfalsdf",
-					To: "sbjkgahsdfbajsbdfjabsdf",
-					Time: "2019-06-12 01:45:26"
-				},
-				{
-					Hash: "123123",
-					Token: 1241241,
-					Status: "Confirmed",
-					Height: 12312,
-					From: "fabasfibvshakjfahskjdfalsdf",
-					To: "sbjkgahsdfbajsbdfjabsdf",
-					Time: "2019-06-12 01:45:26"
-				}
-			]
+			transactionObj: [],
+			total: 0,
+			currentPage: 1
 		};
+	},
+	computed: {
+		transactionList() {
+			if(!this.transactionObj) return [];
+			return this.transactionObj.Txs;
+		}
+	},
+	methods: {
+		init() {
+			this.getTransactions()
+		},
+		currentChange(page) {
+      this.currentPage = page;
+      this.getTransactions();
+    },
+		getTransactions() {
+			 this.$axios.get(`${this.$api.gettransactions}/${(this.currentPage - 1) * 10}/10`, {}, {
+        loading: {
+          text: "Loading...",
+          target: ".loading-content.block-list-wrapper"
+        }
+      }).then(res => {
+        if(res.Error === 0) {
+          this.transactionObj = res.Result;
+          this.total = res.Result['Total'];
+        }
+      })
+		}
+	},
+	mounted() {
+		this.init();
 	}
 };
 </script>

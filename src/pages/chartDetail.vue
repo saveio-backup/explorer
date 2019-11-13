@@ -4,31 +4,31 @@
 			<p
 				@click.stop="goPage('/chartDetail/allNetProfit')"
 				:class="{'chart-detail-select': routerName === 'AllNetProfit'}"
-			>收益</p>
+			>Profit</p>
 			<p
-				@click.stop="goPage('/chartDetail/strongeSpace')"
-				:class="{'chart-detail-select': routerName === 'StrongeSpace'}"
-			>存储空间</p>
+				@click.stop="goPage('/chartDetail/storageSpace')"
+				:class="{'chart-detail-select': routerName === 'StorageSpace'}"
+			>Storage Space</p>
 			<p
 				@click.stop="goPage('/chartDetail/fileTotal')"
 				:class="{'chart-detail-select': routerName === 'FileTotal'}"
-			>文件总量</p>
+			>File Total</p>
 			<p
 				@click.stop="goPage('/chartDetail/channelNumber')"
 				:class="{'chart-detail-select': routerName === 'ChannelNumber'}"
-			>Channel数量</p>
+			>Channel Count</p>
 			<p
 				@click.stop="goPage('/chartDetail/sumPledge')"
 				:class="{'chart-detail-select': routerName === 'SumPledge'}"
-			>总质押量</p>
+			>Pledge Total</p>
 			<p
 				@click.stop="goPage('/chartDetail/dayTransaction')"
 				:class="{'chart-detail-select': routerName === 'DayTransaction'}"
-			>日交易</p>
+			>Day Transaction</p>
 			<p
 				@click.stop="goPage('/chartDetail/Addresswarehouse')"
 				:class="{'chart-detail-select': routerName === 'Addresswarehouse'}"
-			>地址持仓</p>
+			>Address Warehouse</p>
 		</section>
 		<!-- <keep-alive> -->
 		<router-view></router-view>

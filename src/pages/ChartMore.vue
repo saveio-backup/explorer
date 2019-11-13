@@ -1,15 +1,18 @@
 <template>
 	<div class="chart-detail">
 		<charts-component :type="0"></charts-component>
-		<h3>地址持仓</h3>
-		<section class="address-warehouse">
+		<h3>Address Warehouse</h3>
+		<section
+			class="address-warehouse loading-content"
+			@click.stop="goPage('/chartDetail/Addresswarehouse')"
+		>
 			<section
 				class="address-number-distribution"
-				id="addressNumberDistribution"
+				id="addressNumberDistributionChart"
 			></section>
 			<section
 				class="address-balance-distribution"
-				id="addressBalanceDistribution"
+				id="addressBalanceDistributionChart"
 			></section>
 		</section>
 	</div>
@@ -24,18 +27,66 @@ export default {
 	},
 	data() {
 		return {
-			addressNumberDistribution: null
+			addressNumberDistributionChart: null,
+			addressBalanceDistributionChart: null,
+			addressStat: null,
+			addrCountList: null,
+			amountCountList: null
 		};
 	},
+	computed: {
+		screenWidth() {
+			return this.$store.state.Home.screenWidth;
+		}
+	},
+	watch: {
+		screenWidth() {
+			this.addressNumberDistributionChart.resize();
+			this.addressBalanceDistributionChart.resize();
+		}
+	},
 	methods: {
+		goPage(path) {
+			this.$router.push({
+				path: path
+			});
+		},
 		init() {
-			this.setAddressNumberDistribution();
-			this.setAddressBalanceDistribution();
+			this.getAddressStat();
+		},
+		getAddressStat() {
+			this.$axios
+				.get(
+					this.$api.getaddressstat,
+					{},
+					{
+						loading: {
+							text: "Loading...",
+							target: ".loading-content.address-warehouse"
+						}
+					}
+				)
+				.then(res => {
+					if (res.Error === 0) {
+						this.addrCountList = res.Result["AddrCountList"];
+						this.amountCountList = res.Result["AmountCountList"];
+						this.setAddressNumberDistribution();
+						this.setAddressBalanceDistribution();
+					}
+				});
 		},
 		setAddressNumberDistribution() {
+			let addrCountArr = [];
+			let addrCountRatioArr = [];
+			let scopeArr = [];
+			for (let item of this.addrCountList) {
+				addrCountArr.push(item.Count);
+				addrCountRatioArr.push(item.Ratio * 100);
+				scopeArr.push(item.Range);
+			}
 			let option = {
 				title: {
-					text: "地址数量分布",
+					text: "Address Count Distribution",
 					left: "center",
 					top: "20",
 					textStyle: {
@@ -46,6 +97,18 @@ export default {
 				},
 				tooltip: {
 					trigger: "axis",
+					formatter: function(params) {
+						if(!params) return '';
+						let desc = params[0].name + ' SAVE';
+						for(let i = 0;i < params.length;i ++) {
+							let value = params[i];
+							desc += `<br/>${value.marker}${value.seriesName}: ${value.value}`
+							if(value.seriesName === 'Ratio') {
+								desc += '%';
+							}
+						}
+						return desc
+					},
 					axisPointer: {
 						type: "cross",
 						label: {
@@ -56,19 +119,10 @@ export default {
 				xAxis: [
 					{
 						type: "category",
-						data: [
-							"0-0.00001",
-							"0.00001-0.0001",
-							"0.0001-0.001",
-							"0.001-0.01",
-							"0.01-0.1",
-							"0.1-1",
-							"1-10",
-							"10-100",
-							"100-1000",
-							"1000-10000",
-							"10000-100000"
-						],
+						data: scopeArr,
+						axisLabel: {
+							formatter: "{value} SAVE"
+						},
 						axisPointer: {
 							type: "shadow"
 						},
@@ -82,10 +136,7 @@ export default {
 				yAxis: [
 					{
 						type: "value",
-						name: "数量",
-						axisLabel: {
-							formatter: "{value} ml"
-						},
+						name: "Count",
 						splitLine: {
 							lineStyle: {
 								color: "rgba(255,255,255, 0.2)"
@@ -99,7 +150,7 @@ export default {
 					},
 					{
 						type: "value",
-						name: "百分比",
+						name: "Ratio",
 						axisLabel: {
 							formatter: "{value} %"
 						},
@@ -118,45 +169,41 @@ export default {
 				],
 				series: [
 					{
-						name: "a数据",
+						name: "Count",
 						type: "bar",
-						data: [
-							2.0,
-							4.9,
-							7.0,
-							23.2,
-							25.6,
-							76.7,
-							135.6,
-							162.2,
-							32.6,
-							20.0,
-							6.4
-            ],
-            barMaxWidth: 30,
+						data: addrCountArr,
+						barMaxWidth: 30,
 						itemStyle: {
 							color: "#CDDC39"
 						}
 					},
 					{
-						name: "b数据",
+						name: "Ratio",
 						itemStyle: {
 							color: "#15A4C6"
 						},
 						type: "line",
 						yAxisIndex: 1,
-						data: [2.0, 2.2, 3.3, 4.5, 6.3, 10.2, 20.3, 23.4, 23.0, 16.5, 12.0]
+						data: addrCountRatioArr
 					}
 				]
 			};
-			let dom = document.getElementById("addressNumberDistribution");
-			this.addressNumberDistribution = echarts.init(dom);
-			this.addressNumberDistribution.setOption(option, true);
+			let dom = document.getElementById("addressNumberDistributionChart");
+			this.addressNumberDistributionChart = echarts.init(dom);
+			this.addressNumberDistributionChart.setOption(option, true);
 		},
 		setAddressBalanceDistribution() {
+			let amountCountArr = [];
+			let amountCountRatioArr = [];
+			let scopeArr = [];
+			for (let item of this.amountCountList) {
+				amountCountArr.push(item.Count);
+				amountCountRatioArr.push(item.Ratio * 100);
+				scopeArr.push(item.Range);
+			}
 			let option = {
 				title: {
-					text: "地址余额分布",
+					text: "Address Balance Distribution",
 					left: "center",
 					top: "20",
 					textStyle: {
@@ -167,6 +214,20 @@ export default {
 				},
 				tooltip: {
 					trigger: "axis",
+					formatter: function(params) {
+						if(!params) return '';
+						let desc = params[0].name + ' SAVE';
+						for(let i = 0;i < params.length;i ++) {
+							let value = params[i];
+							desc += `<br/>${value.marker}${value.seriesName}: ${value.value}`
+							if(value.seriesName === 'Ratio') {
+								desc += '%';
+							} else {
+								desc += ' SAVE';
+							}
+						}
+						return desc
+					},
 					axisPointer: {
 						type: "cross",
 						label: {
@@ -177,19 +238,7 @@ export default {
 				xAxis: [
 					{
 						type: "category",
-						data: [
-							"0-0.00001",
-							"0.00001-0.0001",
-							"0.0001-0.001",
-							"0.001-0.01",
-							"0.01-0.1",
-							"0.1-1",
-							"1-10",
-							"10-100",
-							"100-1000",
-							"1000-10000",
-							"10000-100000"
-						],
+						data: scopeArr,
 						axisPointer: {
 							type: "shadow"
 						},
@@ -203,10 +252,10 @@ export default {
 				yAxis: [
 					{
 						type: "value",
-						name: "数量",
+						name: "Balance",
 						axisLabel: {
-							formatter: "{value} ml"
-            },
+							formatter: "{value}"
+						},
 						splitLine: {
 							lineStyle: {
 								color: "rgba(255,255,255, 0.2)"
@@ -220,7 +269,7 @@ export default {
 					},
 					{
 						type: "value",
-						name: "百分比",
+						name: "Ratio",
 						axisLabel: {
 							formatter: "{value} %"
 						},
@@ -239,40 +288,28 @@ export default {
 				],
 				series: [
 					{
-						name: "a数据",
+						name: "Balance",
 						type: "bar",
-						data: [
-							2.0,
-							4.9,
-							7.0,
-							23.2,
-							25.6,
-							76.7,
-							135.6,
-							162.2,
-							32.6,
-							20.0,
-							6.4
-            ],
-            barMaxWidth: 30,
+						data: amountCountArr,
+						barMaxWidth: 30,
 						itemStyle: {
 							color: "#CDDC39"
 						}
 					},
 					{
-						name: "b数据",
+						name: "Ratio",
 						itemStyle: {
 							color: "#15A4C6"
 						},
 						type: "line",
 						yAxisIndex: 1,
-						data: [2.0, 2.2, 3.3, 4.5, 6.3, 10.2, 20.3, 23.4, 23.0, 16.5, 12.0]
+						data: amountCountRatioArr
 					}
 				]
 			};
-			let dom = document.getElementById("addressBalanceDistribution");
-			this.addressBalanceDistribution = echarts.init(dom);
-			this.addressBalanceDistribution.setOption(option, true);
+			let dom = document.getElementById("addressBalanceDistributionChart");
+			this.addressBalanceDistributionChart = echarts.init(dom);
+			this.addressBalanceDistributionChart.setOption(option, true);
 		}
 	},
 	mounted() {

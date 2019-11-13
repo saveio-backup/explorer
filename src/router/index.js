@@ -98,9 +98,9 @@ export default new Router({
                 name: 'FileTotal',
                 component: resolve => require(['@/pages/ChartDetail/FileTotal.vue'], resolve)
             },{
-                path: 'strongeSpace',
-                name: 'StrongeSpace',
-                component: resolve => require(['@/pages/ChartDetail/StrongeSpace.vue'], resolve)
+                path: 'storageSpace',
+                name: 'StorageSpace',
+                component: resolve => require(['@/pages/ChartDetail/StorageSpace.vue'], resolve)
             },{
                 path: 'sumPledge',
                 name: 'SumPledge',

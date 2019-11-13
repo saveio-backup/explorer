@@ -2,7 +2,7 @@
 	<div class="charts-component">
 		<section class="charts-list-top">
 			<section
-				@click.stop="goPage('/chartDetail/strongeSpace')"
+				@click.stop="goPage('/chartDetail/storageSpace')"
 				class="charts-item chart-first-div loading-content"
 				id="chartFirstDiv"
 			></section>
@@ -15,24 +15,24 @@
 		<section class="chars-list-center">
 			<section
 				@click.stop="goPage('/chartDetail/fileTotal')"
-				class="charts-item"
+				class="charts-item chart-third-div loading-content"
 				id="chartThirdDiv"
 			></section>
 			<section
 				@click.stop="goPage('/chartDetail/ChannelNumber')"
-				class="charts-item"
+				class="charts-item chart-fourth-div loading-content"
 				id="chartFourthDiv"
 			></section>
 		</section>
 		<section class="chars-list-bottom" v-if="type === 0">
 			<section
-				@click.stop="goPage('/chartDetail/SumPledge')"
-				class="charts-item"
+				@click.stop="goPage('/chartDetail/dayTransaction')"
+				class="charts-item chart-fifth-div loading-content"
 				id="chartFifthDiv"
 			></section>
 			<section
-				@click.stop="goPage('/chartDetail/Addresswarehouse')"
-				class="charts-item"
+				@click.stop="goPage('/chartDetail/SumPledge')"
+				class="charts-item chart-sixth-div loading-content"
 				id="chartSixthDiv"
 			></section>
 		</section>
@@ -40,6 +40,7 @@
 </template>
 <script>
 import echarts from "echarts";
+import util from "../assets/config/util";
 export default {
 	props: {
 		type: {
@@ -49,8 +50,13 @@ export default {
 	},
 	data() {
 		return {
+			util,
 			storageStat: null,
 			profitStat: null,
+			fileState: null,
+			channelStat: null,
+			transactionStat: null,
+			stakeStat: null,
 			chartFirst: null,
 			chartSecond: null,
 			chartThird: null,
@@ -59,24 +65,39 @@ export default {
 			chartSixth: null,
 		};
 	},
+	computed: {
+		screenWidth() {
+			return this.$store.state.Home.screenWidth;
+		}
+	},
+	watch: {
+		screenWidth() {
+			this.chartFirst.resize();
+			this.chartSecond.resize();
+			this.chartThird.resize();
+			this.chartFourth.resize();
+			if (this.type === 0) {
+				this.chartFifth.resize();
+				this.chartSixth.resize();
+			}
+		}
+	},
 	methods: {
 		init() {
 			this.getAllNetSpace();
 			this.getProfitStat();
-			// this.loadChartFirst();
-			// this.loadChartSecond();
-			// this.loadChartThird();
-			// this.loadChartFourth();
-			// if (this.type === 0) {
-			// 	this.loadChartFifth();
-			// 	this.loadChartSixth();
-			// }
+			this.getFileState();
+			this.getChannelStat();
+			if (this.type === 0) {
+				this.getTransactionStat();
+				this.getStakeStat()
+			}
 		},
 		getAllNetSpace() {
 			this.$axios.get(this.$api.getstoragestat, {}, 
 			{
 				loading: {
-					text: '加载中...',
+					text: 'Loading...',
 					target: ".loading-content.chart-first-div"
 				}
 			}).then(res => {
@@ -94,7 +115,7 @@ export default {
 			let option = {
 				//饼图名的名称、位置及样式
 				title: {
-					text: "全网空间",
+					text: "All Network Space",
 					left: "center",
 					top: "20",
 					textStyle: {
@@ -129,7 +150,10 @@ export default {
 						label: {
 							normal: {
 								show: true,
-								formatter: "{b}(PB): {c} ({d}%)",
+								formatter: function(params) {
+									if(!params) return '';
+									return `${params.name}:${vm.util.bytesToSize(params.value * 1024)}`
+								},
 								textStyle: {
 									fontSize: "14"
 								}
@@ -138,7 +162,7 @@ export default {
 						data: [
 							{
 								value: vm.storageStat.Used,
-								name: "已占用",
+								name: "Used",
 								itemStyle: {
 									normal: {
 										show: true,
@@ -150,7 +174,7 @@ export default {
 							},
 							{
 								value: vm.storageStat.Remain,
-								name: "剩余空间",
+								name: "Remain",
 								itemStyle: {
 									normal: {
 										show: true,
@@ -170,15 +194,10 @@ export default {
 		},
 		getProfitStat() {
 			let _endTimestamp = Date.parse(new Date())/1000;
-			let sevenDayTimestamp = 3600 * 24 * 7;
-			let params = {
-				type: 0,
-				start: (_endTimestamp - sevenDayTimestamp),
-				end: _endTimestamp
-			}
-			this.$axios.get(this.$api.getprofitstat, params, {
+			// let sevenDayTimestamp = 3600 * 24 * 7;
+			this.$axios.get(`${this.$api.getprofitstat}/0/0/0/0/5`, {}, {
 				loading: {
-					text: '加载中...',
+					text: 'Loading...',
 					target: ".loading-content.chart-second-div"
 				}
 			}).then(res => {
@@ -187,18 +206,22 @@ export default {
 			})
 		},
 		loadChartSecond() {
+			// get data
 			let indexArr = [];
 			let channelArr = [];
 			let storageArr = [];
+			let timeArr = [];
 			for (let i = 0; i < 7; i++) {
 				let item = this.profitStat[i];
 				indexArr.unshift(item.IndexProfitFormat);
 				channelArr.unshift(item.ChannelProfitFormat);
 				storageArr.unshift(item.StorageProfitFormat);
+				let timeFormat = this.$dateFormat.formatMonthDayByTimestamp(item.UpdatedAt * 1000);
+				timeArr.unshift(timeFormat);
 			}
 			let option = {
 				title: {
-					text: "全网日收益",
+					text: "All Net Day Profit",
 					left: "center",
 					top: "20",
 					textStyle: {
@@ -208,7 +231,7 @@ export default {
 					}
 				},
 				legend: {
-					data: ['索引', '流量','存储'],
+					data: ['Index', 'Flow','Storage'],
 					left: 'center',
 					bottom: '4%',
 					textStyle: {
@@ -217,19 +240,28 @@ export default {
 				},
 				tooltip: {
 					trigger: "axis",
+					formatter: function(params) {
+						if(!params) return '';
+						let desc = params[0].name;
+						for(let i = 0;i < params.length;i ++) {
+							let value = params[i];
+							desc += `<br/>${value.marker}${value.seriesName}: ${value.value*1024} SAVE`
+						}
+						return desc
+					},
 					axisPointer: {
 						// 坐标轴指示器，坐标轴触发有效
 						type: "shadow" // 默认为直线，可选为：'line' | 'shadow'
 					}
 				},
 				grid: {
-					left: "13%",
+					left: "110px",
 					right: "4%",
 					bottom: "18%",
 				},
 				xAxis: {
 					type: "category",
-					data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+					data: timeArr,
 					axisLine: {
 						lineStyle: {
 							color: "rgba(255,255,255, 0.4)"
@@ -243,6 +275,9 @@ export default {
 							color: "rgba(255,255,255, 0.2)"
 						}
 					},
+					axisLabel: {
+            formatter: '{value} SAVE'
+					},
 					axisLine: {
 						lineStyle: {
 							color: "rgba(255,255,255, 0.4)"
@@ -251,27 +286,27 @@ export default {
 				},
 				series: [
 					{
-						name: "索引",
+						name: "Index",
 						type: "bar",
-						stack: "总量",
+						stack: "Total",
 						data: indexArr,
 						itemStyle: {
 							color: "#0387E3"
 						}
 					},
 					{
-						name: "流量",
+						name: "Flow",
 						type: "bar",
-						stack: "总量",
+						stack: "Total",
 						data: channelArr,
 						itemStyle: {
 							color: "#3ABAA4"
 						}
 					},
 					{
-						name: "存储",
+						name: "Storage",
 						type: "bar",
-						stack: "总量",
+						stack: "Total",
 						data: storageArr,
 						itemStyle: {
 							color: "#ABCC59"
@@ -279,15 +314,35 @@ export default {
 					}
 				]
 			};
-			console.dir(option);
 			let dom = document.getElementById("chartSecondDiv");
 			this.chartSecond = echarts.init(dom);
 			this.chartSecond.setOption(option, true);
 		},
+		getFileState() {
+			this.$axios.get(`${this.$api.getfilestat}/0/0/0/0/7`, {}, {
+				loading: {
+					text: 'Loading...',
+					target: ".loading-content.chart-third-div"
+				}
+			}).then(res => {
+				if(res.Error === 0) {
+					this.fileState = res.Result['Details'];
+					this.loadChartThird();
+				}
+			})
+		},
 		loadChartThird() {
+			let fileNumArr = [];
+			let timeArr = [];
+			for (let i = 0; i < 7; i++) {
+				let item = this.fileState[i];
+				fileNumArr.unshift(item.Total);
+				let timeFormat = this.$dateFormat.formatMonthDayByTimestamp(item.UpdatedAt * 1000);
+				timeArr.unshift(timeFormat);
+			}
 			let option = {
 				title: {
-					text: "全网文件数量",
+					text: "All Net File Count",
 					left: "center",
 					top: "20",
 					textStyle: {
@@ -316,7 +371,7 @@ export default {
 				xAxis: {
 					type: "category",
 					boundaryGap: false,
-					data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+					data: timeArr,
 					axisLine: {
 						lineStyle: {
 							color: "rgba(255,255,255, 0.4)"
@@ -338,7 +393,7 @@ export default {
 				},
 				series: [
 					{
-						data: [820, 932, 901, 934, 1290, 1330, 1320],
+						data: fileNumArr,
 						type: "line",
 						areaStyle: {
 							color: 'rgba(205, 220, 57, 0.2)'
@@ -350,10 +405,33 @@ export default {
 			this.chartThird = echarts.init(dom);
 			this.chartThird.setOption(option, true);
 		},
+		getChannelStat() {
+			// let _endTimestamp = Date.parse(new Date())/1000;
+			// let sevenDayTimestamp = 3600 * 24 * 7;
+			this.$axios.get(`${this.$api.getchannelstat}/0/0/0/0/7`, {}, {
+				loading: {
+					text: 'Loading...',
+					target: ".loading-content.chart-fourth-div"
+				}
+			}).then(res => {
+				if(res.Error === 0) {
+					this.channelStat = res.Result['Details'];
+					this.loadChartFourth();
+				}
+			})
+		},
 		loadChartFourth() {
+			let channelNumArr = [];
+			let timeArr = [];
+			for (let i = 0; i < 7; i++) {
+				let item = this.channelStat[i];
+				channelNumArr.unshift(item.Total);
+				let timeFormat = this.$dateFormat.formatMonthDayByTimestamp(item.UpdatedAt * 1000);
+				timeArr.unshift(timeFormat);
+			}
 			let option = {
 				title: {
-					text: "全网Channel总资产",
+					text: "全网Channel数量",
 					left: "center",
 					top: "20",
 					textStyle: {
@@ -373,7 +451,7 @@ export default {
 				xAxis: {
 					type: "category",
 					boundaryGap: false,
-					data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+					data: timeArr,
 					axisLine: {
 						lineStyle: {
 							color: "rgba(255,255,255, 0.4)"
@@ -404,7 +482,7 @@ export default {
 				},
 				series: [
 					{
-						data: [820, 932, 901, 934, 1290, 1330, 1320],
+						data: channelNumArr,
 						type: "line",
 						areaStyle: {
 							color: 'rgba(205, 220, 57, 0.2)'
@@ -416,10 +494,34 @@ export default {
 			this.chartFourth = echarts.init(dom);
 			this.chartFourth.setOption(option, true);
 		},
+		getTransactionStat() {
+			this.$axios.get(`${this.$api.gettransactionstat}/0/0/0/0/7`, {}, {
+				loading: {
+					text: 'Loading...',
+					target: ".loading-content.chart-fifth-div"
+				}
+			}).then(res => {
+				if(res.Error === 0) {
+					this.transactionStat = res.Result['Details'];
+					this.loadChartFifth();
+				}
+			})
+		},
 		loadChartFifth() {
+			let transactionArr = [];
+			let timeArr = [];
+			// let currentTimestamp = Date.parse(new Date());
+			for (let i = 0; i < 7; i++) {
+				let item = this.transactionStat[i];
+				let transactionTotal = item.Onchain + item.Offchain;
+				transactionArr.unshift(transactionTotal);
+				// let _timestamp = currentTimestamp - (i * 3600 * 1000 *24);
+				let timeFormat = this.$dateFormat.formatMonthDayByTimestamp(item.UpdatedAt * 1000);
+				timeArr.unshift(timeFormat);
+			}
 			let option = {
 				title: {
-					text: "全网质押量",
+					text: "Day Transaction",
 					left: "center",
 					top: "20",
 					textStyle: {
@@ -439,7 +541,7 @@ export default {
 				xAxis: {
 					type: "category",
 					boundaryGap: false,
-					data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+					data: timeArr,
 					axisLine: {
 						lineStyle: {
 							color: "rgba(255,255,255, 0.4)"
@@ -470,7 +572,7 @@ export default {
 				},
 				series: [
 					{
-						data: [820, 932, 901, 934, 1290, 1330, 1320],
+						data: transactionArr,
 						type: "line",
 						areaStyle: {
 							color: 'rgba(205, 220, 57, 0.2)'
@@ -482,10 +584,33 @@ export default {
 			this.chartFifth = echarts.init(dom);
 			this.chartFifth.setOption(option, true);
 		},
+		getStakeStat() {
+			this.$axios.get(`${this.$api.getstakestat}/0/0/0/0/7`, {}, {
+				loading: {
+					text: 'Loading...',
+					target: ".loading-content.chart-sixth-div"
+				}
+			}).then(res => {
+				if(res.Error === 0) {
+					this.stakeStat = res.Result['Details'];
+					this.loadChartSixth();
+				}
+			})
+		},
 		loadChartSixth() {
+			let dnsStakeArr = [];
+			let fsStakeArr = [];
+			let timeArr = [];
+			for (let i = 0; i < 7; i++) {
+				let item = this.stakeStat[i];
+				dnsStakeArr.unshift(item.DNSFormat);
+				fsStakeArr.unshift(item.FSFormat);
+				let timeFormat = this.$dateFormat.formatMonthDayByTimestamp(item.UpdatedAt * 1000);
+				timeArr.unshift(timeFormat);
+			}
 			let option = {
 				title: {
-					text: "全网地址持仓",
+					text: "Pledge Total",
 					left: "center",
 					top: "20",
 					textStyle: {
@@ -495,12 +620,12 @@ export default {
 					}
 				},
 				grid: {
-					left: "13%",
+					left: "110px",
 					right: "4%",
 					bottom: "18%",
 				},
 				legend: {
-					data:['DNS质押','FS质押'],
+					data:['DNS Pledge','FS Pledge'],
 					left: 'center',
 					bottom: '4%',
 					textStyle: {
@@ -510,7 +635,7 @@ export default {
 				xAxis: {
 					type: "category",
 					boundaryGap: false,
-					data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+					data: timeArr,
 					axisLine: {
 						lineStyle: {
 							color: "rgba(255,255,255, 0.4)"
@@ -524,6 +649,9 @@ export default {
 							color: "rgba(255,255,255, 0.2)"
 						}
 					},
+					axisLabel: {
+            formatter: '{value} SAVE'
+					},
 					axisLine: {
 						lineStyle: {
 							color: "rgba(255,255,255, 0.4)"
@@ -532,18 +660,28 @@ export default {
 				},
 				tooltip : {
 					trigger: 'axis',
+					formatter: function(params) {
+						console.log(params);
+						if(!params) return '';
+						let desc = params[0].name;
+						for(let i = 0;i < params.length;i ++) {
+							let value = params[i];
+							desc += `<br/>${value.marker}${value.seriesName}: ${value.value} SAVE`
+						}
+						return desc
+					},
 					axisPointer: {
-							type: 'cross',
-							label: {
-									backgroundColor: '#6a7985'
-							}
+						type: 'cross',
+						label: {
+							backgroundColor: '#6a7985'
+						}
 					}
 				},
 				series: [
 					{
-						data: [820, 932, 901, 934, 1290, 1330, 1320],
+						data: dnsStakeArr,
 						type: "line",
-						name: "DNS质押",
+						name: "DNS Pledge",
 						areaStyle: {
 							color: 'rgba(205, 220, 57, 0.2)'
 						},
@@ -552,9 +690,9 @@ export default {
 						}
 					},
 					{
-						data: [2820, 1932, 1901, 93, 190, 2330, 130],
+						data: fsStakeArr,
 						type: "line",
-						name: "FS质押",
+						name: "FS Pledge",
 						areaStyle: {
 							color: 'rgba(21, 164, 198, 0.24)'
 						},

@@ -1,49 +1,63 @@
 <template>
   <div id="transaction-detail">
-    <h2>TRANSACTION</h2>
-    <section class="transaction-content-wrapper">
+    <h2 class="no-user-select">TRANSACTION</h2>
+    <section class="transaction-content-wrapper loading-content">
       <div>
-        <p class="content-title">Hash:</p>
-        <p class="content-info">aasfewsvs</p>
+        <p class="content-title no-user-select">Hash:</p>
+        <p class="content-info">{{hash}}</p>
       </div>
       <div>
-        <p class="content-title">Token:</p>
-        <p class="content-info">2000 SAVE</p>
+        <p class="content-title no-user-select">Token:</p>
+        <p class="content-info">{{transactionDetailObj && transactionDetailObj.Amount}} {{transactionDetailObj && transactionDetailObj.Asset}}</p>
       </div>
       <div>
-        <p class="content-title">Blokc:</p>
-        <p class="content-info">22324</p>
+        <p class="content-title no-user-select">Block:</p>
+        <p class="content-info link-fontImportant">
+          <template v-if="transactionDetailObj">
+            <router-link :to="`/blocks/detail?height=${transactionDetailObj.Height}`">
+              {{transactionDetailObj.Height}}
+            </router-link>
+          </template>
+        </p>
       </div>
       <div>
-        <p class="content-title">Type:</p>
-        <p class="content-info">Smart Contract</p>
+        <p class="content-title no-user-select">Type:</p>
+        <p class="content-info">{{transactionDetailObj && (transactionDetailObj.Type === 0 ? 'Ordinary Transfer' : 'Smart Contract')}}</p>
       </div>
       <div>
-        <p class="content-title">Fee:</p>
-        <p class="content-info">0.01 SAVE</p>
+        <p class="content-title no-user-select">Fee:</p>
+        <p class="content-info">{{transactionDetailObj && transactionDetailObj.Fee}} {{transactionDetailObj && transactionDetailObj.Asset}}</p>
       </div>
       <div>
-        <p class="content-title">Timestamp:</p>
-        <p class="content-info">10 min ago [2019-02-28 09:03:23]</p>
+        <p class="content-title no-user-select">Timestamp:</p>
+        <p class="content-info">
+            {{transactionDetailObj && $dateFormat.formatTimeByTimestamp(transactionDetailObj.CreatedAt*1000)}}
+        </p>
       </div>
       <div class="no-boder">
-        <p class="content-title">Status:</p>
-        <p class="content-info fontImportant">Confirmed</p>
+        <p class="content-title no-user-select">Status:</p>
+        <p class="content-info fontImportant">
+          {{transactionDetailObj && (transactionDetailObj.Status === 1 ? 'Confirmed' : 'Unconfirmed')}}
+        </p>
       </div>
     </section>
     <ul class="transaction-detail-wrapper">
       <li v-for="(item,index) in transactionDetailList" :class="{'no-border': index === (transactionDetailList.length -1)}" :key="index">
-        <div class="transaction-detail-from fontImportantThree">
-          {{item.from}}
+        <div class="transaction-detail-from fontImportantThree tb-link" :title="item.From">
+          <router-link :to="`/address?address=${item.From}`">
+            {{item.From}}
+          </router-link>
         </div>
         <div class="transaction-detail-num">
-          {{item.amount}} SAVE
+          {{item.Amount}} {{item.Asset}}
         </div>
         <span class="transaction-point-to">
           <i class="ofont el-icon-d-arrow-right"></i>
         </span>
-        <div class="transaction-detail-to fontImportantThree">
-          {{item.to}}
+        <div class="transaction-detail-to fontImportantThree tb-link" :title="item.To">
+          <router-link :to="`/address?address=${item.To}`">
+            {{item.To}}
+          </router-link>
         </div>
       </li>
     </ul>
@@ -54,19 +68,36 @@ export default {
   name: 'TransactionDetail',
   data() {
     return {
-      transactionDetailList: [
-        {
-          from: 'TKbShEGwnaY8H8S8ZdhYPnA7sRN8vsaqK1',
-          to: 'TKbShEGwnaY8H8S8ZdhYPnA7sRN8vsaqK1',
-          amount: 2000
-        },
-        {
-          from: 'TKbShEGwnaY8H8S8ZdhYPnA7sRN8vsaqK1',
-          to: 'TKbShEGwnaY8H8S8ZdhYPnA7sRN8vsaqK1',
-          amount: 210
-        }
-      ]
+      transactionDetailObj: null,
+      hash: ''
     }
+  },
+  computed: {
+    transactionDetailList() {
+      if(!this.transactionDetailObj) return [];
+      return this.transactionDetailObj.Details;
+    }
+  },
+  methods: {
+    init() {
+      this.hash = this.$route.query.hash;
+      this.getTransactionByHash();
+    },
+    getTransactionByHash() {
+      this.$axios.get(`${this.$api.gettransactionbyhash}/${this.hash}`, {}, {
+        loading: {
+          text: "Loading...",
+          target: ".loading-content.transaction-content-wrapper"
+        }
+      }).then(res => {
+        if(res.Error === 0) {
+          this.transactionDetailObj = res.Result;
+        }
+      })
+    }
+  },
+  mounted() {
+    this.init();
   }
 }
 </script>

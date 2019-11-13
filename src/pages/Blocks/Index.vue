@@ -1,30 +1,41 @@
 <template>
   <div id="blocks-index">
-    <h2 class="blocks-title">BLOCKS</h2>
-    <p class="blocks-desc">A total of <span class="fontImportant">23921</span> blocks</p>
-    <section class="block-list-wrapper">
+    <h2 class="blocks-title no-user-select">BLOCKS</h2>
+    <p class="blocks-desc no-user-select">A total of <span class="fontImportant">{{total}}</span> blocks</p>
+    <section class="block-list-wrapper loading-content">
       <el-table
         :data="blockList"
         style="width: 100%;"
       >
         <el-table-column
           fixed
-          prop="height"
           label="Height"
           min-width="100"
         >
+          <template slot-scope="scope">
+            <div class="white tb-link">
+              <router-link :to="`/blocks/detail?height=${scope.row.Height}`">
+                {{scope.row.Height}}
+              </router-link>
+            </div>
+          </template>
         </el-table-column>
         <el-table-column
-          prop="txns"
+          prop="TxCount"
           label="Txns"
           width="180"
         >
         </el-table-column>
         <el-table-column
-          prop="size"
+          prop="Size"
           label="Size"
           min-width="180"
         >
+          <template slot-scope="scope">
+            <div>
+              {{util.bytesToSize(scope.row.Size * 1024)}}
+            </div>
+          </template>
         </el-table-column>
         <el-table-column
           label="Confirmed"
@@ -32,104 +43,67 @@
         >
           <template slot-scope="scope">
             <span class="fontImportant">
-              {{scope.row.confirmed}}
+              {{scope.row.Status === 1 ? 'Confirmed' : 'UnConfirmed'}}
             </span>
           </template>
         </el-table-column>
         <el-table-column
-          prop="time"
           label="Time"
           width="240"
         >
+          <template slot-scope="scope">
+            <div>
+              {{$dateFormat.formatTimeByTimestamp(scope.row.CreatedAt*1000)}}
+            </div>
+          </template>
         </el-table-column>
       </el-table>
       <el-pagination
         class="pagination"
+				@current-change="currentChange"
         background
         layout="prev, pager, next"
-        :total="100">
+        :total="total">
       </el-pagination>
     </section>
   </div>
 </template>
 <script>
+import util from '../../assets/config/util'
 export default {
   name: 'BlokcsIndex',
   data() {
     return {
-      blockList: [
-        {
-          height: 233,
-          txns: 23,
-          size: 22333,
-          confirmed: 'Confirmed',
-          time: '2019-06-12 01:45:26'
-        },
-        {
-          height: 233,
-          txns: 23,
-          size: 22333,
-          confirmed: 'Confirmed',
-          time: '2019-06-12 01:45:26'
-        },
-        {
-          height: 233,
-          txns: 23,
-          size: 22333,
-          confirmed: 'Confirmed',
-          time: '2019-06-12 01:45:26'
-        },
-        {
-          height: 233,
-          txns: 23,
-          size: 22333,
-          confirmed: 'Confirmed',
-          time: '2019-06-12 01:45:26'
-        },
-        {
-          height: 233,
-          txns: 23,
-          size: 22333,
-          confirmed: 'Confirmed',
-          time: '2019-06-12 01:45:26'
-        },
-        {
-          height: 233,
-          txns: 23,
-          size: 22333,
-          confirmed: 'Confirmed',
-          time: '2019-06-12 01:45:26'
-        },
-        {
-          height: 233,
-          txns: 23,
-          size: 22333,
-          confirmed: 'Confirmed',
-          time: '2019-06-12 01:45:26'
-        },
-        {
-          height: 233,
-          txns: 23,
-          size: 22333,
-          confirmed: 'Confirmed',
-          time: '2019-06-12 01:45:26'
-        },
-        {
-          height: 233,
-          txns: 23,
-          size: 22333,
-          confirmed: 'Confirmed',
-          time: '2019-06-12 01:45:26'
-        },
-        {
-          height: 233,
-          txns: 23,
-          size: 22333,
-          confirmed: 'Confirmed',
-          time: '2019-06-12 01:45:26'
-        }
-      ]
+      util,
+      blockList: [],
+      total: 0,
+      currentPage: 1
     }
+  },
+  methods: {
+    init() {
+      this.getBlocks();
+    },
+    currentChange(page) {
+      this.currentPage = page;
+      this.getBlocks();  
+    },
+    getBlocks() {
+      this.$axios.get(`${this.$api.getblocks}/${(this.currentPage - 1) * 10}/10`, {}, {
+        loading: {
+          text: "Loading...",
+          target: ".loading-content.block-list-wrapper"
+        }
+      }).then(res => {
+        if(res.Error === 0) {
+          this.blockList = res.Result['Blocks'];
+          this.total = res.Result['Total'];
+        }
+      })
+    }
+  },
+  mounted() {
+    this.init();
   }
 }
 </script>
