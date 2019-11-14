@@ -54,7 +54,22 @@
           Node
 				</li>
 				<li class="no-user-select">
-					TestNet
+					<el-select
+						:class="{scroll:scroll}"
+						v-model="net"
+						style='width: 85px'
+						placeholder="请选择"
+						@click.stop=""
+					>
+						<el-option
+							v-for="item in netList"
+							:key="item"
+							:label="item"
+							:value="item"
+						>
+						</el-option>
+					</el-select>
+
 				</li>
 				<li class="search-input-li">
 					<el-input
@@ -69,7 +84,7 @@
 						@change="setLanguage"
 						:class="{scroll:scroll}"
 						v-model="value"
-						style='width: 40px'
+						style='width: 50px'
 						placeholder="请选择"
 						ref="setLanguageId"
 						@click.stop=""
@@ -94,6 +109,8 @@ export default {
 		const scrollTop = document.documentElement.scrollTop || window.pageYOffset;
 		return {
 			value: localStorage.getItem("lang") || "en",
+			net: 'TestNet',
+			netList: ['TestNet'],
 			searchContent: "",
 			scroll: scrollTop > 0 ? true : false,
       pop: false,
@@ -138,7 +155,7 @@ export default {
 			clearTimeout(vm.timeoutObj);
 			vm.timeoutObj = setTimeout(() => {
 				vm.changeScreenWidth();
-			}, 50);
+			}, 300);
 		}
 	},
 	methods: {
@@ -239,6 +256,7 @@ $themeColor: #202020;
 
 		@media (max-width: 1024px) {
 			padding: 14px 0;
+			
 			&.pop {
 				background: rgba(32, 32, 32, 1);
 			}
@@ -469,10 +487,6 @@ $themeColor: #202020;
 			.el-input__inner {
 				color: #fff !important;
 			}
-
-			.el-select__caret {
-				color: #fff !important;
-			}
 		}
 
 		.el-input {
@@ -483,40 +497,42 @@ $themeColor: #202020;
 				font-size: 16px;
 			}
 
-			.el-icon-arrow-up:before {
-				// content: '\e60c' !important;
-				content: "" !important;
-			}
+			// .el-icon-arrow-up:before {
+				// content: "" !important;
+			// }
 
 			.el-select__caret {
 				color: #fff;
 
-				@media (max-width: 1024px) {
-					color: $themeColor;
-				}
+			// 	@media (max-width: 1024px) {
+			// 		color: $themeColor;
+			// 	}
 			}
 
 			.el-input__inner {
 				padding-left: 0px;
 				padding-right: 0px;
+				text-align: left;
+				border: none !important;
+				background: none;
+				color: rgba(255, 255, 255, 1) !important;
 
 				@media (max-width: 1024px) {
 					font-size: 16px;
 					height: 22px;
-					line-height: 0%;
+					// line-height: 0%;
 					cursor: pointer;
 				}
 
-				border: none !important;
-				background: none;
-				color: rgba(255, 255, 255, 0.7) !important;
-				text-align: center;
 			}
 
 			@media (max-width: 1024px) {
 				font-size: 16px;
 				color: #fff;
 				height: 22px;
+				.el-select__caret {
+					line-height: 100%;
+				}
 			}
 		}
 
@@ -525,6 +541,9 @@ $themeColor: #202020;
 				.el-input__inner {
 					color: #cddc39 !important;
 				}
+			}
+			.el-select__caret {
+				color: #cddc39 !important;
 			}
 		}
 	}

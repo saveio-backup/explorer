@@ -1,6 +1,32 @@
 <template>
 	<div id="addressWarehouse">
-		<div class="address-warehouse-wrapper loading-content">
+		<div class="address-warehouse-wrapper loading-content pt30">
+			<div class="flex white between ft14 mb20 address-warehouse-desc">
+        <div>
+					<span class="op07">
+						Address Total: 
+					</span>
+					<span class="fontImportant">
+						{{addressWarehouseObj && addressWarehouseObj.Total}}
+					</span>
+				</div>
+        <div>
+					<span class="op07">
+						New Address in 7 Day: 
+					</span>
+					<span class="fontImportant">
+						{{addressWarehouseObj && addressWarehouseObj.NewAddrIn7D}}
+					</span>
+				</div>
+        <div>
+					<span class="op07">
+						New Address in 30 Day:
+					</span>
+					<span class="fontImportant">
+					 {{addressWarehouseObj && addressWarehouseObj.NewAddrIn30D}}
+					</span>
+				</div>
+      </div>
 			<div
 				class="address-warehouse-number-chart"
 				id="addressWarehouseNumberChart"
@@ -380,11 +406,16 @@ export default {
 		max-width: 1170px;
 		width: calc(100% - 30px);
 		margin: 72px auto 0;
-		height: 854px;
+		height: 914px;
 		background: rgba(42, 42, 43, 1);
 		box-shadow: 0px -4px 40px 0px rgba(0, 0, 0, 0.32);
 		border-radius: 4px;
 		transition: width 0.5s;
+
+		.address-warehouse-desc {
+			width: 80%;
+			margin: 0 auto;
+		}
 
 		.address-warehouse-number-chart,
 		.address-warehouse-balance-chart {

@@ -16,7 +16,7 @@
 				<p>{{transactionObj && transactionObj.TxCount}} $</p>
 			</div>
 			<div class="address-info-total">
-				<h4>CREATION TIME</h4>
+				<h4>Created Time</h4>
 				<p>{{transactionObj && $dateFormat.formatTimeByTimestamp(transactionObj.CreatedAt*1000)}}</p>
 			</div>
 			<div class="address-info-channels">

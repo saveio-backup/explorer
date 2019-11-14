@@ -28,7 +28,7 @@ footer {
 	width: calc(100% - 30px);
 	height: 137px;
 	margin: 0 auto;
-	border-top: 1px solid #afacac;
+	border-top: 1px solid rgba(175, 172, 172, 0.4);
 
 	.contact-link {
 		height: 94px;

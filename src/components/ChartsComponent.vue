@@ -290,6 +290,7 @@ export default {
 						type: "bar",
 						stack: "Total",
 						data: indexArr,
+						barMaxWidth: 30,
 						itemStyle: {
 							color: "#0387E3"
 						}
@@ -298,6 +299,7 @@ export default {
 						name: "Flow",
 						type: "bar",
 						stack: "Total",
+						barMaxWidth: 30,
 						data: channelArr,
 						itemStyle: {
 							color: "#3ABAA4"
@@ -307,6 +309,7 @@ export default {
 						name: "Storage",
 						type: "bar",
 						stack: "Total",
+						barMaxWidth: 30,
 						data: storageArr,
 						itemStyle: {
 							color: "#ABCC59"

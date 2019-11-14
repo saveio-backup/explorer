@@ -89,7 +89,7 @@
 						:key="index"
 					>
 						<div class="block-left-area">
-							<h4 class="link-fontImportant">
+							<h4 class="link-fontImportant click-link">
 								<router-link
 									:to="`/blocks/detail?height=${item.Height}`"
 									:title="item.Height"
@@ -123,7 +123,7 @@
 						<div class="block-left-area">
 							<h4
 								:title="item.Hash"
-								class="link-fontImportant"
+								class="link-fontImportant click-link"
 							>
 								<router-link
 									:to="`transactions/detail?hash=${item.Hash}`"
@@ -391,7 +391,7 @@ export default {
 				justify-content: space-between;
 				color: white;
 				align-items: center;
-				border-bottom: 1px solid #d8d8d8;
+				border-bottom: 1px solid rgba(216, 216, 216, 0.4);
 
 				.more-content-icon {
 					&:hover {
@@ -406,7 +406,7 @@ export default {
 
 			.home-info-list {
 				li {
-					border-bottom: 1px solid #d8d8d8;
+					border-bottom: 1px solid rgba(216, 216, 216,0.1);
 					height: 68px;
 					padding: 10px 0;
 

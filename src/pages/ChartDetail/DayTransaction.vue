@@ -1,6 +1,22 @@
 <template>
 	<div id="dayTransaction">
 		<div class="day-transaction-wrapper">
+			<div class="day-transaction-exchange">
+				<p
+					@click.stop="setSelectTime(0)"
+					class="day-transaction-chart-btn"
+					:class="{'select': selectTime === 0}"
+				>Off Chain</p>
+				<p
+					class="day-transaction-chart-btn ml10"
+					:class="{'select': selectTime === 1}"
+					@click.stop="setSelectTime(1)"
+				>On Chain</p>
+			</div>
+			<div
+				id="allNetProfitChart"
+				class="all-net-profit-chart loading-content"
+			></div>
 			<div
 				class="day-transaction-chart loading-content"
 				id="dayTransactionChart"
@@ -23,7 +39,27 @@
 					</template>
 				</el-table-column>
 				<el-table-column
-					label="Transaction Count"
+					label="On Chain Transaction"
+					width="180"
+				>
+					<template slot-scope="scope">
+						<div>
+							{{scope.row.Onchain}}
+						</div>
+					</template>
+				</el-table-column>
+				<el-table-column
+					label="Off Chain Transaction"
+					width="180"
+				>
+					<template slot-scope="scope">
+						<div>
+							{{scope.row.Offchain}}
+						</div>
+					</template>
+				</el-table-column>
+				<el-table-column
+					label="Total Chain Transaction"
 					width="180"
 				>
 					<template slot-scope="scope">
@@ -52,7 +88,8 @@ export default {
 		return {
 			dayTransactionChart: null,
 			dayTransactionList: null,
-			currentPage: 1
+			currentPage: 1,
+			selectTime: 1 // 0, 1 (1 is on chain,0 is off chain)
 		};
 	},
 	computed: {
@@ -109,7 +146,8 @@ export default {
 			let dayTransactionArr = [];
 			let timeArr = [];
 			for (let item of this.dayTransactionList) {
-				let total = item.Offchain + item.Onchain;
+				// let total = item.Offchain + item.Onchain;
+				let total = this.selectTime === 0 ? item.Offchain : item.Onchain;
 				dayTransactionArr.unshift(total);
 				let timeFormat = this.$dateFormat.formatMonthDayByTimestamp(item.UpdatedAt * 1000);
 				timeArr.unshift(timeFormat);
@@ -201,6 +239,10 @@ export default {
 			let dom = document.getElementById("dayTransactionChart");
 			this.dayTransactionChart = echarts.init(dom);
 			this.dayTransactionChart.setOption(option, true);
+		},
+		setSelectTime(value) {
+			this.selectTime = value;
+			this.setDayTransactionChart();
 		}
 	},
 	mounted() {
@@ -220,9 +262,40 @@ export default {
 		margin: 0 auto;
 		height: 720px;
 		margin-top: 72px;
+		position: relative;
+
 		.day-transaction-chart {
 			width: 100%;
 			height: 100%;
+		}
+
+		.day-transaction-exchange {
+			width: 100%;
+			height: 32px;
+			position: absolute;
+			top: -32px;
+
+			.day-transaction-chart-btn {
+				width: 110px;
+				height: 32px;
+				border-radius: 4px 4px 0px 0px;
+				transition: 0.2s all ease;
+				cursor: pointer;
+				float: right;
+				text-align: center;
+				color: #ffffff;
+				line-height: 32px;
+				font-size: 14px;
+
+				&.select,
+				&:hover {
+					background: rgba(205, 220, 57, 0.7);
+				}
+
+				&:active {
+					opacity: 0.7;
+				}
+			}
 		}
 	}
 
