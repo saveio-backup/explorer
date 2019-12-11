@@ -30,7 +30,7 @@
       </div>
       <div>
         <p class="content-title no-user-select">Transactions:</p>
-        <p class="content-info">{{transactionObj && transactionObj.Txs.length}} transactions</p>
+        <p class="content-info">{{transactionList.length}} transactions</p>
       </div>
       <div class="no-boder">
         <p class="content-title no-user-select">Size:</p>
@@ -128,36 +128,30 @@ export default {
     return {
       util,
       transactionObj: null,
-      height: null
-    }
-  },
-  computed: {
-    transactionList() {
-      if(!this.transactionObj) return [];
-      return this.transactionObj.Txs;
+      height: null,
+      transactionList: [],
+      loading: {
+
+      }
     }
   },
   methods: {
     init() {
       this.height = parseInt(this.$route.query.height);
       this.getBlockbyHeight()
+      this.getTransactionbyHeight()
     },
     async getBlockbyHeight() {
       let res = await this.$api2.getBlockbyHeight(this.height);
       if(res.error === 0) {
         this.transactionObj = res.result;
       }
-      // this.$axios.get(`${this.$api.getblockbyheight}/${this.height}`, {}, {
-      //   loading: {
-      //     text: "Loading...",
-      //     target: ".loading-content.block-content-wrapper"
-      //   }
-      // }).then(data => {
-      //   let res = data.data
-      //   if(res.Error === 0) {
-      //     this.transactionObj = res.Result;
-      //   }
-      // })
+    },
+    async getTransactionbyHeight() {
+      let res = await this.$api2.getTransactionbyHeight(this.height);
+      if(res.error === 0) {
+        this.transactionList = res.result;
+      }
     }
   },
   mounted() {

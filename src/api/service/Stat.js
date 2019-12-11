@@ -41,8 +41,8 @@ class Stat extends Base {
   }
 
   /**
-   * 
-   * @return {Res}  
+   * get storage detail
+   * @return {Res} storage detail
    */
   async getStorageStat() {
     const vm = this;
@@ -88,6 +88,12 @@ class Stat extends Base {
     })
   }
 
+  /**
+   * fromat storage result 
+   * @param {Array} totalList 
+   * @param {Array} fileStorageList 
+   * @return {Object} storage detail about total used、remain used and storage list
+   */
   formatStorageResult(totalList, fileStorageList) {
     let currentTimestamp = (new Date()).getTime() / 1000;
     let details = [];
@@ -110,13 +116,21 @@ class Stat extends Base {
     return result;
   }
 
+  /**
+   * get file storage space list
+   * @param {Array} addList 
+   * @param {Array} deletesList 
+   * @param {Array} deleteList 
+   * @param {Number} goesDays 
+   * @param {Number} todayGoesBlockNumber 
+   * @return {Array} used space list
+   */
   getFileStorageList({
     addList,
     deletesList,
     deleteList,
     goesDays,
-    todayGoesBlockNumber,
-    totalFs
+    todayGoesBlockNumber
   }) {
     // get file total
     let fsUsedList = new Array(goesDays).fill(0);
@@ -197,6 +211,14 @@ class Stat extends Base {
     return totalArr;
   }
 
+  /**
+   * get total space list
+   * @param {Array} registerList 
+   * @param {Array} unRegisterList 
+   * @param {Number} goesDays 
+   * @param {Number} todayGoesBlockNumber 
+   * @return {Array} total space list
+   */
   getTotalStorageList({
     registerList,
     unRegisterList,
@@ -257,7 +279,7 @@ class Stat extends Base {
 
   /**
    * get profit day list by day number
-   * @param {Number} days 
+   * @param {Number/undefined} days 
    * @return {Res} profit list
    */
   async getProfitStatByDay({
@@ -388,7 +410,8 @@ class Stat extends Base {
 
   /**
    * get file total list
-   * @param {Number} days 
+   * @param {Number/undefined} days 
+   * @return {Res} file list about total space and used space
    */
   async getFileState({days=10000}) {
     const vm = this;
@@ -453,6 +476,11 @@ class Stat extends Base {
     })
   }
 
+  /**
+   * get channel total list
+   * @param {Number/undefined} days 
+   * @return {Res} channel list
+   */
   async getChannelStat({days=10000}) {
     const vm = this;
     let res = new this.Res();
@@ -504,6 +532,142 @@ class Stat extends Base {
       res.setResult(arr);
       return res.get();
     })
+  }
+
+  /**
+   * get pledge list about fs and dns
+   * @param {Number/undefined} days
+   * @return {Res} pledge detail
+   */
+  async getStakeStat({days=10000}) {
+    const vm = this;
+    let res = new this.Res();
+    let currentheight = await this.context.service.Block.getBlockHeight();
+    let todayBlockNumber = this.context.service.Block.getTodayGoesBlockNumber();
+    const commitAll = [];
+    // for (let i = 0; i < days; i++) {
+    let endBlock = currentheight;
+    let j = 0;
+    while(j < days && endBlock > 1) {
+      let startBlock = currentheight - todayBlockNumber - (86400 / 5 * j)
+      if (j === days - 1 || startBlock < 1) {
+        startBlock = 1;
+      }
+      commitAll.push(
+        vm.rpcClient.getsmartcodeeventbyeventidandheights('AFmseVrdL9f9oyCzZefL9tG6UbvjPTx9sq', 1, startBlock, endBlock, "")
+      );
+      commitAll.push(
+        vm.rpcClient.getsmartcodeeventbyeventidandheights('AFmseVrdL9f9oyCzZefL9tG6UbvjPTx9sq', 2, startBlock, endBlock, "")
+      )
+      commitAll.push(
+        vm.rpcClient.getsmartcodeeventbyeventidandheights('AFmseVrdL9f9oyCzZefL9tG6UbvhzQYRMK', 5, startBlock, endBlock, "")
+      );
+      commitAll.push(
+        vm.rpcClient.getsmartcodeeventbyeventidandheights('AFmseVrdL9f9oyCzZefL9tG6UbvhzQYRMK', 6, startBlock, endBlock, "")
+      )
+      endBlock = startBlock;
+      j ++;
+    }
+
+    return Promise.all(commitAll).then(ResponseArr => {
+      console.log(ResponseArr);
+      for (let Response of ResponseArr) {
+        if (Response.error !== 0) {
+          res.setError(Response.error);
+          return res.get();
+        };
+      }
+
+      let arr = [];
+      let i = ResponseArr.length - 1;
+      let registerObj = {};
+      let registerFsObj = {};
+      let currentTimestamp = Date.parse(new Date()) / 1000;
+      while (i >= 0) {
+        let totalDns = 0;
+        let totalFs = 0;
+        outFor1: for (let value of ResponseArr[i - 3].result) {
+          for (let notify of value.Notify) {
+            if (notify && Object.prototype.toString.call(notify['States']) === '[object Object]') {
+              let _address = notify['States'].walletAddr.toString();
+              if (registerObj[_address] === undefined) registerObj[_address] = [];
+              registerObj[_address].push(notify['States'].deposit);
+              continue outFor1;
+            }
+          }
+        }
+
+        outFor2: for (let value of ResponseArr[i - 2].result) {
+          for (let notify of value.Notify) {
+            if (notify && Object.prototype.toString.call(notify['States']) === '[object Object]') {
+              let _address = notify['States'].walletAddr.toString();
+              if (registerObj[_address].length === 1) {
+                delete registerObj[_address];
+              } else {
+                registerObj[_address].shift();
+              }
+              continue outFor2;
+            }
+          }
+        }
+
+        for (let value of ResponseArr[i - 1].result) {
+          let _address;
+          let amount;
+          for (let notify of value.Notify) {
+            if (notify && Object.prototype.toString.call(notify['States']) === '[object Object]') {
+              _address = notify['States'].walletAddr.toString();
+              
+              // continue outFor3;
+            } else if(Object.prototype.toString.call(notify['States']) === '[object Array]'){
+              if(notify['States'][3] === 10000000) continue;
+              amount = notify['States'][3];
+            }
+          }
+          if (registerFsObj[_address] === undefined) registerFsObj[_address] = [];
+          registerFsObj[_address].push(amount);
+        }
+
+        outFor4: for (let value of ResponseArr[i].result) {
+          for (let notify of value.Notify) {
+            if (notify && Object.prototype.toString.call(notify['States']) === '[object Object]') {
+              let _address = notify['States'].walletAddr.toString();
+              if (registerFsObj[_address].length === 1) {
+                delete registerFsObj[_address];
+              } else {
+                registerFsObj[_address].shift();
+              }
+              continue outFor4;
+            }
+          }
+        }
+
+        // format result
+        for (let key in registerObj) {
+          let value = this.context.Util.sum(registerObj[key]);
+          totalDns += value;
+        }
+        totalDns = totalDns / Math.pow(10, 9);
+        for(let key in registerFsObj) {
+          let value = this.context.Util.sum(registerFsObj[key]);
+          totalFs += value;
+        }
+        totalFs = totalFs / Math.pow(10, 9);
+        let _timestamp = currentTimestamp - ((i - 3) / 4 * 86400);
+        arr.unshift({
+          DNSFormat: totalDns,
+          // TO DO!
+          FSFormat: totalFs,
+          UpdatedAt: _timestamp
+        })
+
+        i = i - 4;
+      }
+      
+
+      res.setResult(arr);
+      return res.get();
+    });
   }
 }
 

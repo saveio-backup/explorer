@@ -99,7 +99,7 @@ export default {
 			this.currentPage = page;
 		},
 		async getstakestat() {
-			let res = await this.$api2.getStakeStat({days: 30});
+			let res = await this.$api2.getStakeStat({});
 			if(res.error === 0) {
 				this.sumPledgeList = res.result;
 				this.setSumPledgeChart();

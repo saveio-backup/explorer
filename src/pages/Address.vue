@@ -13,7 +13,7 @@
 			</div>
 			<div class="address-info-usd">
 				<h4>Usd value</h4>
-				<p>{{transactionObj && transactionObj.TxCount}} $</p>
+				<p>{{transactionObj && transactionObj.BalanceFormat}} $</p>
 			</div>
 			<div class="address-info-total">
 				<h4>Created Time</h4>
@@ -101,36 +101,27 @@ export default {
 	data() {
 		return {
       transactionObj: null,
-      address: ''
+			address: '',
+			transactionList: []
 		};
 	},
-	computed: {
-		transactionList() {
-      if (!this.transactionObj) return [];
-      return this.transactionObj['Txs'];
-		}
-  },
   methods: {
     init() {
       this.address = this.$route.query.address;
-      this.getTxbyAddr();
+			this.getTransactionByAddress();
     },
-    getTxbyAddr() {
-      this.$axios.get(`${this.$api.gettxbyaddr}/${this.address}`, {}, {
-        loading: {
-          text: "Loading...",
-          target: ".loading-content.address-info-wrapper"
-        }
-      }).then(data => {
-				let res = data.data
-        if(res.Error === 0) {
-          this.transactionObj = res.Result;
-        }
-      })
-    },
+		async getTransactionByAddress() {
+			let res = await this.$api2.getTransactionByAddress(this.address);
+			if(res.error === 0) {
+				this.transactionObj = res.result;
+				this.transactionList = res.result.Txs;
+			}
+		},
     goAddress(address) {
       if(address === this.address) return;
-      this.$router.push({path:`/address?address=${address}`});
+			this.$router.push({path:`/address?address=${address}`});
+			this.transactionObj = null;
+			this.transactionList = [];
       this.init();
     }
   },
@@ -182,7 +173,8 @@ export default {
 			}
 
 			&.address-info-usd {
-				width: 191px;
+				min-width: 291px;
+				width: auto;
 			}
 
 			&.address-info-total {
@@ -218,6 +210,8 @@ export default {
 	.transaction-wrapper {
 		width: 100%;
 		min-height: 345px;
+		max-height: 800px;
+		overflow-y: auto;
     height: auto;
 		background: #2a2a2b;
 		box-shadow: 0px -4px 40px 0px rgba(0, 0, 0, 0.32);

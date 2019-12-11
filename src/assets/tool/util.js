@@ -1,3 +1,4 @@
+import Buffer from 'buffer'
 class Util {
   /**
    * 
@@ -32,6 +33,11 @@ class Util {
       list.push(key)
     }
     return list;
+  }
+
+  static decodeToStringByBase64(base64String) {
+    let res = Buffer.Buffer.from(base64String, 'base64').toString('utf-8');
+    return res;
   }
 }
 

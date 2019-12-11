@@ -90,8 +90,10 @@ export default {
 			this.getFileState();
 			this.getChannelStat();
 			if (this.type === 0) {
-				this.getTransactionStat();
-				this.getStakeStat()
+				this.getStakeStat();
+				this.$nextTick(() => {
+					this.getTransactionStat();
+				})
 			}
 		},
 		async getAllNetSpace() {

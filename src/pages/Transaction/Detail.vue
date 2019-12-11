@@ -84,9 +84,9 @@ export default {
       this.getTransactionByHash();
     },
     async getTransactionByHash() {
-      let res = await this.$api2.getRawTransactionJson({txHash: this.hash});
+      let res = await this.$api2.getRawTransactionJson(this.hash);
+      console.log(res);
       if(res.error === 0) {
-        // console.log(res.result);
         this.transactionDetailObj = res.result;
       }
       // this.$axios.get(`${this.$api.gettransactionbyhash}/${this.hash}`, {}, {

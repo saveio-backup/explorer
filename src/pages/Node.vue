@@ -118,6 +118,7 @@
 				@current-change="currentChange"
 				background
 				layout="prev, pager, next"
+				:page-size="5"
 				:total="total"
 			>
 			</el-pagination>
@@ -164,29 +165,39 @@ export default {
 		init() {
 			this.getNodes();
 		},
-		getNodes() {
-			this.$axios
-				.get(
-					`${this.$api.getnodes}`,
-					{},
-					{
-						loading: {
-							text: "Loading...",
-							target: ".loading-content.dns-wrapper"
-						}
-					}
-				)
-				.then(data => {
-					let res = data.data;
-					if (res.Error === 0) {
-						for (let i = 0; i < res.Result.FS.length; i++) {
-							let item = res.Result.FS[i];
-							item["Index"] = i + 1;
-						}
-						this.nodeObj = res.Result;
-						this.filterNodeObj(this.nodeObj);
-					}
-				});
+		async getNodes() {
+			let res = await this.$api2.getNodes();
+			console.log(res);
+			if(res.error === 0) {
+				for (let i = 0; i < res.result.FS.length; i++) {
+					let item = res.result.FS[i];
+					item["Index"] = i + 1;
+				}
+				this.nodeObj = res.result;
+				this.filterNodeObj(this.nodeObj);
+			}
+			// this.$axios
+			// 	.get(
+			// 		`${this.$api.getnodes}`,
+			// 		{},
+			// 		{
+			// 			loading: {
+			// 				text: "Loading...",
+			// 				target: ".loading-content.dns-wrapper"
+			// 			}
+			// 		}
+			// 	)
+			// 	.then(data => {
+			// 		let res = data.data;
+			// 		if (res.Error === 0) {
+			// 			for (let i = 0; i < res.Result.FS.length; i++) {
+			// 				let item = res.Result.FS[i];
+			// 				item["Index"] = i + 1;
+			// 			}
+			// 			this.nodeObj = res.Result;
+			// 			this.filterNodeObj(this.nodeObj);
+			// 		}
+			// 	});
 		},
 		filterNodeObj() {
 			let arr = [];

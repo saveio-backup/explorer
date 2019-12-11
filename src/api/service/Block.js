@@ -16,13 +16,13 @@ class Block extends Base {
 
   /**
    * get block generate timestamp by block height
-   * @param {Number} block 
+   * @param {Number} height 
    * @return {Number} block timestamp
    */
-  async getTimestampByBlock(block) {
+  async getTimestampByBlock(height) {
     let currentTimestamp = Date.parse(new Date()) / 1000;
     let currentheight = await this.getBlockHeight();
-    let blockTimestamp = currentTimestamp - ((currentheight - block) * 5);
+    let blockTimestamp = currentTimestamp - ((currentheight - height) * 5);
     return blockTimestamp;
   }
 
@@ -32,26 +32,26 @@ class Block extends Base {
    */
   async getBlockbyHeight(height) {
     let res = new this.Res();
-    let blockInfo = await this.rpcClient.getBlockJson(height);
-    console.log("blockInfo")
-    console.log(blockInfo)
-    if(blockInfo.error !== 0) {
-      res.setError(blockInfo.error);
+      let result = await this.rpcClient.getBlockJson(height)
+      if (result.error !== 0) {
+        res.setError(Response.error);
+        return res.get();
+      };
+      let blockInfo = result.result;
+      let _timestamp = await this.getTimestampByBlock(height);
+      let _result = {
+        Hash: blockInfo.Hash,
+        Height: blockInfo.Header.Height,
+        TxCount: blockInfo.Transactions.length,
+        Size: blockInfo.Size,
+        Miner: "",
+        Status: 1,
+        CreatedAt: _timestamp
+      }
+      console.log(_result);
+      res.setResult(_result);
       return res.get();
-    }
-    let _timestamp = await this.getTimestampByBlock(height);
-    let _result = {
-      Hash: blockInfo.result.Hash,
-      Height: blockInfo.result.Header.Height,
-      TxCount: blockInfo.result.Transactions.length,
-      Size: blockInfo.result.Size,
-      Miner: "xxx",
-      Status: 1,
-      CreatedAt: _timestamp,
-      Txs: blockInfo.result.Transactions
-    }
-    res.setResult(_result);
-    return res.get();
+    // })
   }
 
   /**
@@ -61,13 +61,14 @@ class Block extends Base {
    * @return {Res} block list 
    */
   async getBlocks({offset, limit}) {
+    const vm = this;
     let res = new this.Res();
     let currentheight = await this.getBlockHeight();
     const commitAll = [];
     for (let i = 0; i < limit; i++) {
       if ((currentheight - offset - i) === 1) break;
       commitAll.push(
-        this.rpcClient.getBlockJson((currentheight - offset - i))
+        vm.rpcClient.getBlockJson((currentheight - offset - i))
       )
     }
     return Promise.all(commitAll).then(ResponseArr => {

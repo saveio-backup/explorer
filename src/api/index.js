@@ -44,11 +44,50 @@ class API {
   constructor () {
     this.rpcClient = rpcClient;
     this.service = new Service(this);
+    this.Util = Util;
   }
 
   async getBlockHeight() {
     let res = await this.service.Block.getBlockHeight();
     return res;
+  }
+
+  async getCountStat() {
+    let result = await this.service.Stat.getCountStat();
+    return result;
+  }
+
+  async getStorageStat() {
+    let result = await this.service.Stat.getStorageStat();
+    return result;
+  }
+
+  async getProfitStat({
+    limit,
+    type
+  }) {
+    if(type === 0) {
+      let result = await this.service.Stat.getProfitStatByDay({days: limit});
+      return result;
+    } else {
+      let result = await this.service.Stat.getProfitStatByMonth({months: limit});
+      return result;
+    }
+  }
+
+  async getFileState ({
+    days
+  }) {
+    let result = await this.service.Stat.getFileState({days});
+    return result;
+  }
+
+  
+  async getChannelStat({
+    days
+  }) {
+    let result = await this.service.Stat.getChannelStat({days});
+    return result;
   }
 
   async syncTransaction() {
@@ -115,49 +154,11 @@ class API {
     return arr;
   }
 
-  async getCountStat() {
-    let result = await this.service.Stat.getCountStat();
-    return result;
-  }
-
-  async getStorageStat() {
-    let result = await this.service.Stat.getStorageStat();
-    return result;
-  }
-
-  async getProfitStat({
-    limit,
-    type
-  }) {
-    if(type === 0) {
-      let result = await this.service.Stat.getProfitStatByDay({days: limit});
-      return result;
-    } else {
-      let result = await this.service.Stat.getProfitStatByMonth({months: limit});
-      return result;
-    }
-  }
-
-  async getFileState ({
-    days
-  }) {
-    let result = await this.service.Stat.getFileState({days});
-    return result;
-  }
-
-  
-  async getChannelStat({
-    days
-  }) {
-    let result = await this.service.Stat.getChannelStat({days});
-    return result;
-  }
-
   async getTransactionStat({
     days
   }) {
     let res = new Res();
-    let currentheight = await this.getBlockHeight();
+    let currentheight = await this.service.Block.getBlockHeight();
     let todayBlockNumber = this.service.Block.getTodayGoesBlockNumber();
     const commitAll = [];
     for (let i = 0; i < days; i++) {
@@ -190,7 +191,7 @@ class API {
           UpdatedAt: 710000
         });
 
-        --i;
+        i--;
       }
       res.setResult(arr);
       return res.get();
@@ -200,98 +201,12 @@ class API {
   async getStakeStat({
     days
   }) {
-    let res = new Res();
-    let currentheight = await this.getBlockHeight();
-    let todayBlockNumber = this.service.Block.getTodayGoesBlockNumber();
-    const commitAll = [];
-    for (let i = 0; i < days; i++) {
-      let endBlock;
-      let startBlock = currentheight - todayBlockNumber - (17280 * i)
-      if (i === 0) {
-        endBlock = currentheight;
-      } else {
-        endBlock = startBlock + 17280;
-      }
-      if (i === days - 1) {
-        startBlock = 1;
-      }
-      commitAll.push(
-        rpcClient.getsmartcodeeventbyeventidandheights('AFmseVrdL9f9oyCzZefL9tG6UbvjPTx9sq', 1, startBlock, endBlock, "")
-      );
-      commitAll.push(
-        rpcClient.getsmartcodeeventbyeventidandheights('AFmseVrdL9f9oyCzZefL9tG6UbvjPTx9sq', 2, startBlock, endBlock, "")
-      )
-    }
-
-    return Promise.all(commitAll).then(ResponseArr => {
-      console.log(ResponseArr);
-      for (let Response of ResponseArr) {
-        if (Response.error !== 0) {
-          res.setError(Response.error);
-          return res.get();
-        };
-      }
-
-      let arr = [];
-      let i = ResponseArr.length - 1;
-      let registerObj = {};
-      let currentTimestamp = Date.parse(new Date()) / 1000;
-      while (i >= 0) {
-        let total = 0;
-        outFor1: for (let value of ResponseArr[i - 1].result) {
-          for (let notify of value.Notify) {
-            if (notify && Object.prototype.toString.call(notify['States']) === '[object Object]') {
-              let _address = notify['States'].walletAddr.toString();
-              if (registerObj[_address] === undefined) registerObj[_address] = [];
-              registerObj[_address].push(notify['States'].deposit);
-              continue outFor1;
-            }
-          }
-        }
-
-        outFor2: for (let value of ResponseArr[i].result) {
-          for (let notify of value.Notify) {
-            if (notify && Object.prototype.toString.call(notify['States']) === '[object Object]') {
-              let _address = notify['States'].walletAddr.toString();
-              if (registerObj[_address].length === 1) {
-                delete registerObj[_address];
-              } else {
-                registerObj[_address].shift();
-              }
-              continue outFor2;
-            }
-          }
-        }
-        console.log('registerObj');
-        console.log(registerObj);
-        for (let key in registerObj) {
-          let value = Util.sum(registerObj[key]);
-          total += value;
-        }
-        total = total / Math.pow(10, 9);
-        let _timestamp = currentTimestamp - (i * 43200);
-        arr.unshift({
-          DNSFormat: total,
-          // TO DO!
-          FSFormat: total,
-          UpdatedAt: _timestamp
-        })
-        i = i - 2;
-      }
-
-      res.setResult(arr);
-      return res.get();
-    });
+    let result = await this.service.Stat.getStakeStat({days});
+    return result;
   }
 
-  async getBlocks({
-    offset,
-    limit
-  }) {
-    let result = await this.service.Block.getBlocks({
-      offset,
-      limit  
-    });
+  async getBlocks({offset, limit}) {
+    let result = await this.service.Block.getBlocks({offset, limit  });
     return result;
   }
 
@@ -352,34 +267,29 @@ class API {
   }
 
   async getBlockbyHeight(height) {
-    let result = await this.Service.Block.getBlockHeight(height);
+    let result = await this.service.Block.getBlockbyHeight(height);
     return result;
   }
 
-  async getRawTransactionJson({txHash}) {
-    let res = new Res();
-      let _result = await rpcClient.getRawTransactionJson(txHash);
-      if(_result.error !== 0) {
-        res.setError(_result.error);
-        return res.get();
-      }
-      let timestamp = await this.service.Block.getTimestampByBlock(_result.result.Height);
-      let result = {
-        Hash: _result.result.Hash,
-        Height: _result.result.Height,
-        Amount: "",
-        Asset: "SAVE",
-        Fee: "0.01",
-        Status: 1,
-        Type: 0,
-        CreatedAt: timestamp,
-        Details: []
-      }
-      res.setResult(result);
-      return res.get();
+  async getTransactionbyHeight(height) {
+    let result = await this.service.Transaction.getTransactionbyHeight(height);
+    return result;
   }
 
+  async getTransactionByAddress(address) {
+    let result = await this.service.Transaction.getTransactionByAddress(address);
+    return result;
+  }
 
+  async getRawTransactionJson(txHash) {
+    let result = await this.service.Transaction.getRawTransactionJson(txHash);
+    return result;
+  }
+
+  async getNodes() {
+    let result = await this.service.Node.getNodes();
+    return result;
+  }
 }
 
 // SYNC DATA;

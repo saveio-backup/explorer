@@ -124,6 +124,7 @@ export default {
 			this.currentPage = page;
 		},
 		getTransactionStat() {
+
 			this.$axios
 				.get(
 					`${this.$api.gettransactionstat}/0`,
