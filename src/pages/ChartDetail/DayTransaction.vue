@@ -135,7 +135,8 @@ export default {
 						}
 					}
 				)
-				.then(res => {
+				.then(data => {
+					let res = data.data
 					if (res.Error === 0) {
 						this.dayTransactionList = res.Result["Details"];
 						this.setDayTransactionChart();

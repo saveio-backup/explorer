@@ -139,20 +139,25 @@ export default {
   },
   methods: {
     init() {
-      this.height = this.$route.query.height;
+      this.height = parseInt(this.$route.query.height);
       this.getBlockbyHeight()
     },
-    getBlockbyHeight() {
-      this.$axios.get(`${this.$api.getblockbyheight}/${this.height}`, {}, {
-        loading: {
-          text: "Loading...",
-          target: ".loading-content.block-content-wrapper"
-        }
-      }).then(res => {
-        if(res.Error === 0) {
-          this.transactionObj = res.Result;
-        }
-      })
+    async getBlockbyHeight() {
+      let res = await this.$api2.getBlockbyHeight(this.height);
+      if(res.error === 0) {
+        this.transactionObj = res.result;
+      }
+      // this.$axios.get(`${this.$api.getblockbyheight}/${this.height}`, {}, {
+      //   loading: {
+      //     text: "Loading...",
+      //     target: ".loading-content.block-content-wrapper"
+      //   }
+      // }).then(data => {
+      //   let res = data.data
+      //   if(res.Error === 0) {
+      //     this.transactionObj = res.Result;
+      //   }
+      // })
     }
   },
   mounted() {

@@ -144,7 +144,8 @@ export default {
 						}
 					}
 				)
-				.then(res => {
+				.then(data => {
+					let res = data.data
 					if (res.Error === 0) {
 						for (let i = 0; i < res.Result.Details.length; i++) {
 							let item = res.Result.Details[i];

@@ -86,18 +86,26 @@ export default {
 		currentChange(page) {
 			this.currentPage = page;
 		},
-		getFileStat() {
-			this.$axios.get(`${this.$api.getfilestat}/0`, {}, {
-				loading: {
-					text: "Loading...",
-					target: ".loading-content.file-total-chart"
-				}
-			}).then(res => {
-				if(res.Error === 0) {
-					this.fileTotalList = res.Result['Details'];
-					this.setFileStat();
-				}
-			})
+		async getFileStat() {
+			let res = await this.$api2.getFileState({});
+			if(res.error === 0) {
+				this.fileTotalList = res.result;
+				console.log("fileTotalList");
+				console.log(this.fileTotalList);
+				this.setFileStat();
+			}
+			// this.$axios.get(`${this.$api.getfilestat}/0`, {}, {
+			// 	loading: {
+			// 		text: "Loading...",
+			// 		target: ".loading-content.file-total-chart"
+			// 	}
+			// }).then(data => {
+			// 	let res = data.data
+			// 	if(res.Error === 0) {
+			// 		this.fileTotalList = res.Result['Details'];
+			// 		this.setFileStat();
+			// 	}
+			// })
 		},
 		setFileStat() {
 			let fileNumArr = [];

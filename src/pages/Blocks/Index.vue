@@ -88,18 +88,24 @@ export default {
       this.currentPage = page;
       this.getBlocks();  
     },
-    getBlocks() {
-      this.$axios.get(`${this.$api.getblocks}/${(this.currentPage - 1) * 10}/10`, {}, {
-        loading: {
-          text: "Loading...",
-          target: ".loading-content.block-list-wrapper"
-        }
-      }).then(res => {
-        if(res.Error === 0) {
-          this.blockList = res.Result['Blocks'];
-          this.total = res.Result['Total'];
-        }
-      })
+    async getBlocks() {
+      let res = await this.$api2.getBlocks({offset: ((this.currentPage - 1) * 10 + 1), limit: 10});
+      if(res.error === 0) {
+        this.blockList = res.result['Detail'];
+        this.total = res.result['Total'];
+      }
+      // this.$axios.get(`${this.$api.getblocks}/${(this.currentPage - 1) * 10}/10`, {}, {
+      //   loading: {
+      //     text: "Loading...",
+      //     target: ".loading-content.block-list-wrapper"
+      //   }
+      // }).then(data => {
+      //   let res = data.data
+      //   if(res.Error === 0) {
+      //     this.blockList = res.Result['Blocks'];
+      //     this.total = res.Result['Total'];
+      //   }
+      // })
     }
   },
   mounted() {

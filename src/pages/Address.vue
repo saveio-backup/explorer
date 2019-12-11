@@ -121,7 +121,8 @@ export default {
           text: "Loading...",
           target: ".loading-content.address-info-wrapper"
         }
-      }).then(res => {
+      }).then(data => {
+				let res = data.data
         if(res.Error === 0) {
           this.transactionObj = res.Result;
         }

@@ -161,6 +161,7 @@ export default {
 	methods: {
 		changeScreenWidth() {
 			let width = document.body.clientWidth;
+			if(width === this.$store.state.Home.clientWidth) return;
 			this.$store.commit('SET_SCREEN_WIDTH', width);
 		},
 		stopPenetrate(e) {

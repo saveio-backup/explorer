@@ -83,17 +83,23 @@ export default {
       this.hash = this.$route.query.hash;
       this.getTransactionByHash();
     },
-    getTransactionByHash() {
-      this.$axios.get(`${this.$api.gettransactionbyhash}/${this.hash}`, {}, {
-        loading: {
-          text: "Loading...",
-          target: ".loading-content.transaction-content-wrapper"
-        }
-      }).then(res => {
-        if(res.Error === 0) {
-          this.transactionDetailObj = res.Result;
-        }
-      })
+    async getTransactionByHash() {
+      let res = await this.$api2.getRawTransactionJson({txHash: this.hash});
+      if(res.error === 0) {
+        // console.log(res.result);
+        this.transactionDetailObj = res.result;
+      }
+      // this.$axios.get(`${this.$api.gettransactionbyhash}/${this.hash}`, {}, {
+      //   loading: {
+      //     text: "Loading...",
+      //     target: ".loading-content.transaction-content-wrapper"
+      //   }
+      // }).then(data => {
+      //   let res = data.data;
+      //   if(res.Error === 0) {
+      //     this.transactionDetailObj = res.Result;
+      //   }
+      // })
     }
   },
   mounted() {

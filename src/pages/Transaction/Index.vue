@@ -99,16 +99,10 @@ export default {
 	name: "TransactionIndex",
 	data() {
 		return {
-			transactionObj: [],
+			transactionList: [],
 			total: 0,
 			currentPage: 1
 		};
-	},
-	computed: {
-		transactionList() {
-			if(!this.transactionObj) return [];
-			return this.transactionObj.Txs;
-		}
 	},
 	methods: {
 		init() {
@@ -118,18 +112,25 @@ export default {
       this.currentPage = page;
       this.getTransactions();
     },
-		getTransactions() {
-			 this.$axios.get(`${this.$api.gettransactions}/${(this.currentPage - 1) * 10}/10`, {}, {
-        loading: {
-          text: "Loading...",
-          target: ".loading-content.block-list-wrapper"
-        }
-      }).then(res => {
-        if(res.Error === 0) {
-          this.transactionObj = res.Result;
-          this.total = res.Result['Total'];
-        }
-      })
+		async getTransactions() {
+			let res = await this.$api2.getTransactions({offset: this.currentPage * 10, limit: 10});
+			if(res.error === 0) {
+				console.log(res.result);
+				this.transactionList = res.result['Detail'];
+				this.total = res.result['Total'];
+			}
+			// this.$axios.get(`${this.$api.gettransactions}/${(this.currentPage - 1) * 10}/10`, {}, {
+      //   loading: {
+      //     text: "Loading...",
+      //     target: ".loading-content.block-list-wrapper"
+      //   }
+      // }).then(data => {
+			// 	let res = data.data;
+      //   if(res.Error === 0) {
+      //     this.transactionObj = res.Result;
+      //     this.total = res.Result['Total'];
+      //   }
+      // })
 		}
 	},
 	mounted() {

@@ -98,18 +98,25 @@ export default {
 		currentChange(page) {
 			this.currentPage = page;
 		},
-		getstakestat() {
-			this.$axios.get(`${this.$api.getstakestat}/0`, {}, {
-				loading: {
-					text: "Loading...",
-					target: ".loading-content.sum-pledge-chart"
-				}
-			}).then(res => {
-				if(res.Error === 0) {
-					this.sumPledgeList = res.Result['Details'];
-					this.setSumPledgeChart();
-				}
-			})
+		async getstakestat() {
+			let res = await this.$api2.getStakeStat({days: 30});
+			if(res.error === 0) {
+				this.sumPledgeList = res.result;
+				this.setSumPledgeChart();
+			}
+
+			// this.$axios.get(`${this.$api.getstakestat}/0`, {}, {
+			// 	loading: {
+			// 		text: "Loading...",
+			// 		target: ".loading-content.sum-pledge-chart"
+			// 	}
+			// }).then(data => {
+			// 	let res = data.data;
+			// 	if(res.Error === 0) {
+			// 		this.sumPledgeList = res.Result['Details'];
+			// 		this.setSumPledgeChart();
+			// 	}
+			// })
 		},
 		setSumPledgeChart() {
 			let pledgeFsNumArr = [];

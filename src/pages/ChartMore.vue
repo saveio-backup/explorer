@@ -66,7 +66,8 @@ export default {
 						}
 					}
 				)
-				.then(res => {
+				.then(data => {
+					let res = data.data
 					if (res.Error === 0) {
 						this.addrCountList = res.Result["AddrCountList"];
 						this.amountCountList = res.Result["AmountCountList"];

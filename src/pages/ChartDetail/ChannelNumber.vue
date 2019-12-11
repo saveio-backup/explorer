@@ -96,24 +96,30 @@ export default {
 		currentChange(page) {
 			this.currentPage = page;
 		},
-		getChannelStat() {
-			this.$axios
-				.get(
-					`${this.$api.getchannelstat}/0`,
-					{},
-					{
-						loading: {
-							text: "Loading...",
-							target: ".loading-content.channel-number-chart"
-						}
-					}
-				)
-				.then(res => {
-					if (res.Error === 0) {
-						this.channelNumberList = res.Result["Details"];
-						this.setChannelNumberChart();
-					}
-				});
+		async getChannelStat() {
+			let res = await this.$api2.getChannelStat({});
+			if(res.error === 0) {
+				this.channelNumberList = res.result;
+				this.setChannelNumberChart();
+			}
+			// this.$axios
+			// 	.get(
+			// 		`${this.$api.getchannelstat}/0`,
+			// 		{},
+			// 		{
+			// 			loading: {
+			// 				text: "Loading...",
+			// 				target: ".loading-content.channel-number-chart"
+			// 			}
+			// 		}
+			// 	)
+			// 	.then(data => {
+			// 		let res = data.data
+			// 		if (res.Error === 0) {
+			// 			this.channelNumberList = res.Result["Details"];
+			// 			this.setChannelNumberChart();
+			// 		}
+			// 	});
 		},
 		setChannelNumberChart() {
 			let channelNumArr = [];

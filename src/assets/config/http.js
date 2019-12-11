@@ -21,7 +21,7 @@ axios.interceptors.request.use(request => {
 axios.interceptors.response.use(
     response => {
         loadingClass.removeLoading(response);
-        return response.data;
+        return response;
     },
     error => {
         loadingClass.removeLoading(error);

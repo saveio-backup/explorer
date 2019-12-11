@@ -122,29 +122,45 @@ export default {
 		currentChange(page) {
 			this.currentPage = page;
 		},
-		getProfitStat() {
+		async getProfitStat() {
 			let selectTime = this.selectTime;
-			this.$axios
-				.get(
-					`${this.$api.getprofitstat}/${selectTime}`,
-					{},
-					{
-						loading: {
-							text: "Loading...",
-							target: ".loading-content.all-net-profit-chart"
-						}
-					}
-				)
-				.then(res => {
-					if (res.Error === 0) {
-						if (selectTime === 0) {
-							this.allNetProfitList = res.Result["Details"];
-						} else {
-							this.allNetProfitListMonth = res.Result["Details"];
-            }
-            this.setAllNetProfitChart();
-					}
-				});
+			let res;
+			if(this.selectTime === 0) {
+				res = await this.$api2.getProfitStat({type: 0});
+			} else {
+				res = await this.$api2.getProfitStat({limit: 12, type: 1});
+			}
+			if(res.error === 0) {
+				if (selectTime === 0) {
+					this.allNetProfitList = res.result;
+				} else {
+					this.allNetProfitListMonth = res.result;
+				}
+				this.setAllNetProfitChart();
+			}
+			// let selectTime = this.selectTime;
+			// this.$axios
+			// 	.get(
+			// 		`${this.$api.getprofitstat}/${selectTime}`,
+			// 		{},
+			// 		{
+			// 			loading: {
+			// 				text: "Loading...",
+			// 				target: ".loading-content.all-net-profit-chart"
+			// 			}
+			// 		}
+			// 	)
+			// 	.then(data => {
+			// 		let res = data.data
+			// 		if (res.Error === 0) {
+			// 			if (selectTime === 0) {
+			// 				this.allNetProfitList = res.Result["Details"];
+			// 			} else {
+			// 				this.allNetProfitListMonth = res.Result["Details"];
+      //       }
+      //       this.setAllNetProfitChart();
+			// 		}
+			// 	});
 		},
 		setAllNetProfitChart() {
 			let date =

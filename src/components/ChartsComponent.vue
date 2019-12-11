@@ -41,6 +41,7 @@
 <script>
 import echarts from "echarts";
 import util from "../assets/config/util";
+import Buffer from "Buffer";
 export default {
 	props: {
 		type: {
@@ -93,22 +94,29 @@ export default {
 				this.getStakeStat()
 			}
 		},
-		getAllNetSpace() {
-			this.$axios.get(this.$api.getstoragestat, {}, 
-			{
-				loading: {
-					text: 'Loading...',
-					target: ".loading-content.chart-first-div"
-				}
-			}).then(res => {
-				if(res.Error === 0) {
-					this.storageStat = {
-						Used: res.Result.Used,
-						Remain: res.Result.Remain
-					}
-					this.loadChartFirst();
-				}
-			})
+		async getAllNetSpace() {
+			let currentheight = await this.$api2.getBlockHeight();
+			let res = await this.$api2.getStorageStat(currentheight);
+			if(res.error === 0) {
+				this.storageStat = res.result
+				this.loadChartFirst();
+			}
+			// this.$axios.get(this.$api.getstoragestat, {}, 
+			// {
+			// 	loading: {
+			// 		text: 'Loading...',
+			// 		target: ".loading-content.chart-first-div"
+			// 	}
+			// }).then(data => {
+			// 	let res = data.data;
+			// 	if(res.Error === 0) {
+			// 		this.storageStat = {
+			// 			Used: res.Result.Used,
+			// 			Remain: res.Result.Remain
+			// 		}
+			// 		this.loadChartFirst();
+			// 	}
+			// })
 		},
 		loadChartFirst() {
 			const vm = this;
@@ -192,18 +200,24 @@ export default {
 			this.chartFirst = echarts.init(dom);
 			this.chartFirst.setOption(option, true);
 		},
-		getProfitStat() {
-			let _endTimestamp = Date.parse(new Date())/1000;
-			// let sevenDayTimestamp = 3600 * 24 * 7;
-			this.$axios.get(`${this.$api.getprofitstat}/0/0/0/0/5`, {}, {
-				loading: {
-					text: 'Loading...',
-					target: ".loading-content.chart-second-div"
-				}
-			}).then(res => {
-				this.profitStat = res.Result.Details;
+		async getProfitStat() {
+			let res = await this.$api2.getProfitStat({limit: 7, type: 0});
+			console.log(res);
+			if(res.error === 0) {
+				this.profitStat = res.result;
 				this.loadChartSecond();
-			})
+			}
+			// let _endTimestamp = Date.parse(new Date())/1000;
+			// this.$axios.get(`${this.$api.getprofitstat}/0/0/0/0/7`, {}, {
+			// 	loading: {
+			// 		text: 'Loading...',
+			// 		target: ".loading-content.chart-second-div"
+			// 	}
+			// }).then(data => {
+				// let res = data.data
+				// this.profitStat = res.Result.Details;
+				// this.loadChartSecond();
+			// })
 		},
 		loadChartSecond() {
 			// get data
@@ -321,18 +335,24 @@ export default {
 			this.chartSecond = echarts.init(dom);
 			this.chartSecond.setOption(option, true);
 		},
-		getFileState() {
-			this.$axios.get(`${this.$api.getfilestat}/0/0/0/0/7`, {}, {
-				loading: {
-					text: 'Loading...',
-					target: ".loading-content.chart-third-div"
-				}
-			}).then(res => {
-				if(res.Error === 0) {
-					this.fileState = res.Result['Details'];
-					this.loadChartThird();
-				}
-			})
+		async getFileState() {
+			let res = await this.$api2.getFileState({days: 7});
+			if(res.error === 0) {
+				this.fileState = res.result;
+				this.loadChartThird();
+			}
+			// this.$axios.get(`${this.$api.getfilestat}/0/0/0/0/7`, {}, {
+			// 	loading: {
+			// 		text: 'Loading...',
+			// 		target: ".loading-content.chart-third-div"
+			// 	}
+			// }).then(data => {
+			// 	let res = data.data
+			// 	if(res.Error === 0) {
+			// 		this.fileState = res.Result['Details'];
+			// 		this.loadChartThird();
+			// 	}
+			// })
 		},
 		loadChartThird() {
 			let fileNumArr = [];
@@ -408,20 +428,24 @@ export default {
 			this.chartThird = echarts.init(dom);
 			this.chartThird.setOption(option, true);
 		},
-		getChannelStat() {
-			// let _endTimestamp = Date.parse(new Date())/1000;
-			// let sevenDayTimestamp = 3600 * 24 * 7;
-			this.$axios.get(`${this.$api.getchannelstat}/0/0/0/0/7`, {}, {
-				loading: {
-					text: 'Loading...',
-					target: ".loading-content.chart-fourth-div"
-				}
-			}).then(res => {
-				if(res.Error === 0) {
-					this.channelStat = res.Result['Details'];
-					this.loadChartFourth();
-				}
-			})
+		async getChannelStat() {
+			let res = await this.$api2.getChannelStat({days: 7});
+			if(res.error === 0) {
+				this.channelStat = res.result;
+				this.loadChartFourth();
+			}
+			// this.$axios.get(`${this.$api.getchannelstat}/0/0/0/0/7`, {}, {
+			// 	loading: {
+			// 		text: 'Loading...',
+			// 		target: ".loading-content.chart-fourth-div"
+			// 	}
+			// }).then(data => {
+			// 	let res = data.data
+			// 	if(res.Error === 0) {
+			// 		this.channelStat = res.Result['Details'];
+			// 		this.loadChartFourth();
+			// 	}
+			// })
 		},
 		loadChartFourth() {
 			let channelNumArr = [];
@@ -497,18 +521,24 @@ export default {
 			this.chartFourth = echarts.init(dom);
 			this.chartFourth.setOption(option, true);
 		},
-		getTransactionStat() {
-			this.$axios.get(`${this.$api.gettransactionstat}/0/0/0/0/7`, {}, {
-				loading: {
-					text: 'Loading...',
-					target: ".loading-content.chart-fifth-div"
-				}
-			}).then(res => {
-				if(res.Error === 0) {
-					this.transactionStat = res.Result['Details'];
-					this.loadChartFifth();
-				}
-			})
+		async getTransactionStat() {
+			let res = await this.$api2.getTransactionStat({days: 7});
+			if(res.error === 0) {
+				this.transactionStat = res.result;
+				this.loadChartFifth();
+			}
+			// this.$axios.get(`${this.$api.gettransactionstat}/0/0/0/0/7`, {}, {
+			// 	loading: {
+			// 		text: 'Loading...',
+			// 		target: ".loading-content.chart-fifth-div"
+			// 	}
+			// }).then(data => {
+			// 	let res = data.data
+			// 	if(res.Error === 0) {
+			// 		this.transactionStat = res.Result['Details'];
+			// 		this.loadChartFifth();
+			// 	}
+			// })
 		},
 		loadChartFifth() {
 			let transactionArr = [];
@@ -516,9 +546,9 @@ export default {
 			// let currentTimestamp = Date.parse(new Date());
 			for (let i = 0; i < 7; i++) {
 				let item = this.transactionStat[i];
-				let transactionTotal = item.Onchain + item.Offchain;
-				transactionArr.unshift(transactionTotal);
-				// let _timestamp = currentTimestamp - (i * 3600 * 1000 *24);
+				// let transactionTotal = item.Onchain + item.Offchain;
+				// transactionArr.unshift(transactionTotal);
+				transactionArr.unshift(item.Total);
 				let timeFormat = this.$dateFormat.formatMonthDayByTimestamp(item.UpdatedAt * 1000);
 				timeArr.unshift(timeFormat);
 			}
@@ -587,18 +617,24 @@ export default {
 			this.chartFifth = echarts.init(dom);
 			this.chartFifth.setOption(option, true);
 		},
-		getStakeStat() {
-			this.$axios.get(`${this.$api.getstakestat}/0/0/0/0/7`, {}, {
-				loading: {
-					text: 'Loading...',
-					target: ".loading-content.chart-sixth-div"
-				}
-			}).then(res => {
-				if(res.Error === 0) {
-					this.stakeStat = res.Result['Details'];
-					this.loadChartSixth();
-				}
-			})
+		async getStakeStat() {
+			let res = await this.$api2.getStakeStat({days: 7});
+			if(res.error === 0) {
+				this.stakeStat = res.result;
+				this.loadChartSixth();
+			}
+			// this.$axios.get(`${this.$api.getstakestat}/0/0/0/0/7`, {}, {
+			// 	loading: {
+			// 		text: 'Loading...',
+			// 		target: ".loading-content.chart-sixth-div"
+			// 	}
+			// }).then(data => {
+			// 	let res = data.data
+			// 	if(res.Error === 0) {
+			// 		this.stakeStat = res.Result['Details'];
+			// 		this.loadChartSixth();
+			// 	}
+			// })
 		},
 		loadChartSixth() {
 			let dnsStakeArr = [];

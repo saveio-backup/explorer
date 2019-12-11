@@ -24,7 +24,7 @@
 					<p>
 						<template v-if="countStat">
 							<router-link class="link-fontImportant" to="/transactions/index">
-								{{countStat.TotalTxCount}}
+								{{transactionsLength}}
 							</router-link>
 						</template>
 					</p>
@@ -36,7 +36,7 @@
 					<p>
 						<template v-if="countStat">
 							<router-link to="/node" class="link-fontImportant">
-								{{countStat.DNSNodeCount + countStat.FSNodeCount}}
+								{{countStat.NodeCount}}
 							</router-link>
 						</template>
 					</p>
@@ -46,7 +46,7 @@
 					<p>
 						<template v-if="countStat">
 							<router-link to="/chartDetail/Addresswarehouse" class="link-fontImportant">
-								{{countStat.TotalAddrs}}
+								{{totalAddrs}}
 							</router-link>
 						</template>
 					</p>
@@ -63,7 +63,7 @@
 				</li>
 			</ul>
 		</section>
-		<p class="ft14 chart-more">
+	<p class="ft14 chart-more">
 			<router-link
 				to="/chartMore"
 				class="click-link no-user-select"
@@ -159,6 +159,8 @@ export default {
 			countStat: null,
 			storageStat: null,
 			blockList: [],
+			transactionsLength: "",
+			totalAddrs: "",
 			transactionsList: [],
 			timeAgoIntervalObj: null
 		};
@@ -167,69 +169,97 @@ export default {
 		init() {
 			this.getCountStat();
 			this.getBlocksStat();
-			this.getTransactions();
+			this.syncTransaction();
+			
 			clearTimeout(this.timeAgoIntervalObj);
 			this.toGetTimeAgo();
 			this.timeAgoIntervalObj = setInterval(() => {
 				this.toGetTimeAgo();
 			}, 1000);
 		},
-		getCountStat() {
-			this.$axios
-				.get(
-					this.$api.getcountstat,
-					{},
-					{
-						loading: {
-							text: "Loading...",
-							target: ".loading-content.base-info"
-						}
-					}
-				)
-				.then(res => {
-					console.log(res);
-					if (res.Error === 0) {
-						this.countStat = res.Result;
-					} else {
-						this.$message.error("Data load failure!!!");
-					}
-				});
+
+		async syncTransaction() {
+			let res = await this.$api2.syncTransaction();
+			if(res.error === 0) {
+				this.transactionsLength = res.result.length;
+				this.getTransactions();
+			}
 		},
-		getBlocksStat() {
-			this.$axios
-				.get(
-					this.$api.getblocks + "/0/5",
-					{},
-					{
-						loading: {
-							text: "Loading...",
-							target: ".loading-content.blocks"
-						}
-					}
-				)
-				.then(res => {
-					if (res.Error === 0) {
-						this.blockList = res.Result["Blocks"];
-					}
-				});
+
+		async getCountStat() {
+			let res = await this.$api2.getCountStat();
+			if(res.error === 0) {
+				this.countStat = res.result;
+			} else {
+				console.log('err',res)
+			}
+
+			// this.$axios
+			// 	.get(
+			// 		this.$api.getcountstat,
+			// 		{},
+			// 		{
+			// 			loading: {
+			// 				text: "Loading...",
+			// 				target: ".loading-content.base-info"
+			// 			}
+			// 		}
+			// 	)
+			// 	.then(data => {
+			// 		let res = data.data
+			// 		console.log(res);
+			// 		if (res.Error === 0) {
+			// 			this.countStat = res.Result;
+			// 		} else {
+			// 			this.$message.error("Data load failure!!!");
+			// 		}
+			// 	});
 		},
-		getTransactions() {
-			this.$axios
-				.get(
-					this.$api.gettransactions + "/0/5",
-					{},
-					{
-						loading: {
-							text: "Loading...",
-							target: ".loading-content.transactions"
-						}
-					}
-				)
-				.then(res => {
-					if (res.Error === 0) {
-						this.transactionsList = res.Result["Txs"];
-					}
-				});
+		async getBlocksStat() {
+			let res = await this.$api2.getBlocks({offset: 1, limit: 6});
+			if(res.error === 0) {
+				this.blockList = res.result['Detail'];
+			}
+			// this.$axios
+			// 	.get(
+			// 		this.$api.getblocks + "/0/5",
+			// 		{},
+			// 		{
+			// 			loading: {
+			// 				text: "Loading...",
+			// 				target: ".loading-content.blocks"
+			// 			}
+			// 		}
+			// 	)
+			// 	.then(data => {
+			// 		let res = data.data;
+			// 		if (res.Error === 0) {
+			// 			this.blockList = res.Result["Blocks"];
+			// 		}
+			// 	});
+		},
+		async getTransactions() {
+			let res = await this.$api2.getTransactions({offset: 0, limit: 6});
+			if(res.error === 0) {
+				this.transactionsList = res.result['Detail'];
+			}
+			// this.$axios
+				// .get(
+				// 	this.$api.gettransactions + "/0/5",
+				// 	{},
+				// 	{
+				// 		loading: {
+				// 			text: "Loading...",
+				// 			target: ".loading-content.transactions"
+				// 		}
+				// 	}
+				// )
+				// .then(data => {
+				// 	let res = data.data;
+				// 	if (res.Error === 0) {
+				// 		this.transactionsList = res.Result["Txs"];
+				// 	}
+				// });
 		},
 		computedTimeAgo({currentTimestamp, timestamp}) {
 			let result = '';

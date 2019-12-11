@@ -115,25 +115,13 @@ export default {
 		currentChange(page) {
 			this.currentPage = page;
 		},
-		getStorageStat() {
-			this.$axios
-				.get(
-					this.$api.getstoragestat,
-					{},
-					{
-						loading: {
-							text: "Loading...",
-							target: ".loading-content.all-net-storage-chart"
-						}
-					}
-				)
-				.then(res => {
-					if (res.Error === 0) {
-						this.storageSpaceList = res.Result["Details"];
-						this.setAllNetStorageChartCircle();
-						this.setAllNetStorageChartLine();
-					}
-				});
+		async getStorageStat() {
+			let res = await this.$api2.getStorageStat();
+			if(res.error === 0) {
+				this.storageSpaceList = res.result['Details'];
+				this.setAllNetStorageChartCircle();
+				this.setAllNetStorageChartLine();
+			}
 		},
 		setAllNetStorageChartCircle() {
 			const vm = this;
