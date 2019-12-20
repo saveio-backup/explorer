@@ -2,7 +2,7 @@
 	<div id="home">
 		<section class="base-info loading-content">
 			<ul>
-				<li>
+				<li class="loading-content home-block-height">
 					<h4>
 						Block Height
 					</h4>
@@ -17,7 +17,7 @@
 						</template>
 					</p>
 				</li>
-				<li>
+				<li class="loading-content home-transaction-total">
 					<h4>
 						Total Transactions
 					</h4>
@@ -29,7 +29,7 @@
 						</template>
 					</p>
 				</li>
-				<li>
+				<li class="loading-content home-node">
 					<h4>
 						Nodes
 					</h4>
@@ -41,7 +41,7 @@
 						</template>
 					</p>
 				</li>
-				<li>
+				<li class="loading-content home-address-length">
 					<h4>Total Address</h4>
 					<p>
 						<template v-if="countStat">
@@ -51,7 +51,7 @@
 						</template>
 					</p>
 				</li>
-				<li class="last-child">
+				<li class="last-child loading-content home-channel">
 					<h4>Channels</h4>
 					<p>
 						<template v-if="countStat">
@@ -106,7 +106,7 @@
 					</li>
 				</ul>
 			</section>
-			<section class="transactions loading-content home-info">
+			<section class="transactions loading-content home-info home-transaction">
 				<div class="info-top ft16">
 					<h3 class="no-user-select">Transactions</h3>
 					<router-link
@@ -162,14 +162,23 @@ export default {
 			transactionsLength: "",
 			totalAddrs: "",
 			transactionsList: [],
-			timeAgoIntervalObj: null
+			timeAgoIntervalObj: null,
+			loading: {
+				countStatBlockHeight: null,
+				countStatNode: null,
+				countStatChannel: null,
+				transactionList: null,
+				transactionTotal: null,
+				addressLength: null,
+			}
 		};
 	},
 	methods: {
 		init() {
 			this.getCountStat();
 			this.getBlocksStat();
-			this.syncTransaction();
+			this.getTransactions();
+			this.getAddressLength();
 			
 			clearTimeout(this.timeAgoIntervalObj);
 			this.toGetTimeAgo();
@@ -178,94 +187,91 @@ export default {
 			}, 1000);
 		},
 
-		async syncTransaction() {
-			let res = await this.$api2.syncTransaction();
+		async getAddressLength() {
+			// add loading
+			this.loading.addressLength = this.$loading({
+				target: ".home-address-length.loading-content",
+			});
+
+			// get data
+			let res = await this.$api2.getAddressLength();
+
+			// close loading
+			this.loading.addressLength && this.loading.addressLength.close();
+
 			if(res.error === 0) {
-				this.transactionsLength = res.result.length;
-				this.getTransactions();
+				this.totalAddrs = res.result;
 			}
 		},
 
 		async getCountStat() {
+			// add loading
+			this.loading.countStatBlockHeight = this.$loading({
+				target: ".home-block-height.loading-content",
+			});
+			this.loading.countStatNode = this.$loading({
+				target: ".home-node.loading-content",
+			});
+			this.loading.countStatChannel = this.$loading({
+				target: ".home-channel.loading-content",
+			});
+
+			// get data
 			let res = await this.$api2.getCountStat();
+
+			// close loading
+			this.loading.countStatBlockHeight && this.loading.countStatBlockHeight.close();
+			this.loading.countStatNode && this.loading.countStatNode.close();
+			this.loading.countStatChannel && this.loading.countStatChannel.close();
+
 			if(res.error === 0) {
 				this.countStat = res.result;
 			} else {
 				console.log('err',res)
 			}
-
-			// this.$axios
-			// 	.get(
-			// 		this.$api.getcountstat,
-			// 		{},
-			// 		{
-			// 			loading: {
-			// 				text: "Loading...",
-			// 				target: ".loading-content.base-info"
-			// 			}
-			// 		}
-			// 	)
-			// 	.then(data => {
-			// 		let res = data.data
-			// 		console.log(res);
-			// 		if (res.Error === 0) {
-			// 			this.countStat = res.Result;
-			// 		} else {
-			// 			this.$message.error("Data load failure!!!");
-			// 		}
-			// 	});
 		},
 		async getBlocksStat() {
+			// add loading
+			this.loading.blocksStat = this.$loading({
+				target: ".blocks.loading-content",
+			});
+
+			// get data
 			let res = await this.$api2.getBlocks({offset: 1, limit: 6});
+
+			// close loading
+			this.loading.blocksStat && this.loading.blocksStat.close();
+			
 			if(res.error === 0) {
 				this.blockList = res.result['Detail'];
 			}
-			// this.$axios
-			// 	.get(
-			// 		this.$api.getblocks + "/0/5",
-			// 		{},
-			// 		{
-			// 			loading: {
-			// 				text: "Loading...",
-			// 				target: ".loading-content.blocks"
-			// 			}
-			// 		}
-			// 	)
-			// 	.then(data => {
-			// 		let res = data.data;
-			// 		if (res.Error === 0) {
-			// 			this.blockList = res.Result["Blocks"];
-			// 		}
-			// 	});
 		},
 		async getTransactions() {
+			// add loading
+			this.loading.transactionList = this.$loading({
+				target: ".home-transaction.loading-content",
+			});
+			this.loading.transactionTotal = this.$loading({
+				target: ".home-transaction-total.loading-content",
+			});
+
+			// get data
 			let res = await this.$api2.getTransactions({offset: 0, limit: 6});
+
+			// close loading
+			this.loading.transactionList && this.loading.transactionList.close();
+			this.loading.transactionTotal && this.loading.transactionTotal.close();
+
 			if(res.error === 0) {
 				this.transactionsList = res.result['Detail'];
+				this.transactionsLength = res.result['Total'];
 			}
-			// this.$axios
-				// .get(
-				// 	this.$api.gettransactions + "/0/5",
-				// 	{},
-				// 	{
-				// 		loading: {
-				// 			text: "Loading...",
-				// 			target: ".loading-content.transactions"
-				// 		}
-				// 	}
-				// )
-				// .then(data => {
-				// 	let res = data.data;
-				// 	if (res.Error === 0) {
-				// 		this.transactionsList = res.Result["Txs"];
-				// 	}
-				// });
 		},
 		computedTimeAgo({currentTimestamp, timestamp}) {
 			let result = '';
 			let today = new Date()
-			let yesterday = moment(new Date()).subtract(1, 'days')  // 昨天 subtract方法
-			if (moment(today).isSame(new Date(timestamp), 'day')) {  // 判断 isSame方法
+			let yesterday = moment(new Date()).subtract(1, 'days')  // yestoday subtract function 
+			if (moment(today).isSame(new Date(timestamp), 'day')) {  // judge isSame function
 				let hours = parseInt(((currentTimestamp - timestamp) % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
 				if (hours > 0) {
 						return hours + " hours ago";

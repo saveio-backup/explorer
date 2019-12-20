@@ -18,7 +18,7 @@
 				class="all-net-profit-chart loading-content"
 			></div>
 		</div>
-		<div class="all-net-profit-tb">
+		<div class="all-net-profit-tb loading-content">
 			<el-table
 				style="width: 100%;"
 				:data="tbList"
@@ -30,7 +30,7 @@
 				>
 					<template slot-scope="scope">
 						<div>
-							{{$dateFormat.formatTimeByTimestamp(scope.row.UpdatedAt*1000)}}
+							{{$dateFormat.formatYearMonthDayByTimestamp(scope.row.UpdatedAt*1000)}}
 						</div>
 					</template>
 				</el-table-column>
@@ -82,7 +82,11 @@ export default {
 			selectTime: 0, // 0, 1 (1 is month,0 is day)
 			allNetProfitList: null,
 			allNetProfitListMonth: null,
-			currentPage: 1
+			currentPage: 1,
+			loading: {
+				profitStatChart: null,
+				profitStatTb: null,
+			}
 		};
 	},
 	computed: {
@@ -117,7 +121,6 @@ export default {
 	methods: {
 		init() {
 			this.getProfitStat();
-			// this.setAllNetProfitChart();
 		},
 		currentChange(page) {
 			this.currentPage = page;
@@ -125,11 +128,26 @@ export default {
 		async getProfitStat() {
 			let selectTime = this.selectTime;
 			let res;
+
+			// add loading
+			this.loading.profitStatChart = this.$loading({
+				target: ".all-net-profit-chart.loading-content",
+			});
+			this.loading.profitStatTb = this.$loading({
+				target: ".all-net-profit-tb.loading-content",
+			});
+
+			// get data
 			if(this.selectTime === 0) {
 				res = await this.$api2.getProfitStat({type: 0});
 			} else {
 				res = await this.$api2.getProfitStat({limit: 12, type: 1});
 			}
+
+			//close loading
+			this.loading.profitStatChart && this.loading.profitStatChart.close();
+			this.loading.profitStatTb && this.loading.profitStatTb.close();
+
 			if(res.error === 0) {
 				if (selectTime === 0) {
 					this.allNetProfitList = res.result;
@@ -138,29 +156,6 @@ export default {
 				}
 				this.setAllNetProfitChart();
 			}
-			// let selectTime = this.selectTime;
-			// this.$axios
-			// 	.get(
-			// 		`${this.$api.getprofitstat}/${selectTime}`,
-			// 		{},
-			// 		{
-			// 			loading: {
-			// 				text: "Loading...",
-			// 				target: ".loading-content.all-net-profit-chart"
-			// 			}
-			// 		}
-			// 	)
-			// 	.then(data => {
-			// 		let res = data.data
-			// 		if (res.Error === 0) {
-			// 			if (selectTime === 0) {
-			// 				this.allNetProfitList = res.Result["Details"];
-			// 			} else {
-			// 				this.allNetProfitListMonth = res.Result["Details"];
-      //       }
-      //       this.setAllNetProfitChart();
-			// 		}
-			// 	});
 		},
 		setAllNetProfitChart() {
 			let date =
@@ -208,7 +203,7 @@ export default {
 						let desc = params[0].name;
 						for(let i = 0;i < params.length;i ++) {
 							let value = params[i];
-							desc += `<br/>${value.marker}${value.seriesName}: ${value.value*1024} SAVE`
+							desc += `<br/>${value.marker}${value.seriesName}: ${value.value} SAVE`
 						}
 						return desc
 					},

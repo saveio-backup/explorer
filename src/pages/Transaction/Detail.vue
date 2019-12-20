@@ -69,7 +69,10 @@ export default {
   data() {
     return {
       transactionDetailObj: null,
-      hash: ''
+      hash: '',
+      loading: {
+        transactionsInfo: null
+      }
     }
   },
   computed: {
@@ -84,22 +87,19 @@ export default {
       this.getTransactionByHash();
     },
     async getTransactionByHash() {
+      // add loading
+      this.loading.transactionsInfo = this.$loading({
+				target: ".transaction-content-wrapper.loading-content",
+      });
+      
       let res = await this.$api2.getRawTransactionJson(this.hash);
-      console.log(res);
+
+      // close loading
+			this.loading.transactionsInfo && this.loading.transactionsInfo.close();
+
       if(res.error === 0) {
         this.transactionDetailObj = res.result;
       }
-      // this.$axios.get(`${this.$api.gettransactionbyhash}/${this.hash}`, {}, {
-      //   loading: {
-      //     text: "Loading...",
-      //     target: ".loading-content.transaction-content-wrapper"
-      //   }
-      // }).then(data => {
-      //   let res = data.data;
-      //   if(res.Error === 0) {
-      //     this.transactionDetailObj = res.Result;
-      //   }
-      // })
     }
   },
   mounted() {

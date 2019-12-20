@@ -13,7 +13,7 @@
 			</div>
 			<div class="address-info-usd">
 				<h4>Usd value</h4>
-				<p>{{transactionObj && transactionObj.BalanceFormat}} $</p>
+				<p>{{transactionObj && transactionObj.BalanceFormat}}$</p>
 			</div>
 			<div class="address-info-total">
 				<h4>Created Time</h4>
@@ -27,7 +27,7 @@
 		<h3>
 			Transactions
 		</h3>
-		<section class="transaction-wrapper">
+		<section class="transaction-wrapper loading-content">
 			<el-table :data="transactionList">
 				<el-table-column
 					label="Hash"
@@ -102,7 +102,11 @@ export default {
 		return {
       transactionObj: null,
 			address: '',
-			transactionList: []
+			transactionList: [],
+			loading: {
+				transactionInfo: null,
+				transactionList: null
+			}
 		};
 	},
   methods: {
@@ -111,7 +115,21 @@ export default {
 			this.getTransactionByAddress();
     },
 		async getTransactionByAddress() {
+			// add loading
+      this.loading.transactionInfo = this.$loading({
+				target: ".address-info-wrapper.loading-content",
+			});
+			this.loading.transactionList = this.$loading({
+				target: ".transaction-wrapper.loading-content",
+			});
+			
+			// get data
 			let res = await this.$api2.getTransactionByAddress(this.address);
+
+			// close loading
+			this.loading.transactionInfo && this.loading.transactionInfo.close();
+			this.loading.transactionList && this.loading.transactionList.close();
+
 			if(res.error === 0) {
 				this.transactionObj = res.result;
 				this.transactionList = res.result.Txs;

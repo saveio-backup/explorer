@@ -13,7 +13,7 @@ class Node extends Base {
       vm.rpcClient.getsmartcodeeventbyeventidandheights('AFmseVrdL9f9oyCzZefL9tG6UbvhzQYRMK', 6, 1, height, ""),
       vm.rpcClient.getsmartcodeeventbyeventidandheights('AFmseVrdL9f9oyCzZefL9tG6UbvjPTx9sq', 1, 1, height, ""),
       vm.rpcClient.getsmartcodeeventbyeventidandheights('AFmseVrdL9f9oyCzZefL9tG6UbvjPTx9sq', 2, 1, height, ""),
-    ]).then(ResponseArr => {
+    ]).then(async ResponseArr => {
       for (let Response of ResponseArr) {
         if (Response.error !== 0) {
           res.setError(Response.error);
@@ -31,9 +31,10 @@ class Node extends Base {
             fsObj[item.States.walletAddr].push({
               Storage: item.States["volume"],
               Address: item.States["nodeAdd"],
+              walletAddr: item.States.walletAddr,
               Alias: item.States["nodeAdd"],
               Region: "",
-              ProfitFormat: ""
+              ProfitFormat: 0
             });
             continue;
           }
@@ -65,6 +66,7 @@ class Node extends Base {
             dnsObj[_address].push({
               Alias: _ip,
               Region: "",
+              walletAddr: _address,
               IP: _ip,
               ChannelCount: 0,
               Stake: item.States.deposit/Math.pow(10, 9)
@@ -97,14 +99,80 @@ class Node extends Base {
       for(let key in dnsObj) {
         dnsArr.push(dnsObj[key][0]);
       }
+
+      dnsArr.map(item => {
+        let _walletAddrArr = item.walletAddr.split(',');
+        let hexStr = vm.context.Ont.utils.ab2hexstring(_walletAddrArr);
+        let addr = new vm.context.Ont.Crypto.Address(hexStr);
+        item['walletAddr'] = addr.toBase58();
+        return item;
+      });
+
+      fsArr.map(item => {
+        let ipLastIndex = item.Address.lastIndexOf(':');
+        let _ip = item.Address.slice(6, ipLastIndex);
+        item['IP'] = _ip;
+        return item;
+      })
+
+      
       let _result = {
         Online: 0,
         Offline: 0,
         DNS: dnsArr,
         FS: fsArr
       }
+
+      await vm.perfectResult(_result, height);
+
       res.setResult(_result);
       return res.get();
+    })
+  }
+  async perfectResult(result, height) {
+    const vm = this;
+    let commitAll = [];
+    for(let value of result.DNS) {
+      let address = value.walletAddr;
+      commitAll.push(
+        vm.rpcClient.getsmartcodeeventbyeventidandheights('AFmseVrdL9f9oyCzZefL9tG6UbviRj6Fv6', 1, 1, height, address)
+      )
+      commitAll.push(
+        vm.rpcClient.getsmartcodeeventbyeventidandheights('AFmseVrdL9f9oyCzZefL9tG6UbviRj6Fv6', 2, 1, height, address)
+      )
+      // commitAll.push(
+      //   vm.rpcClient.getRegionByIpPromise(value.IP)
+      // )
+    }
+    for(let value of result.FS) {
+      let address = value.walletAddr;
+      commitAll.push(
+        vm.rpcClient.getsmartcodeeventbyeventidandheights('AFmseVrdL9f9oyCzZefL9tG6UbvhzQYRMK', 7, 1, height, address)
+      )
+      // commitAll.push(
+      //   vm.rpcClient.getRegionByIpPromise(value.IP)
+      // )
+    }
+
+    return Promise.all(commitAll).then(ResponseArr => {
+      for(let i = 0;i < result.DNS.length;i ++) {
+        let item = result.DNS[i];
+        item['ChannelCount'] = ResponseArr[(2 * i)].result.length - ResponseArr[(2 * i + 1)].result.length;
+      }
+      for(let i = 0;i < result.FS.length; i ++) {
+        let item = result.FS[i];
+        let resItem = ResponseArr[(result.DNS.length * 2 + i)].result;
+        for(let value of resItem) {
+          for(let j = 0; j < value.Notify.length; j ++) {
+            let notifyItem = value.Notify[j];
+            if(Object.prototype.toString.call(notifyItem.States) === '[object Object]' && notifyItem.States.profit !== undefined) {
+              item["ProfitFormat"] += notifyItem.States.profit;
+            }
+          }
+        }
+        item["ProfitFormat"] = item["ProfitFormat"]/Math.pow(10, 9);
+      }
+      return result;
     })
   }
 }

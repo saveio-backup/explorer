@@ -7,7 +7,7 @@
 			>
 			</div>
 		</div>
-		<div class="sum-pledge-tb">
+		<div class="sum-pledge-tb loading-content">
 			<el-table
 				style="width: 100%;"
 				:data="tbList"
@@ -19,7 +19,7 @@
 				>
 					<template slot-scope="scope">
 						<div>
-							{{$dateFormat.formatTimeByTimestamp(scope.row.UpdatedAt*1000)}}
+							{{$dateFormat.formatYearMonthDayByTimestamp(scope.row.UpdatedAt*1000)}}
 						</div>
 					</template>
 				</el-table-column>
@@ -66,7 +66,11 @@ export default {
 		return {
 			sumPledgeChart: null,
 			sumPledgeList: null,
-			currentPage: 1
+			currentPage: 1,
+			loading: {
+				stakeStatChart: null,
+				stakeStatTb: null,
+			}
 		};
 	},
 	computed: {
@@ -99,24 +103,25 @@ export default {
 			this.currentPage = page;
 		},
 		async getstakestat() {
+			// add loading
+			this.loading.stakeStatChart = this.$loading({
+				target: ".sum-pledge-chart.loading-content",
+			});
+			this.loading.stakeStatTb = this.$loading({
+				target: ".sum-pledge-tb.loading-content",
+			});
+
+			// get data
 			let res = await this.$api2.getStakeStat({});
+
+			// close loading
+			this.loading.stakeStatChart && this.loading.stakeStatChart.close();
+			this.loading.stakeStatTb && this.loading.stakeStatTb.close();
+
 			if(res.error === 0) {
 				this.sumPledgeList = res.result;
 				this.setSumPledgeChart();
 			}
-
-			// this.$axios.get(`${this.$api.getstakestat}/0`, {}, {
-			// 	loading: {
-			// 		text: "Loading...",
-			// 		target: ".loading-content.sum-pledge-chart"
-			// 	}
-			// }).then(data => {
-			// 	let res = data.data;
-			// 	if(res.Error === 0) {
-			// 		this.sumPledgeList = res.Result['Details'];
-			// 		this.setSumPledgeChart();
-			// 	}
-			// })
 		},
 		setSumPledgeChart() {
 			let pledgeFsNumArr = [];

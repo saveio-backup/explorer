@@ -38,7 +38,7 @@
       </div>
     </section>
     <h3 class="no-user-select">Transactions</h3>
-    <section class="transactions-wrapper">
+    <section class="transactions-wrapper loading-content">
       <el-table
         :data="transactionList"
         style="width: 100%;"
@@ -131,7 +131,8 @@ export default {
       height: null,
       transactionList: [],
       loading: {
-
+        blockInfo: null,
+        blockTransaction: null
       }
     }
   },
@@ -142,13 +143,33 @@ export default {
       this.getTransactionbyHeight()
     },
     async getBlockbyHeight() {
+      // add loading
+			this.loading.blockInfo = this.$loading({
+				target: ".block-content-wrapper.loading-content",
+      });
+
+      // get data
       let res = await this.$api2.getBlockbyHeight(this.height);
+
+      // close loading
+			this.loading.blockInfo && this.loading.blockInfo.close();
+  
       if(res.error === 0) {
         this.transactionObj = res.result;
       }
     },
-    async getTransactionbyHeight() {
+    async getTransactionbyHeight() {      
+      // add loading
+      this.loading.blockTransaction = this.$loading({
+				target: ".transactions-wrapper.loading-content",
+      });
+
+      // get data
       let res = await this.$api2.getTransactionbyHeight(this.height);
+
+      // close loading
+			this.loading.blockTransaction && this.loading.blockTransaction.close();
+
       if(res.error === 0) {
         this.transactionList = res.result;
       }

@@ -54,7 +54,7 @@
 		<h3 class="no-user-select">
 			FS
 		</h3>
-		<section class="fs-wrapper">
+		<section class="fs-wrapper loading-content">
 			<el-table
 				:data="fsList"
 				style="width: 100%;"
@@ -67,7 +67,7 @@
 				>
 				</el-table-column>
 				<el-table-column
-					prop="Alias"
+					prop="IP"
 					label="DNS Node"
 					min-width="120"
 				>
@@ -101,13 +101,13 @@
 					<template slot-scope="scope">
 						<div
 							class="fontImportant"
-							:title="scope.row.Address"
+							:title="scope.row.walletAddr"
 						>
 							<router-link
 								class="tb-link"
-								:to="`/address?address=${scope.row.Address}`"
+								:to="`/address?address=${scope.row.walletAddr}`"
 							>
-								{{scope.row.Address}}
+								{{scope.row.walletAddr}}
 							</router-link>
 						</div>
 					</template>
@@ -138,7 +138,11 @@ export default {
 			util,
 			nodeObj: null,
 			currentPage: 1,
-			mapNodes: []
+			mapNodes: [],
+			loading: {
+				dnsList: null,
+				fsList: null,
+			}
 		};
 	},
 	computed: {
@@ -166,8 +170,21 @@ export default {
 			this.getNodes();
 		},
 		async getNodes() {
+			// add loading
+      this.loading.dnsList = this.$loading({
+				target: ".dns-wrapper.loading-content",
+			});
+			this.loading.fsList = this.$loading({
+				target: ".fs-wrapper.loading-content",
+			});
+
+			// get data
 			let res = await this.$api2.getNodes();
-			console.log(res);
+
+			// close loading
+			this.loading.dnsList && this.loading.dnsList.close();
+			this.loading.fsList && this.loading.fsList.close();
+
 			if(res.error === 0) {
 				for (let i = 0; i < res.result.FS.length; i++) {
 					let item = res.result.FS[i];
@@ -176,28 +193,6 @@ export default {
 				this.nodeObj = res.result;
 				this.filterNodeObj(this.nodeObj);
 			}
-			// this.$axios
-			// 	.get(
-			// 		`${this.$api.getnodes}`,
-			// 		{},
-			// 		{
-			// 			loading: {
-			// 				text: "Loading...",
-			// 				target: ".loading-content.dns-wrapper"
-			// 			}
-			// 		}
-			// 	)
-			// 	.then(data => {
-			// 		let res = data.data;
-			// 		if (res.Error === 0) {
-			// 			for (let i = 0; i < res.Result.FS.length; i++) {
-			// 				let item = res.Result.FS[i];
-			// 				item["Index"] = i + 1;
-			// 			}
-			// 			this.nodeObj = res.Result;
-			// 			this.filterNodeObj(this.nodeObj);
-			// 		}
-			// 	});
 		},
 		filterNodeObj() {
 			let arr = [];

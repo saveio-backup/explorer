@@ -7,7 +7,7 @@
 			>
 			</div>
 		</div>
-		<div class="file-total-tb">
+		<div class="file-total-tb loading-content">
 			<el-table
 				style="width: 100%;"
 				:data="tbList"
@@ -19,7 +19,7 @@
 				>
 					<template slot-scope="scope">
 						<div>
-							{{$dateFormat.formatTimeByTimestamp(scope.row.UpdatedAt*1000)}}
+							{{$dateFormat.formatYearMonthDayByTimestamp(scope.row.UpdatedAt*1000)}}
 						</div>
 					</template>
 				</el-table-column>
@@ -55,7 +55,11 @@ export default {
 		return {
 			fileTotalChart: null,
 			fileTotalList: null,
-			currentPage: 1
+			currentPage: 1,
+			loading: {
+				fileStatChart: null,
+				fileStatTb: null,
+			}
 		};
 	},
 	computed: {
@@ -87,25 +91,27 @@ export default {
 			this.currentPage = page;
 		},
 		async getFileStat() {
+			// add loading
+			this.loading.fileStatChart = this.$loading({
+				target: ".file-total-chart.loading-content",
+			});
+			this.loading.fileStatTb = this.$loading({
+				target: ".file-total-tb.loading-content",
+			});
+
+			// get data
 			let res = await this.$api2.getFileState({});
+
+			// close loading
+			this.loading.fileStatChart && this.loading.fileStatChart.close();
+			this.loading.fileStatTb && this.loading.fileStatTb.close();
+
 			if(res.error === 0) {
 				this.fileTotalList = res.result;
 				console.log("fileTotalList");
 				console.log(this.fileTotalList);
 				this.setFileStat();
 			}
-			// this.$axios.get(`${this.$api.getfilestat}/0`, {}, {
-			// 	loading: {
-			// 		text: "Loading...",
-			// 		target: ".loading-content.file-total-chart"
-			// 	}
-			// }).then(data => {
-			// 	let res = data.data
-			// 	if(res.Error === 0) {
-			// 		this.fileTotalList = res.Result['Details'];
-			// 		this.setFileStat();
-			// 	}
-			// })
 		},
 		setFileStat() {
 			let fileNumArr = [];

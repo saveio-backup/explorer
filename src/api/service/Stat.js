@@ -363,6 +363,7 @@ class Stat extends Base {
       let monthGoesBlock = vm.context.service.Block.geMonthGoesBlockNumber(i);
       let monthTimestamp = currentTimestamp - (monthGoesBlock * 5);
       timestampArr.push(monthTimestamp);
+      
       startBlock = currentheight - monthGoesBlock;
       if (endBlock <= 1) continue;
       if (startBlock < 1) startBlock = 1

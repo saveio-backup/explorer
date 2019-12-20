@@ -14,15 +14,11 @@
 				>On Chain</p>
 			</div>
 			<div
-				id="allNetProfitChart"
-				class="all-net-profit-chart loading-content"
-			></div>
-			<div
 				class="day-transaction-chart loading-content"
 				id="dayTransactionChart"
 			></div>
 		</div>
-		<div class="day-transaction-tb">
+		<div class="day-transaction-tb loading-content">
 			<el-table
 				style="width: 100%;"
 				:data="tbList"
@@ -34,7 +30,7 @@
 				>
 				<template slot-scope="scope">
 						<div>
-							{{$dateFormat.formatTimeByTimestamp(scope.row.UpdatedAt*1000)}}
+							{{$dateFormat.formatYearMonthDayByTimestamp(scope.row.UpdatedAt*1000)}}
 						</div>
 					</template>
 				</el-table-column>
@@ -89,7 +85,11 @@ export default {
 			dayTransactionChart: null,
 			dayTransactionList: null,
 			currentPage: 1,
-			selectTime: 1 // 0, 1 (1 is on chain,0 is off chain)
+			selectTime: 1, // 0, 1 (1 is on chain,0 is off chain)
+			loading: {
+				transactionStatChart: null,
+				transactionStatTb: null,
+			}
 		};
 	},
 	computed: {
@@ -123,32 +123,30 @@ export default {
 		currentChange(page) {
 			this.currentPage = page;
 		},
-		getTransactionStat() {
+		async getTransactionStat() {
+			// add loading
+			this.loading.transactionStatChart = this.$loading({
+				target: ".day-transaction-chart.loading-content",
+			});
+			this.loading.transactionStatTb = this.$loading({
+				target: ".day-transaction-tb.loading-content",
+			});
 
-			this.$axios
-				.get(
-					`${this.$api.gettransactionstat}/0`,
-					{},
-					{
-						loading: {
-							text: "Loading...",
-							target: ".loading-content.day-transaction-chart"
-						}
-					}
-				)
-				.then(data => {
-					let res = data.data
-					if (res.Error === 0) {
-						this.dayTransactionList = res.Result["Details"];
-						this.setDayTransactionChart();
-					}
-				});
+			let res = await this.$api2.getTransactionStat({});
+
+			// close loading
+			this.loading.transactionStatChart && this.loading.transactionStatChart.close();
+			this.loading.transactionStatTb && this.loading.transactionStatTb.close();
+
+			if(res.error === 0) {
+				this.dayTransactionList = res.result;
+				this.setDayTransactionChart();
+			}
 		},
 		setDayTransactionChart() {
 			let dayTransactionArr = [];
 			let timeArr = [];
 			for (let item of this.dayTransactionList) {
-				// let total = item.Offchain + item.Onchain;
 				let total = this.selectTime === 0 ? item.Offchain : item.Onchain;
 				dayTransactionArr.unshift(total);
 				let timeFormat = this.$dateFormat.formatMonthDayByTimestamp(item.UpdatedAt * 1000);

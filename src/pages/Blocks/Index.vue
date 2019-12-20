@@ -77,7 +77,10 @@ export default {
       util,
       blockList: [],
       total: 0,
-      currentPage: 1
+      currentPage: 1,
+      loading: {
+        blockChart: null
+      }
     }
   },
   methods: {
@@ -89,23 +92,21 @@ export default {
       this.getBlocks();  
     },
     async getBlocks() {
+      // add loading
+			this.loading.blockChart = this.$loading({
+				target: ".block-list-wrapper.loading-content",
+			});
+
+      // get data
       let res = await this.$api2.getBlocks({offset: ((this.currentPage - 1) * 10 + 1), limit: 10});
+
+      // close loading
+			this.loading.blockChart && this.loading.blockChart.close();
+
       if(res.error === 0) {
         this.blockList = res.result['Detail'];
         this.total = res.result['Total'];
       }
-      // this.$axios.get(`${this.$api.getblocks}/${(this.currentPage - 1) * 10}/10`, {}, {
-      //   loading: {
-      //     text: "Loading...",
-      //     target: ".loading-content.block-list-wrapper"
-      //   }
-      // }).then(data => {
-      //   let res = data.data
-      //   if(res.Error === 0) {
-      //     this.blockList = res.Result['Blocks'];
-      //     this.total = res.Result['Total'];
-      //   }
-      // })
     }
   },
   mounted() {

@@ -64,6 +64,13 @@ export default {
 			chartFourth: null,
 			chartFifth: null,
 			chartSixth: null,
+			loading: {
+				allNetSpace: null,
+				profitStat: null,
+				fileStat: null,
+				channelStat: null,
+				stakeStat: null,
+			}
 		};
 	},
 	computed: {
@@ -97,28 +104,22 @@ export default {
 			}
 		},
 		async getAllNetSpace() {
+			// add loading
+			this.loading.allNetSpace = this.$loading({
+				target: ".chart-first-div.loading-content",
+			});
+
+			// get data
 			let currentheight = await this.$api2.getBlockHeight();
 			let res = await this.$api2.getStorageStat(currentheight);
+
+			// close loading
+			this.loading.allNetSpace && this.loading.allNetSpace.close();
+
 			if(res.error === 0) {
 				this.storageStat = res.result
 				this.loadChartFirst();
 			}
-			// this.$axios.get(this.$api.getstoragestat, {}, 
-			// {
-			// 	loading: {
-			// 		text: 'Loading...',
-			// 		target: ".loading-content.chart-first-div"
-			// 	}
-			// }).then(data => {
-			// 	let res = data.data;
-			// 	if(res.Error === 0) {
-			// 		this.storageStat = {
-			// 			Used: res.Result.Used,
-			// 			Remain: res.Result.Remain
-			// 		}
-			// 		this.loadChartFirst();
-			// 	}
-			// })
 		},
 		loadChartFirst() {
 			const vm = this;
@@ -203,23 +204,21 @@ export default {
 			this.chartFirst.setOption(option, true);
 		},
 		async getProfitStat() {
+			// add loading
+			this.loading.profitStat = this.$loading({
+				target: ".chart-second-div.loading-content",
+			});
+
+			// get data
 			let res = await this.$api2.getProfitStat({limit: 7, type: 0});
-			console.log(res);
+
+			// close loading
+			this.loading.profitStat && this.loading.profitStat.close();
+
 			if(res.error === 0) {
 				this.profitStat = res.result;
 				this.loadChartSecond();
 			}
-			// let _endTimestamp = Date.parse(new Date())/1000;
-			// this.$axios.get(`${this.$api.getprofitstat}/0/0/0/0/7`, {}, {
-			// 	loading: {
-			// 		text: 'Loading...',
-			// 		target: ".loading-content.chart-second-div"
-			// 	}
-			// }).then(data => {
-				// let res = data.data
-				// this.profitStat = res.Result.Details;
-				// this.loadChartSecond();
-			// })
 		},
 		loadChartSecond() {
 			// get data
@@ -261,7 +260,7 @@ export default {
 						let desc = params[0].name;
 						for(let i = 0;i < params.length;i ++) {
 							let value = params[i];
-							desc += `<br/>${value.marker}${value.seriesName}: ${value.value*1024} SAVE`
+							desc += `<br/>${value.marker}${value.seriesName}: ${value.value} SAVE`
 						}
 						return desc
 					},
@@ -338,23 +337,22 @@ export default {
 			this.chartSecond.setOption(option, true);
 		},
 		async getFileState() {
+			// add loading
+			this.loading.fileStat = this.$loading({
+				target: ".chart-third-div.loading-content",
+			});
+
+			// get data
 			let res = await this.$api2.getFileState({days: 7});
+			
+			//close loading
+			this.loading.fileStat && this.loading.fileStat.close();
+
+
 			if(res.error === 0) {
 				this.fileState = res.result;
 				this.loadChartThird();
 			}
-			// this.$axios.get(`${this.$api.getfilestat}/0/0/0/0/7`, {}, {
-			// 	loading: {
-			// 		text: 'Loading...',
-			// 		target: ".loading-content.chart-third-div"
-			// 	}
-			// }).then(data => {
-			// 	let res = data.data
-			// 	if(res.Error === 0) {
-			// 		this.fileState = res.Result['Details'];
-			// 		this.loadChartThird();
-			// 	}
-			// })
 		},
 		loadChartThird() {
 			let fileNumArr = [];
@@ -431,23 +429,21 @@ export default {
 			this.chartThird.setOption(option, true);
 		},
 		async getChannelStat() {
+			// add loading
+			this.loading.channelStat = this.$loading({
+				target: ".chart-fourth-div.loading-content",
+			});
+
+			// get data
 			let res = await this.$api2.getChannelStat({days: 7});
+
+			// close loading
+			this.loading.channelStat && this.loading.channelStat.close();
+
 			if(res.error === 0) {
 				this.channelStat = res.result;
 				this.loadChartFourth();
 			}
-			// this.$axios.get(`${this.$api.getchannelstat}/0/0/0/0/7`, {}, {
-			// 	loading: {
-			// 		text: 'Loading...',
-			// 		target: ".loading-content.chart-fourth-div"
-			// 	}
-			// }).then(data => {
-			// 	let res = data.data
-			// 	if(res.Error === 0) {
-			// 		this.channelStat = res.Result['Details'];
-			// 		this.loadChartFourth();
-			// 	}
-			// })
 		},
 		loadChartFourth() {
 			let channelNumArr = [];
@@ -524,23 +520,21 @@ export default {
 			this.chartFourth.setOption(option, true);
 		},
 		async getTransactionStat() {
+			// add loading
+			this.loading.transactionStat = this.$loading({
+				target: ".chart-fifth-div.loading-content",
+			});
+
+			// get data
 			let res = await this.$api2.getTransactionStat({days: 7});
+
+			// close loading
+			this.loading.transactionStat && this.loading.transactionStat.close();
+
 			if(res.error === 0) {
 				this.transactionStat = res.result;
 				this.loadChartFifth();
 			}
-			// this.$axios.get(`${this.$api.gettransactionstat}/0/0/0/0/7`, {}, {
-			// 	loading: {
-			// 		text: 'Loading...',
-			// 		target: ".loading-content.chart-fifth-div"
-			// 	}
-			// }).then(data => {
-			// 	let res = data.data
-			// 	if(res.Error === 0) {
-			// 		this.transactionStat = res.Result['Details'];
-			// 		this.loadChartFifth();
-			// 	}
-			// })
 		},
 		loadChartFifth() {
 			let transactionArr = [];
@@ -550,7 +544,8 @@ export default {
 				let item = this.transactionStat[i];
 				// let transactionTotal = item.Onchain + item.Offchain;
 				// transactionArr.unshift(transactionTotal);
-				transactionArr.unshift(item.Total);
+				let _total = item.Onchain + item.Offchain;
+				transactionArr.unshift(_total);
 				let timeFormat = this.$dateFormat.formatMonthDayByTimestamp(item.UpdatedAt * 1000);
 				timeArr.unshift(timeFormat);
 			}
@@ -620,23 +615,21 @@ export default {
 			this.chartFifth.setOption(option, true);
 		},
 		async getStakeStat() {
+			// add loading
+			this.loading.stakeStat = this.$loading({
+				target: ".chart-sixth-div.loading-content",
+			});
+
+			// get data
 			let res = await this.$api2.getStakeStat({days: 7});
+
+			// close loading
+			this.loading.stakeStat && this.loading.stakeStat.close();
+
 			if(res.error === 0) {
 				this.stakeStat = res.result;
 				this.loadChartSixth();
 			}
-			// this.$axios.get(`${this.$api.getstakestat}/0/0/0/0/7`, {}, {
-			// 	loading: {
-			// 		text: 'Loading...',
-			// 		target: ".loading-content.chart-sixth-div"
-			// 	}
-			// }).then(data => {
-			// 	let res = data.data
-			// 	if(res.Error === 0) {
-			// 		this.stakeStat = res.Result['Details'];
-			// 		this.loadChartSixth();
-			// 	}
-			// })
 		},
 		loadChartSixth() {
 			let dnsStakeArr = [];

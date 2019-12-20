@@ -2,7 +2,8 @@ class IndexDb {
   constructor() {
     this.version = {
       transaction: 1,
-      version: 1
+      version: 1,
+      address: 1
     }
     this.init();
   }
@@ -19,7 +20,8 @@ class IndexDb {
         key: 'version',
         data: [{
           transaction: 1,
-          version: 1
+          version: 1,
+          address: 1
         }]
       });
     } else {

@@ -10,7 +10,7 @@
 				id="allNetStorageChartLine"
 			></div>
 		</div>
-		<div class="all-net-storage-tb">
+		<div class="all-net-storage-tb loading-content">
 			<el-table
 				style="width: 100%;"
 				:data="tbList"
@@ -22,7 +22,7 @@
 				>
 					<template slot-scope="scope">
 						<div>
-							{{$dateFormat.formatTimeByTimestamp(scope.row.UpdatedAt*1000)}}
+							{{$dateFormat.formatYearMonthDayByTimestamp(scope.row.UpdatedAt*1000)}}
 						</div>
 					</template>
 				</el-table-column>
@@ -80,7 +80,11 @@ export default {
 			allNetStorageChartCircle: null,
 			allNetStorageChartLine: null,
 			storageSpaceList: null,
-			currentPage: 1
+			currentPage: 1,
+			loading: {
+				storageStatChart: null,
+				storageStatTb: null,
+			}
 		};
 	},
 	computed: {
@@ -116,7 +120,21 @@ export default {
 			this.currentPage = page;
 		},
 		async getStorageStat() {
+			// add loading
+			this.loading.storageStatChart = this.$loading({
+				target: ".all-net-storage-chart.loading-content",
+			});
+			this.loading.storageStatTb = this.$loading({
+				target: ".all-net-storage-tb.loading-content",
+			});
+
+			// get data
 			let res = await this.$api2.getStorageStat();
+
+			// close loading
+			this.loading.storageStatChart && this.loading.storageStatChart.close();
+			this.loading.storageStatTb && this.loading.storageStatTb.close();
+
 			if(res.error === 0) {
 				this.storageSpaceList = res.result['Details'];
 				this.setAllNetStorageChartCircle();
@@ -131,10 +149,9 @@ export default {
 				tooltip: {
 					show: true,
 					trigger: "item",
-					//有a,b,c,d四种
-					//a代表系列名称(在这里就是USDJPY)，b代表数据项名称(在这里就是上涨或下跌)，
-					//c代表数据(在这里就是335或310)，
-					//d代表数据项所占的百分比数(在这里就是40.04或59.96，要显示百分比样子要自己加百分号)
+					// a: name b: serice value，
+					// c: data，
+					// d: percentage
 					formatter: "{d}%",
 					padding: [10, 10],
 					backgroundColor: "#FFFFFF",
@@ -143,18 +160,14 @@ export default {
 						fontSize: "16"
 					}
 				},
-				//系列列表
+				// serice list
 				series: [
 					{
 						name: "USDJPY",
-						//图标类型，pie是饼图
 						type: "pie",
-						//内外半径
 						radius: ["32%", "60%"],
 						center: ["50%", "60%"],
-						//是否启用防止标签重叠策略,默认是true，一般圆环圆设为false
 						avoidLabelOverlap: false,
-						//饼图图形上的文本标签(在这里是上涨或下跌)是否在中心环中显示
 						label: {
 							normal: {
 								show: true,
@@ -167,24 +180,17 @@ export default {
 								textStyle: {
 									fontSize: "14"
 								}
-								// position: "center"
 							}
 						},
-						//系列中的数据内容数组
 						data: [
 							{
-								//数据值
 								value: usedData,
-								//数据项名称
 								name: "Used",
-								//图形样式
 								itemStyle: {
 									normal: {
 										show: true,
 										borderColor: "#3F3F40",
 										borderWidth: 10,
-										//渐变色，一共五个参数，前四个0,0,0,1代表渐变色从正上方开始
-										//第5个参数则是一个数组, 用于配置颜色的渐变过程; 每一项为一个对象, 包含offset和color两个参数. offset的范围是0 ~ 1, 用于表示位置, color不用多说肯定是表示颜色了. 像示例代码的配置则表示:
 										color: "#CDDC39"
 									}
 								}
@@ -192,7 +198,6 @@ export default {
 							{
 								value: remainData,
 								name: "Remain",
-								//定义数据项的样式
 								itemStyle: {
 									normal: {
 										show: true,

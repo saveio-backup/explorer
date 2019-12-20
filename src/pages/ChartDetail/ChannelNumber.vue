@@ -7,7 +7,7 @@
 			>
 			</div>
 		</div>
-		<div class="channel-number-tb">
+		<div class="channel-number-tb loading-content">
 			<el-table
 				style="width: 100%;"
 				:data="tbList"
@@ -19,7 +19,7 @@
 				>
 					<template slot-scope="scope">
 						<div>
-							{{$dateFormat.formatTimeByTimestamp(scope.row.UpdatedAt*1000)}}
+							{{$dateFormat.formatYearMonthDayByTimestamp(scope.row.UpdatedAt*1000)}}
 						</div>
 					</template>
 				</el-table-column>
@@ -61,7 +61,11 @@ export default {
 		return {
 			channelNumberChart: null,
 			channelNumberList: null,
-			currentPage: 1
+			currentPage: 1,
+			loading: {
+				channelStatChart: null,
+				channelStatTb: null,
+			}
 		};
 	},
 	computed: {
@@ -91,35 +95,30 @@ export default {
 	methods: {
 		init() {
 			this.getChannelStat();
-			// this.setChannelNumberChart();
 		},
 		currentChange(page) {
 			this.currentPage = page;
 		},
 		async getChannelStat() {
+			// add loading
+			this.loading.channelStatChart = this.$loading({
+				target: ".channel-number-chart.loading-content",
+			});
+			this.loading.channelStatTb = this.$loading({
+				target: ".channel-number-tb.loading-content",
+			});
+
+			// get data
 			let res = await this.$api2.getChannelStat({});
+
+			// close loading
+			this.loading.channelStatChart && this.loading.channelStatChart.close();
+			this.loading.channelStatTb && this.loading.channelStatTb.close();
+
 			if(res.error === 0) {
 				this.channelNumberList = res.result;
 				this.setChannelNumberChart();
 			}
-			// this.$axios
-			// 	.get(
-			// 		`${this.$api.getchannelstat}/0`,
-			// 		{},
-			// 		{
-			// 			loading: {
-			// 				text: "Loading...",
-			// 				target: ".loading-content.channel-number-chart"
-			// 			}
-			// 		}
-			// 	)
-			// 	.then(data => {
-			// 		let res = data.data
-			// 		if (res.Error === 0) {
-			// 			this.channelNumberList = res.Result["Details"];
-			// 			this.setChannelNumberChart();
-			// 		}
-			// 	});
 		},
 		setChannelNumberChart() {
 			let channelNumArr = [];

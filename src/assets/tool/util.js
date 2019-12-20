@@ -12,12 +12,17 @@ class Util {
   /**
    * 
    * @param {Array} list
+   * @param {String/Number} keyName
    * @return {Object} value = true 
    */
-  static listToObj(list) {
+  static listToObj(list, keyName) {
     let obj = {};
     for(let value of list) {
-      obj[value] = true;
+      if(keyName) {
+        obj[value[keyName]] = true;
+      } else {
+        obj[value] = true;
+      }
     }
     return obj;
   }
@@ -38,6 +43,18 @@ class Util {
   static decodeToStringByBase64(base64String) {
     let res = Buffer.Buffer.from(base64String, 'base64').toString('utf-8');
     return res;
+  }
+
+  static flatArr(arr) {
+    const vm = this;
+    // return arr.reduce((pre, value) => {
+    //   return Array.isArray(value) ? [...pre, ...vm.flatArr(value)] : [...pre, value]
+    // }, [])
+    let _arr = []
+    for(let value of arr) {
+      _arr.concat(value);
+    }
+    return _arr;
   }
 }
 
