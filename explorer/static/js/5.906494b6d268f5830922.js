@@ -1,2 +1,0 @@
-webpackJsonp([5],{"3xsM":function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var a=n("W5g0");var i=function(e){n("gMfk")},r=Object(a.a)({name:"Page404"},function(){var e=this.$createElement;return(this._self._c||e)("div",{attrs:{id:"page404"}},[this._v("\n  404\n")])},[],!1,i,null,null);t.default=r.exports},gMfk:function(e,t){}});
-//# sourceMappingURL=5.906494b6d268f5830922.js.map
