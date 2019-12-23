@@ -300,7 +300,7 @@ export default {
 				description = `<strong>${e.features[0].properties.Alias}</strong>
         <p>IP: ${e.features[0].properties.IP}</p>
         <p>Region: ${e.features[0].properties.Region}</p>
-        <p>Pledge: ${e.features[0].properties.Stake} SAVE</p>`;
+        <p>Stake: ${e.features[0].properties.Stake} SAVE</p>`;
 			} else {
 				description = `<strong>${e.features[0].properties.Alias}</strong>
         <p>Address: ${e.features[0].properties.Address}</p>

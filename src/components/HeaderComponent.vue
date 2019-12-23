@@ -117,7 +117,7 @@ export default {
 			routerName: this.$route.name,
 			timeoutObj: null,
 			belong: {
-				home: ["Home",'ChartMore','Addresswarehouse','AllNetProfit','ChannelNumber','DayTransaction','FileTotal','StorageSpace','SumPledge'],
+				home: ["Home",'ChartMore','Addresswarehouse','AllNetProfit','ChannelNumber','DayTransaction','FileTotal','StorageSpace','SumStake'],
 				blocks: ["Blocks", "BlocksIndex", "BlocksDetail"],
 				transactions: ["Transactions", "TransactionIndex", "TransactionDetail"],
 				node: ["Node"]

@@ -212,13 +212,13 @@ class Transaction extends Base {
           Asset: "SAVE",
           From: from,
           To: to,
-          Status: Response.result.State,
+          Status: 1,
           CreatedAt: timestamp
         })
       }
       let _result = {
         Detail: arr,
-        Total: vm.context.cache.sync.transactionList.length
+        Total: vm.context.cache.sync.txCache.total
       }
       res.setResult(_result);
       return res.get();

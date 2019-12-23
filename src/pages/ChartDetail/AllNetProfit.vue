@@ -6,12 +6,12 @@
 					class="all-net-profit-chart-btn ml10"
 					:class="{'select': selectTime === 1}"
 					@click.stop="setSelectTime(1)"
-				>Monthly Profit</p>
+				>Month</p>
 				<p
 					@click.stop="setSelectTime(0)"
 					class="all-net-profit-chart-btn"
 					:class="{'select': selectTime === 0}"
-				>Daily Profit</p>
+				>Day</p>
 			</div>
 			<div
 				id="allNetProfitChart"
@@ -29,8 +29,11 @@
 					min-width="100"
 				>
 					<template slot-scope="scope">
-						<div>
+						<div v-if="selectTime === 0">
 							{{$dateFormat.formatYearMonthDayByTimestamp(scope.row.UpdatedAt*1000)}}
+						</div>
+						<div v-else>
+							{{$dateFormat.formatYearMonthByTimestamp(scope.row.UpdatedAt*1000)}}
 						</div>
 					</template>
 				</el-table-column>

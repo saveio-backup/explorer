@@ -12,7 +12,7 @@
 				<p>{{transactionObj && transactionObj.BalanceFormat}}</p>
 			</div>
 			<div class="address-info-usd">
-				<h4>Usd value</h4>
+				<h4>USD Value</h4>
 				<p>{{transactionObj && transactionObj.BalanceFormat}}$</p>
 			</div>
 			<div class="address-info-total">

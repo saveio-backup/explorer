@@ -1,4 +1,4 @@
-const TRANSACTION_KEY_LENGTH = 50000;
+const TRANSACTION_KEY_LENGTH = 1000;
 import Base from './../../service/Base';
 import IndexDB from './../db/indexDb'
 class Sync extends Base {
@@ -6,13 +6,21 @@ class Sync extends Base {
     super(context);
     this.indexDB = new IndexDB();
 
+    this.txCache = {
+      height: 0,
+      length: 0,
+      total: 0,
+    }
     this.transactionList = [];
+    this.cacheTransactionList = {};
+
     this.dayTransaction = [];
     this.addressObj = {};
     this.loading = {
-      transation: false,
+      transaction: false,
       address: false
     }
+    this.NAME = 'transaction_list'
     this.firstDayZeroGoesBlockHeight = 0;
     this.init();
   }
@@ -45,27 +53,7 @@ class Sync extends Base {
         indexDbName: 'transaction',
         key: dbName
       });
-      arr = arr.concat(dbData);
-    }
-    return arr;
-  }
-
-  async getTransactionCacheList() {
-    let _lengthCache = await this.indexDB.findData({
-      indexDbName: 'transaction',
-      key: 'length'
-    });
-    _lengthCache = _lengthCache.length === 0 ? 0 : _lengthCache[_lengthCache.length - 1].value;
-    let cacheTransactionDbNum = Math.ceil(_lengthCache / TRANSACTION_KEY_LENGTH);
-    // let NAME = 'transaction_list'
-    let arr = [];
-    for(let i = 0;i <= cacheTransactionDbNum;i ++) {
-      let dbStart = i * TRANSACTION_KEY_LENGTH;
-      let dbName = `transaction_${dbStart}_to_${dbStart+TRANSACTION_KEY_LENGTH}`;
-      let dbData = await this.indexDB.findData({
-        indexDbName: 'transaction',
-        key: dbName
-      });
+      
       arr = arr.concat(dbData);
     }
     return arr;
@@ -90,7 +78,7 @@ class Sync extends Base {
       indexDbName: 'address',
       key: 'addressList'
     });
-    // _addressCacheList = _addressCacheList.length === 0 ? [] : _addressCacheList;
+    _addressCacheList = _addressCacheList.length === 0 ? [] : _addressCacheList;
     let _addressObj = this.context.Util.listToObj(_addressCacheList);
     let result = {
       obj: _addressObj,
@@ -104,54 +92,121 @@ class Sync extends Base {
     offset,
     limit
   }) {
-    return new Promise((resolve,reject) => {
-      let obj = setInterval(() => {
-        if(this.loading.transation !== true) {
+    const vm = this;
+    return new Promise(async (resolve,reject) => {
+      let obj = setInterval(async () => {
+        if(this.loading.transaction !== true) {
+          clearInterval(obj);
           let result;
           if (offset === 0) {
-            result = this.transactionList.slice(-limit - offset);
+            result = this.transactionList.slice(vm.txCache.total - vm.txCache.length - limit - offset);
           } else {
-            result = this.transactionList.slice(-limit - offset, -offset);
+            result = this.transactionList.slice(vm.txCache.total - vm.txCache.length - limit - offset, vm.txCache.total - vm.txCache.length - offset);
           }
-          clearInterval(obj);
+          if(result.length < limit) {
+            let arr = await vm.getCacheTransacation({
+              limit: (limit - result.length),
+              offset: (vm.txCache.total - offset -limit)
+            })
+            // arr.map((item) => {
+            //   let tx = item;
+            //   item = {
+            //     TxHash: tx
+            //   }
+            //   return item;
+            // })
+            let arr2 = [];
+            for(let value of arr) {
+              arr2.push({
+                TxHash: value
+              })
+            }
+            result = arr2.concat(result);
+          }
           resolve(result);
         }
       }, 1000)
     });
   }
 
+  async getCacheTransacation({
+    offset,
+    limit
+  }) {
+    const vm = this;
+    if(offset + limit <= 0) return [];
+    // 数据在第一个表
+    if(offset < 0) {
+      limit = offset + limit;
+      offset = 0;
+      let list = await this.indexDB.findData({
+        indexDbName: 'transaction',
+        key: vm.NAME,
+        keyPath: 1
+      });
+      return list.slice(offset,(offset + limit));
+    };
+    // 数据存在于一个表
+    if(parseInt(offset / TRANSACTION_KEY_LENGTH) === parseInt((offset + limit) / TRANSACTION_KEY_LENGTH)) {
+      let keyPath = parseInt(offset / TRANSACTION_KEY_LENGTH) + 1;
+      // let keyPath = parseInt(offset / TRANSACTION_KEY_LENGTH);
+      let list = await this.indexDB.findData({
+        indexDbName: 'transaction',
+        key: vm.NAME,
+        keyPath: keyPath
+      });
+      return list.slice((offset%TRANSACTION_KEY_LENGTH),(offset%TRANSACTION_KEY_LENGTH + limit));
+    }
+    // 数据存在于两个表
+    if(parseInt(offset / TRANSACTION_KEY_LENGTH) !== parseInt((offset + limit) / TRANSACTION_KEY_LENGTH)) {
+      let keyPath0 = parseInt(offset / TRANSACTION_KEY_LENGTH) + 1;
+      // let keyPath0 = parseInt(offset / TRANSACTION_KEY_LENGTH);
+      let list0 = await this.indexDB.findData({
+        indexDbName: 'transaction',
+        key: vm.NAME,
+        keyPath: keyPath0
+      });
+      let keyPath1 = parseInt((offset + limit) / TRANSACTION_KEY_LENGTH) + 1;
+      let list1 = await this.indexDB.findData({
+        indexDbName: 'transaction',
+        key: vm.NAME,
+        keyPath: keyPath1
+      });
+      let list = list0.concat(list1);
+
+      return list.slice((offset%TRANSACTION_KEY_LENGTH),(offset%TRANSACTION_KEY_LENGTH + limit));
+    }
+  }
+
   async syncTransaction() {
-    if(this.loading.transation === true) {
+    const vm = this;
+    if(this.loading.transaction === true) {
       return false;
     }
-    this.loading.transation = true;
+    this.loading.transaction = true;
     if(this.transactionList.length > 0) {
       return this.transactionList;
     }
 
-    // let height = 500000;
     let height = await this.context.service.Block.getBlockHeight();
-    let _heightCache = await this.indexDB.findData({
-      indexDbName: 'transaction',
-      key: 'height'
-    });
-    _heightCache = _heightCache.length === 0 ? 0 : _heightCache[_heightCache.length - 1].value;
-    let transactionResult = await this.rpcClient.getsmartcodeeventbyeventidandheights('AFmseVrdL9f9oyCzZefL9tG6UbvhUMqNMV', 0, (_heightCache + 1), height, "");
+
+    await this.updateCacheHeight();
+    await this.updateCacheLength();
+
+    let transactionResult = await this.rpcClient.getsmartcodeeventbyeventidandheights('AFmseVrdL9f9oyCzZefL9tG6UbvhUMqNMV', 0, (vm.txCache.height + 1), height, "");
     if(transactionResult.error !== 0) {
       return transactionResult.error;
     }
-    let transactionCacheList = [];
-    if(this.transactionList.length === 0) {
-      transactionCacheList = await this.getTransactionCacheList();
-    }
-    this.transactionList = transactionCacheList.concat(transactionResult.result);
+    this.transactionList = transactionResult.result;
+    this.txCache.total = this.transactionList.length + this.txCache.length;
 
-    this.loading.transation = false;
+    this.loading.transaction = false;
+
     this.toSyncTransaction({data: transactionResult.result});
     return this.transactionList;
   }
 
-  async toSyncTransaction({
+  async toSyncTransaction2({
     data
   }) {
     this.loading.address = true;
@@ -242,116 +297,126 @@ class Sync extends Base {
     this.loading.address = false;
   }
 
-  // async toSyncTransaction({
-  //   data
-  // }) {
-  //   this.loading.address = true;
-  //   this.addressObj = await this.getAddressCache();
-  //   this.dayTransaction = await this.getDayTransactionCache();
+  async updateCacheHeight() {
+    return new Promise(async (resolve, reject) => {
+      let _heightCache = await this.indexDB.findData({
+        indexDbName: 'transaction',
+        key: 'height'
+      });
+      if(!_heightCache || _heightCache.length === 0) {
+        this.txCache.height = 0;
+        resolve();
+      } else {
+        let _max = 0;
+        for(let value of _heightCache) {
+          if(value.value > _max) _max = value.value;
+        }
+        this.txCache.height = _max;
+        resolve();
+      }
+    })
+  }
 
-  //   let _lengthCache = await this.indexDB.findData({
-  //     indexDbName: 'transaction',
-  //     key: 'length'
-  //   });
-  //   _lengthCache = _lengthCache.length === 0 ? 0 : _lengthCache[_lengthCache.length - 1].value;
-  //   let lastDbStart = parseInt(_lengthCache / TRANSACTION_KEY_LENGTH) * TRANSACTION_KEY_LENGTH;
-  //   // let lastDbName = `transaction_${lastDbStart}_to_${lastDbStart+TRANSACTION_KEY_LENGTH}`;
-  //   let NAME = 'transaction_list'
-  //   let lastDb = await this.indexDB.findData({
-  //     indexDbName: 'transaction',
-  //     key: NAME
-  //   });
-  //   lastDb = this.context.Util.flatArr(lastDb);
-  //   let arr = data.concat(lastDb);
-  //   // insert data
-  //   let dataArr = '';
-  //   let addrCacheLength = this.addressObj.list.length;
-  //   let dayTransactionLength = this.dayTransaction.length;
-  //   let index = Math.ceil(addrCacheLength / TRANSACTION_KEY_LENGTH);
-  //   for (let i = lastDb.length; i < arr.length; i++) {
-  //     if ((i + 1) % TRANSACTION_KEY_LENGTH === 0) {
-  //       let _index = parseInt(i + 1 / TRANSACTION_KEY_LENGTH);
-  //       dataArr = dataArr.substring(1);
+  async updateCacheLength() {
+    let _lengthCache = await this.indexDB.findData({
+      indexDbName: 'transaction',
+      key: 'length'
+    });
+    if(!_lengthCache || _lengthCache.length === 0) {
+      this.txCache.length = 0  
+    } else {
+      let _max = 0;
+      for(let value of _lengthCache) {
+        if(value.value > _max) _max = value.value;
+      }
+      this.txCache.length = _max;
+    }
+  }
 
-  //       if(index === _index) {
-  //         await this.indexDB.updateData({
-  //           indexDbName: 'transaction',
-  //           key: NAME,
-  //           keyPath: index,
-  //           data: [dataArr]
-  //         });
-  //       } else {
-  //         await this.indexDB.insertData({
-  //           indexDbName: 'transaction',
-  //           key: NAME,
-  //           data: [dataArr]
-  //         });
-  //       }
-  //       lastDbStart += TRANSACTION_KEY_LENGTH;
-  //       // lastDbName = `transaction_${lastDbStart}_to_${lastDbStart+TRANSACTION_KEY_LENGTH}`;
-  //       dataArr = '';
-  //       // update transaction length;
-  //       await this.indexDB.updateData({
-  //         indexDbName: 'transaction',
-  //         key: 'length',
-  //         data: [{
-  //           value: lastDbStart
-  //         }]
-  //       });
-  //       let heightByHashTx = await this.rpcClient.getBlockHeightByTxHash(arr[i].TxHash);
-  //       await this.indexDB.updateData({
-  //         indexDbName: 'transaction',
-  //         key: 'height',
-  //         data: [{
-  //           value: heightByHashTx.result
-  //         }]
-  //       })
-  //     } else if (i === (arr.length - 1)) {
-  //       dataArr = dataArr.substring(1);
-  //       await this.indexDB.insertData({
-  //         indexDbName: 'transaction',
-  //         key: NAME,
-  //         data: [dataArr]
-  //       });
-  //       await this.indexDB.updateData({
-  //         indexDbName: 'transaction',
-  //         key: 'length',
-  //         data: [{
-  //           value: lastDbStart
-  //         }]
-  //       });
-  //       let heigthByHashTx = await this.rpcClient.getBlockHeightByTxHash(arr[i].TxHash);
-  //       await this.indexDB.updateData({
-  //         indexDbName: 'transaction',
-  //         key: 'height',
-  //         data: [{
-  //           value: heigthByHashTx.result
-  //         }]
-  //       })
-  //     }
-  //     // dataArr.push(arr[i].TxHash);
-  //     dataArr += `,${arr[i].TxHash}`;
-  //     this.syncAddress(arr[i]);
-  //   }
-  //   let insertAddrArr = this.addressObj.list.slice(addrCacheLength);
-  //   let insertTransactionArr = this.dayTransaction.slice(dayTransactionLength);
-  //   this.indexDB.insertData({
-  //     indexDbName: 'address',
-  //     key: 'addressList',
-  //     data: insertAddrArr
-  //   });
-  //   this.indexDB.insertData({
-  //     indexDbName: 'transaction',
-  //     key: 'dayTransaction',
-  //     data: insertTransactionArr
-  //   });
-  //   this.loading.address = false;
-  // }
+  async toSyncTransaction({
+    data
+  }) {
+    const vm = this;
+    this.loading.address = true;
+    this.addressObj = await this.getAddressCache();
+    this.dayTransaction = await this.getDayTransactionCache();
+
+    let cacheLength = vm.txCache.length;
+    let arr = data;
+    let dataArr = [];
+
+    let addrCacheLength = this.addressObj.list.length;
+    let dayTransactionLength = this.dayTransaction.length;
+
+    for (let i = 0; i < arr.length; i++) {
+      if (i % TRANSACTION_KEY_LENGTH === 0 && i !== 0) {
+        let _txHash = dataArr[dataArr.length - 1];
+        await this.indexDB.insertData({
+          indexDbName: 'transaction',
+          key: vm.NAME,
+          data: [dataArr]
+        });
+        cacheLength += TRANSACTION_KEY_LENGTH;
+        dataArr = [];
+        
+        // update address
+        let insertAddrArr = this.addressObj.list.slice(addrCacheLength);
+        addrCacheLength = this.addressObj.list.length;
+        this.indexDB.insertData({
+          indexDbName: 'address',
+          key: 'addressList',
+          data: insertAddrArr
+        });
+
+        // update day total transaction
+        let insertTransactionArr = this.dayTransaction.slice(dayTransactionLength);
+        dayTransactionLength = this.dayTransaction.length;
+        if(insertTransactionArr.length === 0) {
+          await this.indexDB.updateData({
+            indexDbName: 'transaction',
+            key: 'dayTransaction',
+            data: insertTransactionArr
+          });
+        } else {
+          await this.indexDB.insertData({
+            indexDbName: 'transaction',
+            key: 'dayTransaction',
+            data: insertTransactionArr
+          });
+        }
+        
+        // update transaction length;
+        this.indexDB.updateData({
+          indexDbName: 'transaction',
+          key: 'length',
+          data: [{
+            value: cacheLength
+          }]
+        })
+        this.rpcClient.getBlockHeightByTxHash(_txHash).then(heightByHashTx => {
+          if(heightByHashTx.error === 0) {
+            let _height = heightByHashTx.result;
+            vm.indexDB.updateData({
+              indexDbName: 'transaction',
+              key: 'height',
+              data: [{
+                value: _height
+              }]
+            })
+          }
+        })
+      } 
+      dataArr.push(arr[i].TxHash);
+      this.syncAddress(arr[i]);
+    }
+
+    this.loading.address = false;
+  }
 
   async getAddressList() {
     return new Promise((resolve, reject) => {
       let obj = setInterval(() => {
-        if(this.loading.address !== true && this.loading.transation !== true) {
+        if(this.loading.address !== true && this.loading.transaction !== true) {
           clearInterval(obj);
           resolve(this.addressObj.list);
         }
@@ -362,7 +427,7 @@ class Sync extends Base {
   async getDayTransactionList() {
     return new Promise((resolve, reject) => {
       let obj = setInterval(() => {
-        if(this.loading.address !== true && this.loading.transation !== true) {
+        if(this.loading.address !== true && this.loading.transaction !== true) {
           clearInterval(obj);
           resolve(this.dayTransaction);
         }

@@ -31,7 +31,7 @@
 				id="chartFifthDiv"
 			></section>
 			<section
-				@click.stop="goPage('/chartDetail/SumPledge')"
+				@click.stop="goPage('/chartDetail/SumStake')"
 				class="charts-item chart-sixth-div loading-content"
 				id="chartSixthDiv"
 			></section>

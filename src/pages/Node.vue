@@ -40,7 +40,7 @@
 				>
 				</el-table-column>
 				<el-table-column
-					label="Pledge"
+					label="Stake"
 					min-width="120"
 				>
 					<template slot-scope="scope">

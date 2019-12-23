@@ -98,9 +98,9 @@ export default new Router({
                 name: 'StorageSpace',
                 component: resolve => require(['@/pages/ChartDetail/StorageSpace.vue'], resolve)
             },{
-                path: 'sumPledge',
-                name: 'SumPledge',
-                component: resolve => require(['@/pages/ChartDetail/SumPledge.vue'], resolve)
+                path: 'sumStake',
+                name: 'SumStake',
+                component: resolve => require(['@/pages/ChartDetail/SumStake.vue'], resolve)
             },{
                 path: '',
                 redirect: {

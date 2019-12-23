@@ -8,11 +8,11 @@
       </div>
       <div>
         <p class="content-title no-user-select">Hash:</p>
-        <p class="content-info link-fontImportant">
+        <p class="content-info fontImportant">
           <template v-if="transactionObj">
-            <router-link :to="`/transactions/detail?hash=${transactionObj.Hash}`">
+            <!-- <router-link :to="`/transactions/detail?hash=${transactionObj.Hash}`"> -->
               {{transactionObj.Hash}}
-            </router-link>
+            <!-- </router-link> -->
           </template>
         </p>
       </div>

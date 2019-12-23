@@ -1,13 +1,13 @@
 <template>
-	<div id="sumPledge">
-		<div class="sum-pledge-wrapper">
+	<div id="sumStake">
+		<div class="sum-stake-wrapper">
 			<div
-				class="sum-pledge-chart loading-content"
-				id="sumPledgeChart"
+				class="sum-stake-chart loading-content"
+				id="sumStakeChart"
 			>
 			</div>
 		</div>
-		<div class="sum-pledge-tb loading-content">
+		<div class="sum-stake-tb loading-content">
 			<el-table
 				style="width: 100%;"
 				:data="tbList"
@@ -25,19 +25,19 @@
 				</el-table-column>
 				<el-table-column
 					prop="DNSFormat"
-					label="DNS Pledge(SAVE)"
+					label="DNS Stake(SAVE)"
 					width="180"
 				>
 				</el-table-column>
 				<el-table-column
 					prop="FSFormat"
-					label="FS Pledge(SAVE)"
+					label="FS Stake(SAVE)"
 					width="180"
 				>
 				</el-table-column>
 				<el-table-column
 					prop="total"
-					label="Pledge Total(SAVE)"
+					label="Total Stake(SAVE)"
 					width="180"
 				>
 					<template slot-scope="scope">
@@ -61,11 +61,11 @@
 <script>
 import echarts from "echarts";
 export default {
-	name: "SumPledge",
+	name: "SumStake",
 	data() {
 		return {
-			sumPledgeChart: null,
-			sumPledgeList: null,
+			sumStakeChart: null,
+			sumStakeList: null,
 			currentPage: 1,
 			loading: {
 				stakeStatChart: null,
@@ -75,15 +75,15 @@ export default {
 	},
 	computed: {
 		tbList() {
-			if (!this.sumPledgeList) return [];
+			if (!this.sumStakeList) return [];
 			let _start = (this.currentPage - 1) * 10;
-			let _end = _start + 10 > this.sumPledgeList.length ? this.sumPledgeList.length : _start + 10;
-			let list = this.sumPledgeList.slice(_start, _end);
+			let _end = _start + 10 > this.sumStakeList.length ? this.sumStakeList.length : _start + 10;
+			let list = this.sumStakeList.slice(_start, _end);
 			return list;
 		},
 		total() {
-			if(!this.sumPledgeList) return 0;
-			return this.sumPledgeList.length;
+			if(!this.sumStakeList) return 0;
+			return this.sumStakeList.length;
 		},
 		screenWidth() {
 			return this.$store.state.Home.screenWidth;
@@ -91,13 +91,13 @@ export default {
 	},
 	watch: {
 		screenWidth() {
-			this.sumPledgeChart.resize();
+			this.sumStakeChart.resize();
 		}
 	},
 	methods: {
 		init() {
 			this.getstakestat();
-			// this.setSumPledgeChart();
+			// this.setSumStakeChart();
 		},
 		currentChange(page) {
 			this.currentPage = page;
@@ -105,10 +105,10 @@ export default {
 		async getstakestat() {
 			// add loading
 			this.loading.stakeStatChart = this.$loading({
-				target: ".sum-pledge-chart.loading-content",
+				target: ".sum-stake-chart.loading-content",
 			});
 			this.loading.stakeStatTb = this.$loading({
-				target: ".sum-pledge-tb.loading-content",
+				target: ".sum-stake-tb.loading-content",
 			});
 
 			// get data
@@ -119,21 +119,21 @@ export default {
 			this.loading.stakeStatTb && this.loading.stakeStatTb.close();
 
 			if(res.error === 0) {
-				this.sumPledgeList = res.result;
-				this.setSumPledgeChart();
+				this.sumStakeList = res.result;
+				this.setSumStakeChart();
 			}
 		},
-		setSumPledgeChart() {
-			let pledgeFsNumArr = [];
-			let pledgeDnsNumArr = [];
+		setSumStakeChart() {
+			let stakeFsNumArr = [];
+			let stakeDnsNumArr = [];
 			let timeArr = [];
-			for(let item of this.sumPledgeList) {
-				pledgeFsNumArr.unshift(item.FSFormat);
-				pledgeDnsNumArr.unshift(item.DNSFormat);
+			for(let item of this.sumStakeList) {
+				stakeFsNumArr.unshift(item.FSFormat);
+				stakeDnsNumArr.unshift(item.DNSFormat);
 				let timeFormat = this.$dateFormat.formatMonthDayByTimestamp(item.UpdatedAt * 1000);
 				timeArr.unshift(timeFormat);
 			}
-			let _scale = (1 - (29.5 / this.sumPledgeList.length > 1 ? 1 : 29.5 / this.sumPledgeList.length)) * 100;
+			let _scale = (1 - (29.5 / this.sumStakeList.length > 1 ? 1 : 29.5 / this.sumStakeList.length)) * 100;
 			let option = {
 				grid: {
 					left: "13%",
@@ -141,7 +141,7 @@ export default {
 					bottom: "24%"
 				},
 				legend: {
-					data:['DNS Pledge','FS Pledge'],
+					data:['DNS Stake','FS Stake'],
 					left: 'center',
 					bottom: '4%',
 					textStyle: {
@@ -223,8 +223,8 @@ export default {
 				],
 				series: [
 					{
-						name: "DNS Pledge",
-						data: pledgeDnsNumArr,
+						name: "DNS Stake",
+						data: stakeDnsNumArr,
 						type: "line",
 						areaStyle: {
 							color: "rgba(205, 220, 57, 0.2)"
@@ -234,9 +234,9 @@ export default {
 						}
 					},
 					{
-						data: pledgeFsNumArr,
+						data: stakeFsNumArr,
 						type: "line",
-						name: "FS Pledge",
+						name: "FS Stake",
 						areaStyle: {
 							color: "rgba(21, 164, 198, 0.24)"
 						},
@@ -246,9 +246,9 @@ export default {
 					}
 				]
 			};
-			let dom = document.getElementById("sumPledgeChart");
-			this.sumPledgeChart = echarts.init(dom);
-			this.sumPledgeChart.setOption(option, true);
+			let dom = document.getElementById("sumStakeChart");
+			this.sumStakeChart = echarts.init(dom);
+			this.sumStakeChart.setOption(option, true);
 		}
 	},
 	mounted() {
@@ -257,11 +257,11 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-#sumPledge {
+#sumStake {
 	width: 100%;
 	height: auto;
 
-	.sum-pledge-wrapper {
+	.sum-stake-wrapper {
 		background: rgba(42, 42, 43, 1);
 		box-shadow: 0px -4px 40px 0px rgba(0, 0, 0, 0.32);
 		max-width: 1170px;
@@ -270,13 +270,13 @@ export default {
 		height: 720px;
 		margin-top: 72px;
 
-		.sum-pledge-chart {
+		.sum-stake-chart {
 			width: 100%;
 			height: 100%;
 		}
 	}
 
-	.sum-pledge-tb {
+	.sum-stake-tb {
 		height: 630px;
 		position: relative;
 		margin: 66px auto 80px;

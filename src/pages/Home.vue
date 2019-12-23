@@ -67,9 +67,9 @@
 			<router-link
 				to="/chartMore"
 				class="click-link no-user-select"
-				title="more"
+				title="More"
 			>
-				more <i class="ofont el-icon-d-arrow-right ft14"></i>
+				More <i class="ofont el-icon-d-arrow-right ft14"></i>
 			</router-link>
 		</p>
 		<charts-component :type="1"></charts-component>

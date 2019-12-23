@@ -536,9 +536,9 @@ class Stat extends Base {
   }
 
   /**
-   * get pledge list about fs and dns
+   * get stake list about fs and dns
    * @param {Number/undefined} days
-   * @return {Res} pledge detail
+   * @return {Res} stake detail
    */
   async getStakeStat({days=10000}) {
     const vm = this;

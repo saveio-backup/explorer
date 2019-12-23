@@ -44,7 +44,7 @@ class Block extends Base {
         Height: blockInfo.Header.Height,
         TxCount: blockInfo.Transactions.length,
         Size: blockInfo.Size,
-        Miner: "",
+        Miner: blockInfo.Header.Bookkeepers[blockInfo.Header.Bookkeepers.length - 1],
         Status: 1,
         CreatedAt: _timestamp
       }

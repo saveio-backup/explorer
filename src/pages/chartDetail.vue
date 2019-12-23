@@ -12,15 +12,15 @@
 			<p
 				@click.stop="goPage('/chartDetail/fileTotal')"
 				:class="{'chart-detail-select': routerName === 'FileTotal'}"
-			>File Total</p>
+			>Total File</p>
 			<p
 				@click.stop="goPage('/chartDetail/channelNumber')"
 				:class="{'chart-detail-select': routerName === 'ChannelNumber'}"
 			>Channel Count</p>
 			<p
-				@click.stop="goPage('/chartDetail/sumPledge')"
-				:class="{'chart-detail-select': routerName === 'SumPledge'}"
-			>Pledge Total</p>
+				@click.stop="goPage('/chartDetail/sumStake')"
+				:class="{'chart-detail-select': routerName === 'SumStake'}"
+			>Total Stake</p>
 			<p
 				@click.stop="goPage('/chartDetail/dayTransaction')"
 				:class="{'chart-detail-select': routerName === 'DayTransaction'}"
