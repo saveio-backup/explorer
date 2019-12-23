@@ -300,12 +300,12 @@ export default {
 				description = `<strong>${e.features[0].properties.Alias}</strong>
         <p>IP: ${e.features[0].properties.IP}</p>
         <p>Region: ${e.features[0].properties.Region}</p>
-        <p>Stake: ${e.features[0].properties.Stake} SAVE</p>`;
+        <p>Stake: ${e.features[0].properties.Stake} ONI</p>`;
 			} else {
 				description = `<strong>${e.features[0].properties.Alias}</strong>
         <p>Address: ${e.features[0].properties.Address}</p>
         <p>Region: ${e.features[0].properties.Region}</p>
-        <p>Profit: ${e.features[0].properties.ProfitFormat} SAVE</p>`;
+        <p>Profit: ${e.features[0].properties.ProfitFormat} ONI</p>`;
 			}
 			// Ensure that if the map is zoomed out such that multiple
 			// copies of the feature are visible, the popup appears

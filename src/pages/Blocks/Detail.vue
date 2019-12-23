@@ -1,7 +1,7 @@
 <template>
   <div id="block-detail">
     <h2 class="no-user-select">BLOCKS</h2>
-    <section class="block-content-wrapper loading-content">
+    <section class="block-content-wrapper relative" ref="blockContentWrapper">
       <div>
         <p class="content-title no-user-select">Height:</p>
         <p class="content-info">{{height || 0}}</p>
@@ -38,7 +38,7 @@
       </div>
     </section>
     <h3 class="no-user-select">Transactions</h3>
-    <section class="transactions-wrapper loading-content">
+    <section class="transactions-wrapper relative" ref="transactionsWrapper">
       <el-table
         :data="transactionList"
         style="width: 100%;"
@@ -144,15 +144,19 @@ export default {
     },
     async getBlockbyHeight() {
       // add loading
-			this.loading.blockInfo = this.$loading({
-				target: ".block-content-wrapper.loading-content",
-      });
+      this.loading.blockInfo = this.$loading.show({
+				container: this.$refs.blockContentWrapper,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
+			});
 
       // get data
       let res = await this.$api2.getBlockbyHeight(this.height);
 
       // close loading
-			this.loading.blockInfo && this.loading.blockInfo.close();
+			this.loading.blockInfo && this.loading.blockInfo.hide();
   
       if(res.error === 0) {
         this.transactionObj = res.result;
@@ -160,15 +164,19 @@ export default {
     },
     async getTransactionbyHeight() {      
       // add loading
-      this.loading.blockTransaction = this.$loading({
-				target: ".transactions-wrapper.loading-content",
-      });
+      this.loading.blockTransaction = this.$loading.show({
+				container: this.$refs.transactionsWrapper,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
+			});
 
       // get data
       let res = await this.$api2.getTransactionbyHeight(this.height);
 
       // close loading
-			this.loading.blockTransaction && this.loading.blockTransaction.close();
+			this.loading.blockTransaction && this.loading.blockTransaction.hide();
 
       if(res.error === 0) {
         this.transactionList = res.result;

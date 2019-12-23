@@ -67,7 +67,8 @@ class Sync extends Base {
       indexDbName: 'transaction',
       key: 'dayTransaction'
     });
-    return _dayTransactionCacheList;
+    if(!_dayTransactionCacheList || _dayTransactionCacheList.length === 0) return [];
+    else return _dayTransactionCacheList[_dayTransactionCacheList.length - 1];
   }
 
   async getAddressCache() {
@@ -346,7 +347,7 @@ class Sync extends Base {
     let dataArr = [];
 
     let addrCacheLength = this.addressObj.list.length;
-    let dayTransactionLength = this.dayTransaction.length;
+    // let dayTransactionLength = this.dayTransaction.length;
 
     for (let i = 0; i < arr.length; i++) {
       if (i % TRANSACTION_KEY_LENGTH === 0 && i !== 0) {
@@ -369,21 +370,11 @@ class Sync extends Base {
         });
 
         // update day total transaction
-        let insertTransactionArr = this.dayTransaction.slice(dayTransactionLength);
-        dayTransactionLength = this.dayTransaction.length;
-        if(insertTransactionArr.length === 0) {
-          await this.indexDB.updateData({
-            indexDbName: 'transaction',
-            key: 'dayTransaction',
-            data: insertTransactionArr
-          });
-        } else {
-          await this.indexDB.insertData({
-            indexDbName: 'transaction',
-            key: 'dayTransaction',
-            data: insertTransactionArr
-          });
-        }
+        await this.indexDB.updateData({
+          indexDbName: 'transaction',
+          key: 'dayTransaction',
+          data: [vm.dayTransaction]
+        });
         
         // update transaction length;
         this.indexDB.updateData({
@@ -409,7 +400,6 @@ class Sync extends Base {
       dataArr.push(arr[i].TxHash);
       this.syncAddress(arr[i]);
     }
-
     this.loading.address = false;
   }
 

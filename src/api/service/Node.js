@@ -140,18 +140,12 @@ class Node extends Base {
       commitAll.push(
         vm.rpcClient.getsmartcodeeventbyeventidandheights('AFmseVrdL9f9oyCzZefL9tG6UbviRj6Fv6', 2, 1, height, address)
       )
-      // commitAll.push(
-      //   vm.rpcClient.getRegionByIpPromise(value.IP)
-      // )
     }
     for(let value of result.FS) {
       let address = value.walletAddr;
       commitAll.push(
         vm.rpcClient.getsmartcodeeventbyeventidandheights('AFmseVrdL9f9oyCzZefL9tG6UbvhzQYRMK', 7, 1, height, address)
       )
-      // commitAll.push(
-      //   vm.rpcClient.getRegionByIpPromise(value.IP)
-      // )
     }
 
     return Promise.all(commitAll).then(ResponseArr => {

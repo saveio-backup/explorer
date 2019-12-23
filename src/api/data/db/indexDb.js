@@ -41,7 +41,7 @@ class IndexDb {
         reject(e);
       };
       openRequest.onsuccess = function (event) {
-        console.log("Database open created");
+        // console.log("Database open created");
         resolve();
       };
     });
@@ -51,7 +51,7 @@ class IndexDb {
     return new Promise((resolve, reject) => {
       let deleteDbRequest = indexedDB.deleteDatabase(indexDbName);
       deleteDbRequest.onsuccess = function (event) {
-        console.log("detete database success");
+        // console.log("detete database success");
         resolve();
       };
       deleteDbRequest.onerror = function (e) {
@@ -128,7 +128,7 @@ class IndexDb {
         reject(e);
       };
       openRequest.onsuccess = function (event) {
-        console.log("Database open created");
+        // console.log("Database open created");
         db = openRequest.result;
         let transaction = db.transaction(key, 'readwrite');
         let store = transaction.objectStore(key);
@@ -186,7 +186,7 @@ class IndexDb {
         reject(e)
       };
       openRequest.onsuccess = function (event) {
-        console.log("Database open created");
+        // console.log("Database open created");
         db = openRequest.result; //创建数据库成功时候，将结果给db，此时db就是当前数据库
         let transaction = db.transaction(key, 'readonly');
         let objectStore = transaction.objectStore(key);
@@ -250,7 +250,7 @@ class IndexDb {
         reject(e)
       };
       openRequest.onsuccess = function (event) {
-        console.log("Database open created");
+        // console.log("Database open created");
         db = openRequest.result; //创建数据库成功时候，将结果给db，此时db就是当前数据库
         // if storageObj not exist; to create
         for(let i = 0;i < db.objectStoreNames.length; i++) {

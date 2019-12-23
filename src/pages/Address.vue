@@ -4,7 +4,7 @@
 			ADDRESS
 			<span>{{address}}</span>
 		</h2>
-		<section class="address-info-wrapper loading-content">
+		<section class="address-info-wrapper relative" ref="addressInfoWrapper">
 			<div class="address-info-balance">
 				<h4>
 					Balance
@@ -13,7 +13,7 @@
 			</div>
 			<div class="address-info-usd">
 				<h4>USD Value</h4>
-				<p>{{transactionObj && transactionObj.BalanceFormat}}$</p>
+				<p>{{transactionObj && transactionObj.BalanceFormat + '$'}}</p>
 			</div>
 			<div class="address-info-total">
 				<h4>Created Time</h4>
@@ -27,8 +27,8 @@
 		<h3>
 			Transactions
 		</h3>
-		<section class="transaction-wrapper loading-content">
-			<el-table :data="transactionList">
+		<section class="transaction-wrapper relative" ref="transactionWrapper">
+			<el-table :data="transactionList" min-height="250" max-height="650">
 				<el-table-column
 					label="Hash"
 					width="180"
@@ -116,19 +116,27 @@ export default {
     },
 		async getTransactionByAddress() {
 			// add loading
-      this.loading.transactionInfo = this.$loading({
-				target: ".address-info-wrapper.loading-content",
+			this.loading.transactionInfo = this.$loading.show({
+				container: this.$refs.addressInfoWrapper,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
 			});
-			this.loading.transactionList = this.$loading({
-				target: ".transaction-wrapper.loading-content",
+			this.loading.transactionList = this.$loading.show({
+				container: this.$refs.transactionWrapper,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
 			});
 			
 			// get data
 			let res = await this.$api2.getTransactionByAddress(this.address);
 
 			// close loading
-			this.loading.transactionInfo && this.loading.transactionInfo.close();
-			this.loading.transactionList && this.loading.transactionList.close();
+			this.loading.transactionInfo && this.loading.transactionInfo.hide();
+			this.loading.transactionList && this.loading.transactionList.hide();
 
 			if(res.error === 0) {
 				this.transactionObj = res.result;

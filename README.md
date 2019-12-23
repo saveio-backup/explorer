@@ -1,4 +1,4 @@
-# save-explorer
+# oni-explorer
 
 > explorer
 

@@ -14,9 +14,19 @@ import './assets/css/font/ofont/iconfont.css';
 import 'element-ui/lib/theme-chalk/index.css';
 import api from './api/index'
 
+
+
 Vue.config.productionTip = false;
 
 Vue.use(elementUI);
+
+// Import component
+import Loading from 'vue-loading-overlay';
+// Import stylesheet
+import 'vue-loading-overlay/dist/vue-loading.css';
+// Init plugin
+Vue.use(Loading);
+
 
 Vue.prototype.$axios = axios;
 Vue.prototype.$api = API;

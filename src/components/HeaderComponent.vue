@@ -6,7 +6,7 @@
 		<img
 			class="logo no-user-select"
 			@click.stop="goHome"
-			src="./../assets/images/logo.svg"
+			src="./../assets/images/ONI_logo.svg"
 			alt=""
 		>
 		<nav class="navoni top-nav">
@@ -226,7 +226,7 @@ $themeColor: #202020;
 		transition: all 0.5s;
 		z-index: 99;
 		cursor: pointer;
-		width: 110px;
+		width: 95px;
 
 		@media (max-width: 1170px) {
 			left: 10px;

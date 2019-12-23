@@ -9,7 +9,7 @@
 		<h3 class="no-user-select">
 			DNS
 		</h3>
-		<section class="dns-wrapper loading-content">
+		<section class="dns-wrapper relative" ref="dnsWrapper">
 			<el-table
 				:data="dnsList"
 				style="width:100%;"
@@ -45,7 +45,7 @@
 				>
 					<template slot-scope="scope">
 						<div>
-							{{scope.row.Stake}} SAVE
+							{{scope.row.Stake}} ONI
 						</div>
 					</template>
 				</el-table-column>
@@ -54,7 +54,7 @@
 		<h3 class="no-user-select">
 			FS
 		</h3>
-		<section class="fs-wrapper loading-content">
+		<section class="fs-wrapper relative" ref="fsWrapper">
 			<el-table
 				:data="fsList"
 				style="width: 100%;"
@@ -90,7 +90,7 @@
 				</el-table-column>
 				<el-table-column
 					prop="ProfitFormat"
-					label="Profit(SAVE)"
+					label="Profit(ONI)"
 					width="120"
 				>
 				</el-table-column>
@@ -171,19 +171,33 @@ export default {
 		},
 		async getNodes() {
 			// add loading
-      this.loading.dnsList = this.$loading({
-				target: ".dns-wrapper.loading-content",
+      // this.loading.dnsList = this.$loading({
+			// 	target: ".dns-wrapper.loading-content",
+			// });
+			this.loading.dnsList = this.$loading.show({
+				container: this.$refs.dnsWrapper,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
 			});
-			this.loading.fsList = this.$loading({
-				target: ".fs-wrapper.loading-content",
+			// this.loading.fsList = this.$loading({
+			// 	target: ".fs-wrapper.loading-content",
+			// });
+			this.loading.fsList = this.$loading.show({
+				container: this.$refs.fsWrapper,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
 			});
 
 			// get data
 			let res = await this.$api2.getNodes();
 
 			// close loading
-			this.loading.dnsList && this.loading.dnsList.close();
-			this.loading.fsList && this.loading.fsList.close();
+			this.loading.dnsList && this.loading.dnsList.hide();
+			this.loading.fsList && this.loading.fsList.hide();
 
 			if(res.error === 0) {
 				for (let i = 0; i < res.result.FS.length; i++) {

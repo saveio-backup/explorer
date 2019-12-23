@@ -1,7 +1,7 @@
 {
-  "name": "save-explorer",
+  "name": "oni-explorer",
   "version": "1.0.0",
-  "description": "A save explorer project",
+  "description": "A oni explorer project",
   "author": "e <qwewsx789852@qq.com>",
   "private": true,
   "scripts": {
@@ -22,6 +22,7 @@
     "moment": "^2.24.0",
     "ontology-ts-sdk": "^1.1.0",
     "vue": "^2.5.2",
+    "vue-loading-overlay": "^3.2.0",
     "vue-router": "^3.0.1",
     "vuex": "^3.1.1"
   },

@@ -2,12 +2,13 @@
 	<div id="sumStake">
 		<div class="sum-stake-wrapper">
 			<div
-				class="sum-stake-chart loading-content"
+				class="sum-stake-chart relative"
+				ref="sumStakeChart"
 				id="sumStakeChart"
 			>
 			</div>
 		</div>
-		<div class="sum-stake-tb loading-content">
+		<div class="sum-stake-tb relative" ref="sumStakeTb">
 			<el-table
 				style="width: 100%;"
 				:data="tbList"
@@ -25,19 +26,19 @@
 				</el-table-column>
 				<el-table-column
 					prop="DNSFormat"
-					label="DNS Stake(SAVE)"
+					label="DNS Stake(ONI)"
 					width="180"
 				>
 				</el-table-column>
 				<el-table-column
 					prop="FSFormat"
-					label="FS Stake(SAVE)"
+					label="FS Stake(ONI)"
 					width="180"
 				>
 				</el-table-column>
 				<el-table-column
 					prop="total"
-					label="Total Stake(SAVE)"
+					label="Total Stake(ONI)"
 					width="180"
 				>
 					<template slot-scope="scope">
@@ -97,26 +98,33 @@ export default {
 	methods: {
 		init() {
 			this.getstakestat();
-			// this.setSumStakeChart();
 		},
 		currentChange(page) {
 			this.currentPage = page;
 		},
 		async getstakestat() {
 			// add loading
-			this.loading.stakeStatChart = this.$loading({
-				target: ".sum-stake-chart.loading-content",
+			this.loading.stakeStatChart = this.$loading.show({
+				container: this.$refs.sumStakeChart,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
 			});
-			this.loading.stakeStatTb = this.$loading({
-				target: ".sum-stake-tb.loading-content",
+			this.loading.stakeStatTb = this.$loading.show({
+				container: this.$refs.sumStakeTb,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
 			});
 
 			// get data
 			let res = await this.$api2.getStakeStat({});
 
 			// close loading
-			this.loading.stakeStatChart && this.loading.stakeStatChart.close();
-			this.loading.stakeStatTb && this.loading.stakeStatTb.close();
+			this.loading.stakeStatChart && this.loading.stakeStatChart.hide();
+			this.loading.stakeStatTb && this.loading.stakeStatTb.hide();
 
 			if(res.error === 0) {
 				this.sumStakeList = res.result;
@@ -166,7 +174,7 @@ export default {
 						}
 					},
 					axisLabel: {
-            formatter: '{value} SAVE'
+            formatter: '{value} ONI'
 					},
 					axisLine: {
 						lineStyle: {
@@ -176,14 +184,14 @@ export default {
 				},
 				tooltip: {
 					trigger: "axis",
-					// formatter: "{b}<br/>{c} SAVE",
+					// formatter: "{b}<br/>{c} ONI",
 					formatter: function(params) {
 						console.log(params);
 						if(!params) return '';
 						let desc = params[0].name;
 						for(let i = 0;i < params.length;i ++) {
 							let value = params[i];
-							desc += `<br/>${value.marker}${value.seriesName}: ${value.value} SAVE`
+							desc += `<br/>${value.marker}${value.seriesName}: ${value.value} ONI`
 						}
 						return desc
 					},

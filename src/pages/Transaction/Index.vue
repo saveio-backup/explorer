@@ -2,7 +2,7 @@
 	<div id="transaction-index">
 		<h2 class="no-user-select">TRANSACTIONS</h2>
 		<p class="no-user-select">A total of <span class="fontImportant">{{total}}</span> blocks</p>
-		<section class="transaction-wrapper loading-content">
+		<section class="transaction-wrapper relative" ref="transactionWrapper">
 			<el-table
 				:data="transactionList"
 				style="width: 100%;"
@@ -117,15 +117,19 @@ export default {
     },
 		async getTransactions() {
 			// add loading
-      this.loading.transactions = this.$loading({
-				target: ".transaction-wrapper.loading-content",
+			this.loading.transactions = this.$loading.show({
+				container: this.$refs.transactionWrapper,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
 			});
 
 			// get data
 			let res = await this.$api2.getTransactions({offset: (this.currentPage - 1) * 10, limit: 10});
 
       // close loading
-			this.loading.transactions && this.loading.transactions.close();
+			this.loading.transactions && this.loading.transactions.hide();
 			
 			if(res.error === 0) {
 				this.transactionList = res.result['Detail'];

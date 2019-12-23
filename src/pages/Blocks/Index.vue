@@ -2,7 +2,7 @@
   <div id="blocks-index">
     <h2 class="blocks-title no-user-select">BLOCKS</h2>
     <p class="blocks-desc no-user-select">A total of <span class="fontImportant">{{total}}</span> blocks</p>
-    <section class="block-list-wrapper loading-content">
+    <section class="block-list-wrapper relative" ref="blockListWrapper">
       <el-table
         :data="blockList"
         style="width: 100%;"
@@ -93,15 +93,19 @@ export default {
     },
     async getBlocks() {
       // add loading
-			this.loading.blockChart = this.$loading({
-				target: ".block-list-wrapper.loading-content",
+      this.loading.blockChart = this.$loading.show({
+				container: this.$refs.blockListWrapper,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
 			});
 
       // get data
       let res = await this.$api2.getBlocks({offset: ((this.currentPage - 1) * 10 + 1), limit: 10});
 
       // close loading
-			this.loading.blockChart && this.loading.blockChart.close();
+			this.loading.blockChart && this.loading.blockChart.hide();
 
       if(res.error === 0) {
         this.blockList = res.result['Detail'];
@@ -130,7 +134,7 @@ export default {
     }
 
     & > .blocks-desc {
-      width: 190px;
+      width: 100%;
       height: 19px;
       font-size: 16px;
       color: white;

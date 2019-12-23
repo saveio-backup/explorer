@@ -2,12 +2,13 @@
 	<div id="channelNumber">
 		<div class="channel-number-chart-wrapper">
 			<div
-				class="channel-number-chart loading-content"
+				class="channel-number-chart relative"
+				ref="channelNumberChart"
 				id="channelNumberChart"
 			>
 			</div>
 		</div>
-		<div class="channel-number-tb loading-content">
+		<div class="channel-number-tb relative" ref="channelNumberTb">
 			<el-table
 				style="width: 100%;"
 				:data="tbList"
@@ -101,19 +102,27 @@ export default {
 		},
 		async getChannelStat() {
 			// add loading
-			this.loading.channelStatChart = this.$loading({
-				target: ".channel-number-chart.loading-content",
+			this.loading.channelStatChart = this.$loading.show({
+				container: this.$refs.channelNumberChart,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
 			});
-			this.loading.channelStatTb = this.$loading({
-				target: ".channel-number-tb.loading-content",
+			this.loading.channelStatTb = this.$loading.show({
+				container: this.$refs.channelNumberTb,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
 			});
 
 			// get data
 			let res = await this.$api2.getChannelStat({});
 
 			// close loading
-			this.loading.channelStatChart && this.loading.channelStatChart.close();
-			this.loading.channelStatTb && this.loading.channelStatTb.close();
+			this.loading.channelStatChart && this.loading.channelStatChart.hide();
+			this.loading.channelStatTb && this.loading.channelStatTb.hide();
 
 			if(res.error === 0) {
 				this.channelNumberList = res.result;

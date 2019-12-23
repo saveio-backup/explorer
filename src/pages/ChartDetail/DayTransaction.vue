@@ -14,11 +14,12 @@
 				>On Chain</p>
 			</div>
 			<div
-				class="day-transaction-chart loading-content"
+				class="day-transaction-chart relative"
+				ref="dayTransactionChart"
 				id="dayTransactionChart"
 			></div>
 		</div>
-		<div class="day-transaction-tb loading-content">
+		<div class="day-transaction-tb relative" ref="dayTransactionTb">
 			<el-table
 				style="width: 100%;"
 				:data="tbList"
@@ -125,18 +126,26 @@ export default {
 		},
 		async getTransactionStat() {
 			// add loading
-			this.loading.transactionStatChart = this.$loading({
-				target: ".day-transaction-chart.loading-content",
+			this.loading.transactionStatChart = this.$loading.show({
+				container: this.$refs.dayTransactionChart,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
 			});
-			this.loading.transactionStatTb = this.$loading({
-				target: ".day-transaction-tb.loading-content",
+			this.loading.transactionStatTb = this.$loading.show({
+				container: this.$refs.dayTransactionTb,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
 			});
 
 			let res = await this.$api2.getTransactionStat({});
 
 			// close loading
-			this.loading.transactionStatChart && this.loading.transactionStatChart.close();
-			this.loading.transactionStatTb && this.loading.transactionStatTb.close();
+			this.loading.transactionStatChart && this.loading.transactionStatChart.hide();
+			this.loading.transactionStatTb && this.loading.transactionStatTb.hide();
 
 			if(res.error === 0) {
 				this.dayTransactionList = res.result;

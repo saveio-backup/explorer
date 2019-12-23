@@ -1,5 +1,6 @@
 <template>
 	<div id="app">
+		<div></div>
 		<header-component></header-component>
 		<router-view />
 		<footer-component></footer-component>
@@ -14,6 +15,17 @@ export default {
 	components: {
 		headerComponent,
 		footerComponent
+	},
+	mounted() {
+		// let loader = this.$loading.show({
+		// 	// Optional parameters
+		// 	container: this.$refs.aaa,
+		// 	opacity: 0.5,
+		// 	backgroundColor: 'rgba(0,0,0,0)',
+		// 	loader: 'dots',
+		// 	color: '#ffffff'
+		// });
+		// loader.hide()
 	}
 };
 </script>

@@ -27,7 +27,7 @@ class Transaction extends Base {
             arr.push({
               Hash: transaction.TxHash,
               Amount: (item.States[3] / Math.pow(10, 9)),
-              Asset: "SAVE",
+              Asset: "ONI",
               From: item.States[1],
               To: item.States[2],
             })
@@ -69,7 +69,7 @@ class Transaction extends Base {
               arr.push({
                 Hash: transaction.TxHash,
                 Amount: (item.States[3] / Math.pow(10, 9)),
-                Asset: "SAVE",
+                Asset: "ONI",
                 From: item.States[1],
                 To: item.States[2]
               });
@@ -118,7 +118,7 @@ class Transaction extends Base {
       Hash: _result.result.Hash,
       Height: _result.result.Height,
       Amount: "",
-      Asset: "SAVE",
+      Asset: "ONI",
       Fee: "0.01",
       Status: 1,
       Type: 0,
@@ -136,7 +136,7 @@ class Transaction extends Base {
    * @return {Array} transfer list
    */
   async getTransferListByHeightAndTxhash(height, txHash) {
-    let res = await this.rpcClient.getsmartcodeeventbyeventidandheights('AFmseVrdL9f9oyCzZefL9tG6UbvhUMqNMV', 0, height, height, "");
+    let res = await this.rpcClient.getsmartcodeeventbyeventidandheights('AFmseVrdL9f9oyCzZefL9tG6UbvhUMqNMV', 0, height, (height + 1), "");
     let transactionList = res.result;
     let arr = [];
     for (let transaction of transactionList) {
@@ -146,7 +146,7 @@ class Transaction extends Base {
           if (item.States[0] === 'transfer') {
             arr.push({
               Amount: (item.States[3] / Math.pow(10, 9)),
-              Asset: "SAVE",
+              Asset: "ONI",
               From: item.States[1],
               To: item.States[2],
             })
@@ -209,7 +209,7 @@ class Transaction extends Base {
           Hash: Response.result.TxHash,
           Height: _height,
           Amount: amount/Math.pow(10, 9),
-          Asset: "SAVE",
+          Asset: "ONI",
           From: from,
           To: to,
           Status: 1,

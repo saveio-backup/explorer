@@ -1,6 +1,6 @@
 <template>
 	<div id="storageSpace">
-		<div class="all-net-storage-chart loading-content">
+		<div class="all-net-storage-chart relative" ref="allNetStorageChart">
 			<div
 				class="all-net-storage-chart-circle"
 				id="allNetStorageChartCircle"
@@ -10,7 +10,7 @@
 				id="allNetStorageChartLine"
 			></div>
 		</div>
-		<div class="all-net-storage-tb loading-content">
+		<div class="all-net-storage-tb relative" ref="allNetStorageTb">
 			<el-table
 				style="width: 100%;"
 				:data="tbList"
@@ -121,19 +121,27 @@ export default {
 		},
 		async getStorageStat() {
 			// add loading
-			this.loading.storageStatChart = this.$loading({
-				target: ".all-net-storage-chart.loading-content",
+			this.loading.storageStatChart = this.$loading.show({
+				container: this.$refs.allNetStorageChart,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
 			});
-			this.loading.storageStatTb = this.$loading({
-				target: ".all-net-storage-tb.loading-content",
+			this.loading.storageStatTb = this.$loading.show({
+				container: this.$refs.allNetStorageTb,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
 			});
 
 			// get data
 			let res = await this.$api2.getStorageStat();
 
 			// close loading
-			this.loading.storageStatChart && this.loading.storageStatChart.close();
-			this.loading.storageStatTb && this.loading.storageStatTb.close();
+			this.loading.storageStatChart && this.loading.storageStatChart.hide();
+			this.loading.storageStatTb && this.loading.storageStatTb.hide();
 
 			if(res.error === 0) {
 				this.storageSpaceList = res.result['Details'];

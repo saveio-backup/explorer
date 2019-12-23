@@ -1,7 +1,7 @@
 <template>
   <div id="transaction-detail">
     <h2 class="no-user-select">TRANSACTION</h2>
-    <section class="transaction-content-wrapper loading-content">
+    <section class="transaction-content-wrapper relative" ref="transactionContentWrapper">
       <div>
         <p class="content-title no-user-select">Hash:</p>
         <p class="content-info">{{hash}}</p>
@@ -88,14 +88,18 @@ export default {
     },
     async getTransactionByHash() {
       // add loading
-      this.loading.transactionsInfo = this.$loading({
-				target: ".transaction-content-wrapper.loading-content",
-      });
+      this.loading.transactionsInfo = this.$loading.show({
+				container: this.$refs.transactionContentWrapper,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
+			});
       
       let res = await this.$api2.getRawTransactionJson(this.hash);
 
       // close loading
-			this.loading.transactionsInfo && this.loading.transactionsInfo.close();
+			this.loading.transactionsInfo && this.loading.transactionsInfo.hide();
 
       if(res.error === 0) {
         this.transactionDetailObj = res.result;

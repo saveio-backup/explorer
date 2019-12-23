@@ -2,12 +2,13 @@
 	<div id="fileTotal">
 		<div class="file-total-chart-wrapper">
 			<div
-				class="file-total-chart loading-content"
+				class="file-total-chart relative"
+				ref="fileTotalChart"
 				id="fileTotalChart"
 			>
 			</div>
 		</div>
-		<div class="file-total-tb loading-content">
+		<div class="file-total-tb relative" ref="fileTotalTb">
 			<el-table
 				style="width: 100%;"
 				:data="tbList"
@@ -92,19 +93,27 @@ export default {
 		},
 		async getFileStat() {
 			// add loading
-			this.loading.fileStatChart = this.$loading({
-				target: ".file-total-chart.loading-content",
+			this.loading.fileStatChart = this.$loading.show({
+				container: this.$refs.fileTotalChart,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
 			});
-			this.loading.fileStatTb = this.$loading({
-				target: ".file-total-tb.loading-content",
+			this.loading.fileStatTb = this.$loading.show({
+				container: this.$refs.fileTotalTb,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
 			});
 
 			// get data
 			let res = await this.$api2.getFileState({});
 
 			// close loading
-			this.loading.fileStatChart && this.loading.fileStatChart.close();
-			this.loading.fileStatTb && this.loading.fileStatTb.close();
+			this.loading.fileStatChart && this.loading.fileStatChart.hide();
+			this.loading.fileStatTb && this.loading.fileStatTb.hide();
 
 			if(res.error === 0) {
 				this.fileTotalList = res.result;

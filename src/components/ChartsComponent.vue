@@ -3,36 +3,42 @@
 		<section class="charts-list-top">
 			<section
 				@click.stop="goPage('/chartDetail/storageSpace')"
-				class="charts-item chart-first-div loading-content"
+				class="charts-item relative"
+				ref="chartFirstDiv"
 				id="chartFirstDiv"
 			></section>
 			<section
 				@click.stop="goPage('/chartDetail/allNetProfit')"
-				class="charts-item chart-second-div loading-content"
+				class="charts-item relative"
+				ref="chartSecondDiv"
 				id="chartSecondDiv"
 			></section>
 		</section>
 		<section class="chars-list-center">
 			<section
 				@click.stop="goPage('/chartDetail/fileTotal')"
-				class="charts-item chart-third-div loading-content"
+				class="charts-item relative"
+				ref="chartThirdDiv"
 				id="chartThirdDiv"
 			></section>
 			<section
 				@click.stop="goPage('/chartDetail/ChannelNumber')"
-				class="charts-item chart-fourth-div loading-content"
+				class="charts-item relative"
+				ref="chartFourthDiv"
 				id="chartFourthDiv"
 			></section>
 		</section>
 		<section class="chars-list-bottom" v-if="type === 0">
 			<section
 				@click.stop="goPage('/chartDetail/dayTransaction')"
-				class="charts-item chart-fifth-div loading-content"
+				class="charts-item relative"
+				ref="chartFifthDiv"
 				id="chartFifthDiv"
 			></section>
 			<section
 				@click.stop="goPage('/chartDetail/SumStake')"
-				class="charts-item chart-sixth-div loading-content"
+				class="charts-item relative"
+				ref="chartSixthDiv"
 				id="chartSixthDiv"
 			></section>
 		</section>
@@ -105,8 +111,12 @@ export default {
 		},
 		async getAllNetSpace() {
 			// add loading
-			this.loading.allNetSpace = this.$loading({
-				target: ".chart-first-div.loading-content",
+			this.loading.allNetSpace = this.$loading.show({
+				container: this.$refs.chartFirstDiv,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
 			});
 
 			// get data
@@ -114,7 +124,7 @@ export default {
 			let res = await this.$api2.getStorageStat(currentheight);
 
 			// close loading
-			this.loading.allNetSpace && this.loading.allNetSpace.close();
+			this.loading.allNetSpace && this.loading.allNetSpace.hide();
 
 			if(res.error === 0) {
 				this.storageStat = res.result
@@ -205,15 +215,19 @@ export default {
 		},
 		async getProfitStat() {
 			// add loading
-			this.loading.profitStat = this.$loading({
-				target: ".chart-second-div.loading-content",
+			this.loading.profitStat = this.$loading.show({
+				container: this.$refs.chartSecondDiv,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
 			});
 
 			// get data
 			let res = await this.$api2.getProfitStat({limit: 7, type: 0});
 
 			// close loading
-			this.loading.profitStat && this.loading.profitStat.close();
+			this.loading.profitStat && this.loading.profitStat.hide();
 
 			if(res.error === 0) {
 				this.profitStat = res.result;
@@ -260,7 +274,7 @@ export default {
 						let desc = params[0].name;
 						for(let i = 0;i < params.length;i ++) {
 							let value = params[i];
-							desc += `<br/>${value.marker}${value.seriesName}: ${value.value} SAVE`
+							desc += `<br/>${value.marker}${value.seriesName}: ${value.value} ONI`
 						}
 						return desc
 					},
@@ -291,7 +305,7 @@ export default {
 						}
 					},
 					axisLabel: {
-            formatter: '{value} SAVE'
+            formatter: '{value} ONI'
 					},
 					axisLine: {
 						lineStyle: {
@@ -338,15 +352,19 @@ export default {
 		},
 		async getFileState() {
 			// add loading
-			this.loading.fileStat = this.$loading({
-				target: ".chart-third-div.loading-content",
+			this.loading.fileStat = this.$loading.show({
+				container: this.$refs.chartThirdDiv,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
 			});
 
 			// get data
 			let res = await this.$api2.getFileState({days: 7});
 			
 			//close loading
-			this.loading.fileStat && this.loading.fileStat.close();
+			this.loading.fileStat && this.loading.fileStat.hide();
 
 
 			if(res.error === 0) {
@@ -430,15 +448,19 @@ export default {
 		},
 		async getChannelStat() {
 			// add loading
-			this.loading.channelStat = this.$loading({
-				target: ".chart-fourth-div.loading-content",
+			this.loading.channelStat = this.$loading.show({
+				container: this.$refs.chartFourthDiv,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
 			});
 
 			// get data
 			let res = await this.$api2.getChannelStat({days: 7});
 
 			// close loading
-			this.loading.channelStat && this.loading.channelStat.close();
+			this.loading.channelStat && this.loading.channelStat.hide();
 
 			if(res.error === 0) {
 				this.channelStat = res.result;
@@ -521,15 +543,19 @@ export default {
 		},
 		async getTransactionStat() {
 			// add loading
-			this.loading.transactionStat = this.$loading({
-				target: ".chart-fifth-div.loading-content",
+			this.loading.transactionStat = this.$loading.show({
+				container: this.$refs.chartFifthDiv,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
 			});
 
 			// get data
 			let res = await this.$api2.getTransactionStat({days: 7});
 
 			// close loading
-			this.loading.transactionStat && this.loading.transactionStat.close();
+			this.loading.transactionStat && this.loading.transactionStat.hide();
 
 			if(res.error === 0) {
 				this.transactionStat = res.result;
@@ -616,15 +642,19 @@ export default {
 		},
 		async getStakeStat() {
 			// add loading
-			this.loading.stakeStat = this.$loading({
-				target: ".chart-sixth-div.loading-content",
+			this.loading.stakeStat = this.$loading.show({
+				container: this.$refs.chartSixthDiv,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
 			});
 
 			// get data
 			let res = await this.$api2.getStakeStat({days: 7});
 
 			// close loading
-			this.loading.stakeStat && this.loading.stakeStat.close();
+			this.loading.stakeStat && this.loading.stakeStat.hide();
 
 			if(res.error === 0) {
 				this.stakeStat = res.result;
@@ -684,7 +714,7 @@ export default {
 						}
 					},
 					axisLabel: {
-            formatter: '{value} SAVE'
+            formatter: '{value} ONI'
 					},
 					axisLine: {
 						lineStyle: {
@@ -700,7 +730,7 @@ export default {
 						let desc = params[0].name;
 						for(let i = 0;i < params.length;i ++) {
 							let value = params[i];
-							desc += `<br/>${value.marker}${value.seriesName}: ${value.value} SAVE`
+							desc += `<br/>${value.marker}${value.seriesName}: ${value.value} ONI`
 						}
 						return desc
 					},

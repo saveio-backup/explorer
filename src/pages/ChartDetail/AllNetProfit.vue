@@ -15,10 +15,11 @@
 			</div>
 			<div
 				id="allNetProfitChart"
-				class="all-net-profit-chart loading-content"
+				class="all-net-profit-chart relative"
+				ref="allNetProfitChart"
 			></div>
 		</div>
-		<div class="all-net-profit-tb loading-content">
+		<div class="all-net-profit-tb relative" ref="allNetProfitTb">
 			<el-table
 				style="width: 100%;"
 				:data="tbList"
@@ -39,24 +40,24 @@
 				</el-table-column>
 				<el-table-column
 					prop="IndexProfitFormat"
-					label="Index Profit(SAVE)"
+					label="Index Profit(ONI)"
 					width="180"
 				>
 				</el-table-column>
 				<el-table-column
 					prop="ChannelProfitFormat"
-					label="Flow Profit(SAVE)"
+					label="Flow Profit(ONI)"
 					width="180"
 				>
 				</el-table-column>
 				<el-table-column
 					prop="StorageProfitFormat"
-					label="Storage Profit(SAVE)"
+					label="Storage Profit(ONI)"
 					width="180"
 				>
 				</el-table-column>
 				<el-table-column
-					label="Total(SAVE)"
+					label="Total(ONI)"
 					width="180"
 				>
 					<template slot-scope="scope">
@@ -133,11 +134,19 @@ export default {
 			let res;
 
 			// add loading
-			this.loading.profitStatChart = this.$loading({
-				target: ".all-net-profit-chart.loading-content",
+			this.loading.profitStatChart = this.$loading.show({
+				container: this.$refs.allNetProfitChart,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
 			});
-			this.loading.profitStatTb = this.$loading({
-				target: ".all-net-profit-tb.loading-content",
+			this.loading.profitStatTb = this.$loading.show({
+				container: this.$refs.allNetProfitTb,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
 			});
 
 			// get data
@@ -148,8 +157,8 @@ export default {
 			}
 
 			//close loading
-			this.loading.profitStatChart && this.loading.profitStatChart.close();
-			this.loading.profitStatTb && this.loading.profitStatTb.close();
+			this.loading.profitStatChart && this.loading.profitStatChart.hide();
+			this.loading.profitStatTb && this.loading.profitStatTb.hide();
 
 			if(res.error === 0) {
 				if (selectTime === 0) {
@@ -206,12 +215,12 @@ export default {
 						let desc = params[0].name;
 						for(let i = 0;i < params.length;i ++) {
 							let value = params[i];
-							desc += `<br/>${value.marker}${value.seriesName}: ${value.value} SAVE`
+							desc += `<br/>${value.marker}${value.seriesName}: ${value.value} ONI`
 						}
 						return desc
 					},
 					
-					// "{a0}: {c0} SAVE<br/>{a1}: {c1} SAVE<br/>{a2}: {c2} SAVE",
+					// "{a0}: {c0} ONI<br/>{a1}: {c1} ONI<br/>{a2}: {c2} ONI",
 					axisPointer: {
 						// 坐标轴指示器，坐标轴触发有效
 						type: "shadow" // 默认为直线，可选为：'line' | 'shadow'
@@ -239,7 +248,7 @@ export default {
 						}
 					},
 					axisLabel: {
-            formatter: '{value} SAVE'
+            formatter: '{value} ONI'
 					},
 					axisLine: {
 						lineStyle: {

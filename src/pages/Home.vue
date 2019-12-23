@@ -2,11 +2,11 @@
 	<div id="home">
 		<section class="base-info loading-content">
 			<ul>
-				<li class="loading-content home-block-height">
+				<li>
 					<h4>
 						Block Height
 					</h4>
-					<p>
+					<p ref="homeBlockHeight" class="relative">
 						<template v-if="countStat">
 							<router-link
 								class="link-fontImportant"
@@ -17,7 +17,7 @@
 						</template>
 					</p>
 				</li>
-				<li class="loading-content home-transaction-total">
+				<li class="relative" ref="homeTransactionTotal">
 					<h4>
 						Total Transactions
 					</h4>
@@ -29,11 +29,11 @@
 						</template>
 					</p>
 				</li>
-				<li class="loading-content home-node">
+				<li>
 					<h4>
 						Nodes
 					</h4>
-					<p>
+					<p ref="homeNode" class="relative">
 						<template v-if="countStat">
 							<router-link to="/node" class="link-fontImportant">
 								{{countStat.NodeCount}}
@@ -43,7 +43,7 @@
 				</li>
 				<li class="loading-content home-address-length">
 					<h4>Total Address</h4>
-					<p>
+					<p ref="homeAddressLength" class="relative">
 						<template v-if="countStat">
 							<router-link to="/chartDetail/Addresswarehouse" class="link-fontImportant">
 								{{totalAddrs}}
@@ -51,9 +51,9 @@
 						</template>
 					</p>
 				</li>
-				<li class="last-child loading-content home-channel">
+				<li class="last-child">
 					<h4>Channels</h4>
-					<p>
+					<p ref="homeChannel" class="relative">
 						<template v-if="countStat">
 							<router-link to="/chartDetail/channelNumber" class="link-fontImportant">
 								{{countStat.TotalChannels}}
@@ -74,14 +74,14 @@
 		</p>
 		<charts-component :type="1"></charts-component>
 		<section class="home-other-info">
-			<section class="blocks loading-content home-info">
+			<section class="blocks home-info relative" ref="blocks">
 				<div class="info-top ft16">
 					<h3 class="no-user-select">Blocks</h3>
-					<router-link
-						to="/blocks"
-					>
-						<i class="more-content-icon el-icon-d-arrow-right"></i>
-					</router-link>
+						<router-link
+							to="/blocks"
+						>
+							<i class="more-content-icon el-icon-d-arrow-right"></i>
+						</router-link>
 				</div>
 				<ul class="blocks-list home-info-list">
 					<li
@@ -106,7 +106,7 @@
 					</li>
 				</ul>
 			</section>
-			<section class="transactions loading-content home-info home-transaction">
+			<section class="transactions home-info relative" ref="homeTransaction">
 				<div class="info-top ft16">
 					<h3 class="no-user-select">Transactions</h3>
 					<router-link
@@ -189,15 +189,19 @@ export default {
 
 		async getAddressLength() {
 			// add loading
-			this.loading.addressLength = this.$loading({
-				target: ".home-address-length.loading-content",
+			this.loading.addressLength = this.$loading.show({
+				container: this.$refs.homeAddressLength,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
 			});
 
 			// get data
 			let res = await this.$api2.getAddressLength();
 
 			// close loading
-			this.loading.addressLength && this.loading.addressLength.close();
+			this.loading.addressLength && this.loading.addressLength.hide();
 
 			if(res.error === 0) {
 				this.totalAddrs = res.result;
@@ -206,23 +210,35 @@ export default {
 
 		async getCountStat() {
 			// add loading
-			this.loading.countStatBlockHeight = this.$loading({
-				target: ".home-block-height.loading-content",
+			this.loading.countStatBlockHeight = this.$loading.show({
+				container: this.$refs.homeBlockHeight,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
 			});
-			this.loading.countStatNode = this.$loading({
-				target: ".home-node.loading-content",
+			this.loading.countStatNode = this.$loading.show({
+				container: this.$refs.homeNode,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
 			});
-			this.loading.countStatChannel = this.$loading({
-				target: ".home-channel.loading-content",
+			this.loading.countStatChannel = this.$loading.show({
+				container: this.$refs.homeChannel,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
 			});
 
 			// get data
 			let res = await this.$api2.getCountStat();
 
 			// close loading
-			this.loading.countStatBlockHeight && this.loading.countStatBlockHeight.close();
-			this.loading.countStatNode && this.loading.countStatNode.close();
-			this.loading.countStatChannel && this.loading.countStatChannel.close();
+			this.loading.countStatBlockHeight && this.loading.countStatBlockHeight.hide();
+			this.loading.countStatNode && this.loading.countStatNode.hide();
+			this.loading.countStatChannel && this.loading.countStatChannel.hide();
 
 			if(res.error === 0) {
 				this.countStat = res.result;
@@ -232,15 +248,19 @@ export default {
 		},
 		async getBlocksStat() {
 			// add loading
-			this.loading.blocksStat = this.$loading({
-				target: ".blocks.loading-content",
+			this.loading.blocksStat = this.$loading.show({
+				container: this.$refs.blocks,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
 			});
 
 			// get data
 			let res = await this.$api2.getBlocks({offset: 1, limit: 6});
 
 			// close loading
-			this.loading.blocksStat && this.loading.blocksStat.close();
+			this.loading.blocksStat && this.loading.blocksStat.hide();
 			
 			if(res.error === 0) {
 				this.blockList = res.result['Detail'];
@@ -248,19 +268,27 @@ export default {
 		},
 		async getTransactions() {
 			// add loading
-			this.loading.transactionList = this.$loading({
-				target: ".home-transaction.loading-content",
+			this.loading.transactionList = this.$loading.show({
+				container: this.$refs.homeTransaction,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
 			});
-			this.loading.transactionTotal = this.$loading({
-				target: ".home-transaction-total.loading-content",
+			this.loading.transactionTotal = this.$loading.show({
+				container: this.$refs.homeTransactionTotal,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff'
 			});
 
 			// get data
 			let res = await this.$api2.getTransactions({offset: 0, limit: 6});
 
 			// close loading
-			this.loading.transactionList && this.loading.transactionList.close();
-			this.loading.transactionTotal && this.loading.transactionTotal.close();
+			this.loading.transactionList && this.loading.transactionList.hide();
+			this.loading.transactionTotal && this.loading.transactionTotal.hide();
 
 			if(res.error === 0) {
 				this.transactionsList = res.result['Detail'];
@@ -379,6 +407,7 @@ export default {
 				p {
 					font-size: 32px;
 					color: #cddc39;
+					height: 100%;
 
 					@media (max-width: 1024px) {
 						font-size: 22px;

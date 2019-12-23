@@ -100,7 +100,7 @@ export default {
 					trigger: "axis",
 					formatter: function(params) {
 						if(!params) return '';
-						let desc = params[0].name + ' SAVE';
+						let desc = params[0].name + ' ONI';
 						for(let i = 0;i < params.length;i ++) {
 							let value = params[i];
 							desc += `<br/>${value.marker}${value.seriesName}: ${value.value}`
@@ -122,7 +122,7 @@ export default {
 						type: "category",
 						data: scopeArr,
 						axisLabel: {
-							formatter: "{value} SAVE"
+							formatter: "{value} ONI"
 						},
 						axisPointer: {
 							type: "shadow"
@@ -217,14 +217,14 @@ export default {
 					trigger: "axis",
 					formatter: function(params) {
 						if(!params) return '';
-						let desc = params[0].name + ' SAVE';
+						let desc = params[0].name + ' ONI';
 						for(let i = 0;i < params.length;i ++) {
 							let value = params[i];
 							desc += `<br/>${value.marker}${value.seriesName}: ${value.value}`
 							if(value.seriesName === 'Ratio') {
 								desc += '%';
 							} else {
-								desc += ' SAVE';
+								desc += ' ONI';
 							}
 						}
 						return desc
