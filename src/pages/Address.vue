@@ -28,10 +28,12 @@
 			Transactions
 		</h3>
 		<section class="transaction-wrapper relative" ref="transactionWrapper">
-			<el-table :data="transactionList" min-height="250" max-height="650">
+			<el-table :data="list" min-height="250" max-height="1050">
 				<el-table-column
+					fixed
 					label="Hash"
-					width="180"
+					min-width="300"
+					:show-overflow-tooltip="true"
 				>
           <template slot-scope="scope">
             <div class="tb-link white" :title="scope.row.Hash">
@@ -43,7 +45,8 @@
 				</el-table-column>
 				<el-table-column
 					label="Status"
-					width="120"
+					width="100"
+					:show-overflow-tooltip="true"
 				>
           <template slot-scope="scope">
             <div class="fontImportant">
@@ -53,37 +56,41 @@
 				</el-table-column>
 				<el-table-column
 					label="Amount"
-					width="180"
+					min-width="120"
+					:show-overflow-tooltip="true"
 				>
         <template slot-scope="scope">
           <div>
-            {{scope.row.Amount}} {{scope.row.Asset}}
+            {{ util.effectiveNumber(scope.row.Amount) }} {{scope.row.Asset}}
           </div>
         </template>
 				</el-table-column>
 				<el-table-column
 					label="From"
-					min-width="180"
+					min-width="140"
+					:show-overflow-tooltip="true"
 				>
         <template slot-scope="scope">
           <div :title="scope.row.From" @click.stop="goAddress(scope.row.From)" class="tb-link fontImportantThree">
-            {{scope.row.From}}
+            {{util.getStart6ToEnd6(scope.row.From)}}
           </div>
         </template>
 				</el-table-column>
 				<el-table-column
 					label="To"
-					min-width="180"
+					min-width="140"
+					:show-overflow-tooltip="true"
 				>
           <template slot-scope="scope">
             <div :title="scope.row.To" @click.stop="goAddress(scope.row.To)" class="tb-link fontImportantThree">
-              {{scope.row.To}}
+              {{util.getStart6ToEnd6(scope.row.To)}}
             </div>
           </template>
 				</el-table-column>
 				<el-table-column
 					label="Time"
-					width="180"
+					width="170"
+					:show-overflow-tooltip="true"
 				>
         <template slot-scope="scope">
           <div>
@@ -92,27 +99,53 @@
         </template>
 				</el-table-column>
 			</el-table>
+			<el-pagination
+        class="pagination"
+				@current-change="currentChange"
+        background
+				:page-size="20"
+        layout="prev, pager, next"
+        :total="total">
+      </el-pagination>
 		</section>
 	</div>
 </template>
 <script>
+import util from './../assets/config/util'
 export default {
 	name: "Address",
 	data() {
 		return {
+			util,
       transactionObj: null,
 			address: '',
 			transactionList: [],
 			loading: {
 				transactionInfo: null,
 				transactionList: null
-			}
+			},
+			currentPage: 1
 		};
+	},
+	computed: {
+		total() {
+			return this.transactionList.length
+		},
+		list() {
+			const vm = this;
+			const PAGE_NUMBER = 20;
+			let start = (vm.currentPage - 1) * PAGE_NUMBER;
+			let end = vm.currentPage * PAGE_NUMBER;
+			return vm.transactionList.slice(start, end);
+		}
 	},
   methods: {
     init() {
       this.address = this.$route.query.address;
 			this.getTransactionByAddress();
+		},
+		currentChange(page) {
+      this.currentPage = page;
     },
 		async getTransactionByAddress() {
 			// add loading
@@ -121,14 +154,18 @@ export default {
 				opacity: 0.5,
 				backgroundColor: 'rgba(0,0,0,0)',
 				loader: 'dots',
-				color: '#ffffff'
+				color: '#ffffff',
+				width: 45,
+				height: 45
 			});
 			this.loading.transactionList = this.$loading.show({
 				container: this.$refs.transactionWrapper,
 				opacity: 0.5,
 				backgroundColor: 'rgba(0,0,0,0)',
 				loader: 'dots',
-				color: '#ffffff'
+				color: '#ffffff',
+				width: 45,
+				height: 45
 			});
 			
 			// get data
@@ -199,12 +236,12 @@ export default {
 			}
 
 			&.address-info-usd {
-				min-width: 291px;
+				min-width: 311px;
 				width: auto;
 			}
 
 			&.address-info-total {
-				width: 404px;
+				width: 394px;
 			}
 
 			&.address-info-channels {
@@ -222,6 +259,8 @@ export default {
 				color: #cddc39;
 				font-size: 32px;
 				font-weight: 500;
+				padding-left: 2px;
+				padding-right: 2px;
 			}
 		}
 	}
@@ -236,14 +275,21 @@ export default {
 	.transaction-wrapper {
 		width: 100%;
 		min-height: 345px;
-		max-height: 800px;
+		height: auto;
+		position: relative;
 		overflow-y: auto;
     height: auto;
 		background: #2a2a2b;
 		box-shadow: 0px -4px 40px 0px rgba(0, 0, 0, 0.32);
 		border-radius: 4px;
-		padding: 15px 32px;
+		padding: 15px 32px 80px;
 		margin-bottom: 80px;
+
+		.pagination {
+			position: absolute;
+			bottom: 25px;
+			right: 25px;
+		}
 	}
 }
 </style>

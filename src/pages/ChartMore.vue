@@ -1,11 +1,12 @@
 <template>
 	<div class="chart-detail">
 		<charts-component :type="0"></charts-component>
-		<h3>Address Warehouse</h3>
+		<h3>Address Position</h3>
 		<section
-			class="address-warehouse loading-content"
-			@click.stop="goPage('/chartDetail/Addresswarehouse')"
+			class="address-position loading-content"
+			@click.stop="goPage('/chartDetail/AddressPosition')"
 		>
+			<div class="mock-data">Mock Data</div>
 			<section
 				class="address-number-distribution"
 				id="addressNumberDistributionChart"
@@ -62,7 +63,7 @@ export default {
 					{
 						loading: {
 							text: "Loading...",
-							target: ".loading-content.address-warehouse"
+							target: ".loading-content.address-position"
 						}
 					}
 				)
@@ -87,7 +88,7 @@ export default {
 			}
 			let option = {
 				title: {
-					text: "Address Count Distribution",
+					text: "Address Distribution",
 					left: "center",
 					top: "20",
 					textStyle: {
@@ -204,7 +205,7 @@ export default {
 			}
 			let option = {
 				title: {
-					text: "Address Balance Distribution",
+					text: "Balance Distribution",
 					left: "center",
 					top: "20",
 					textStyle: {
@@ -330,7 +331,8 @@ export default {
 		text-align: center;
 	}
 
-	.address-warehouse {
+
+	.address-position {
 		max-width: 1170px;
 		width: calc(100% - 30px);
 		margin: 20px auto;
@@ -339,6 +341,24 @@ export default {
 		box-shadow: 0px -4px 40px 0px rgba(0, 0, 0, 0.32);
 		border-radius: 4px;
 		transition: width 0.5s;
+		position: relative;
+
+		.mock-data {
+			width: 120px;
+			height: 26px;
+			border-radius: 13px;
+			opacity: 0.1;
+			border: 1px solid #ffffff;
+			font-size: 16px;
+			color: #ffffff;
+			user-select: none;
+			position: absolute;
+			top: -55px;
+			right: 0;
+			text-align: center;
+			line-height: 26px;
+			font-weight: 500;
+		}
 
 		.address-number-distribution,
 		.address-balance-distribution {

@@ -45,7 +45,7 @@
 				>
 					<template slot-scope="scope">
 						<div>
-							{{scope.row.Stake}} ONI
+							{{util.effectiveNumber(scope.row.Stake)}} ONI
 						</div>
 					</template>
 				</el-table-column>
@@ -80,7 +80,7 @@
 				</el-table-column>
 				<el-table-column
 					label="Storage"
-					min-width="120"
+					min-width="150"
 				>
 					<template slot-scope="scope">
 						<div>
@@ -91,12 +91,18 @@
 				<el-table-column
 					prop="ProfitFormat"
 					label="Profit(ONI)"
-					width="120"
+					width="150"
 				>
+					<template slot-scope="scope">
+						<div>
+							{{util.effectiveNumber(scope.row.ProfitFormat)}}
+						</div>
+					</template>
 				</el-table-column>
 				<el-table-column
 					label="Address"
 					min-width="220"
+					:show-overflow-tooltip="true"
 				>
 					<template slot-scope="scope">
 						<div
@@ -171,25 +177,23 @@ export default {
 		},
 		async getNodes() {
 			// add loading
-      // this.loading.dnsList = this.$loading({
-			// 	target: ".dns-wrapper.loading-content",
-			// });
 			this.loading.dnsList = this.$loading.show({
 				container: this.$refs.dnsWrapper,
 				opacity: 0.5,
 				backgroundColor: 'rgba(0,0,0,0)',
 				loader: 'dots',
-				color: '#ffffff'
+				color: '#ffffff',
+				width: 45,
+				height: 45
 			});
-			// this.loading.fsList = this.$loading({
-			// 	target: ".fs-wrapper.loading-content",
-			// });
 			this.loading.fsList = this.$loading.show({
 				container: this.$refs.fsWrapper,
 				opacity: 0.5,
 				backgroundColor: 'rgba(0,0,0,0)',
 				loader: 'dots',
-				color: '#ffffff'
+				color: '#ffffff',
+				width: 45,
+				height: 45
 			});
 
 			// get data

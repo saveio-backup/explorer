@@ -27,7 +27,7 @@
 				<el-table-column
 					fixed
 					label="Date"
-					min-width="100"
+					min-width="180"
 				>
 				<template slot-scope="scope">
 						<div>
@@ -37,7 +37,7 @@
 				</el-table-column>
 				<el-table-column
 					label="On Chain Transaction"
-					width="180"
+					min-width="180"
 				>
 					<template slot-scope="scope">
 						<div>
@@ -47,7 +47,7 @@
 				</el-table-column>
 				<el-table-column
 					label="Off Chain Transaction"
-					width="180"
+					min-width="180"
 				>
 					<template slot-scope="scope">
 						<div>
@@ -57,7 +57,7 @@
 				</el-table-column>
 				<el-table-column
 					label="Total Chain Transaction"
-					width="180"
+					min-width="180"
 				>
 					<template slot-scope="scope">
 						<div>
@@ -131,14 +131,18 @@ export default {
 				opacity: 0.5,
 				backgroundColor: 'rgba(0,0,0,0)',
 				loader: 'dots',
-				color: '#ffffff'
+				color: '#ffffff',
+				width: 45,
+				height: 45
 			});
 			this.loading.transactionStatTb = this.$loading.show({
 				container: this.$refs.dayTransactionTb,
 				opacity: 0.5,
 				backgroundColor: 'rgba(0,0,0,0)',
 				loader: 'dots',
-				color: '#ffffff'
+				color: '#ffffff',
+				width: 45,
+				height: 45
 			});
 
 			let res = await this.$api2.getTransactionStat({});

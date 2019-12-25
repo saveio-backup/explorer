@@ -46,10 +46,6 @@ class Util {
   }
 
   static flatArr(arr) {
-    const vm = this;
-    // return arr.reduce((pre, value) => {
-    //   return Array.isArray(value) ? [...pre, ...vm.flatArr(value)] : [...pre, value]
-    // }, [])
     let _arr = []
     for(let value of arr) {
       _arr.concat(value);

@@ -18,7 +18,7 @@
 				<el-table-column
 					fixed
 					label="Date"
-					min-width="100"
+					min-width="180"
 				>
 					<template slot-scope="scope">
 						<div>
@@ -28,7 +28,7 @@
 				</el-table-column>
 				<el-table-column
 					label="Remain(PB)"
-					width="180"
+					min-width="180"
 				>
 					<template slot-scope="scope">
 						<div>
@@ -38,7 +38,7 @@
 				</el-table-column>
 				<el-table-column
 					label="Used(PB)"
-					width="180"
+					min-width="180"
 				>
 					<template slot-scope="scope">
 						<div>
@@ -49,7 +49,7 @@
 				<el-table-column
 					prop="total"
 					label="Total(PB)"
-					width="180"
+					min-width="180"
 				>
 					<template slot-scope="scope">
 						<div>
@@ -126,14 +126,18 @@ export default {
 				opacity: 0.5,
 				backgroundColor: 'rgba(0,0,0,0)',
 				loader: 'dots',
-				color: '#ffffff'
+				color: '#ffffff',
+				width: 45,
+				height: 45
 			});
 			this.loading.storageStatTb = this.$loading.show({
 				container: this.$refs.allNetStorageTb,
 				opacity: 0.5,
 				backgroundColor: 'rgba(0,0,0,0)',
 				loader: 'dots',
-				color: '#ffffff'
+				color: '#ffffff',
+				width: 45,
+				height: 45
 			});
 
 			// get data
@@ -153,6 +157,10 @@ export default {
 			const vm = this;
 			let usedData = this.storageSpaceList[0].Used;
 			let remainData = this.storageSpaceList[0].Remain;
+			let remainD = usedData / (usedData + remainData);
+			let remainVal = remainD < 0.015 ? 0.015 : remainD;
+			let usedD = remainData / (usedData + remainData);
+			let usedVal = usedD < 0.015 ? 0.015 : usedD;
 			let option = {
 				tooltip: {
 					show: true,
@@ -160,7 +168,10 @@ export default {
 					// a: name b: serice value，
 					// c: data，
 					// d: percentage
-					formatter: "{d}%",
+					formatter: function(params) {
+						if(!params) return '';
+						return `${params.data.realD * 100}%`;
+					},
 					padding: [10, 10],
 					backgroundColor: "#FFFFFF",
 					textStyle: {
@@ -180,10 +191,8 @@ export default {
 							normal: {
 								show: true,
 								formatter: function(params) {
-									if (!params) return "";
-									return `${params.name}:${vm.util.bytesToSize(
-										params.value * 1024
-									)}`;
+									if(!params) return '';
+									return `${params.name}:${vm.util.bytesToSize(params.data.realVal * 1024)}`
 								},
 								textStyle: {
 									fontSize: "14"
@@ -192,7 +201,9 @@ export default {
 						},
 						data: [
 							{
-								value: usedData,
+								realVal: usedData,
+								value: remainVal,
+								realD: remainD,
 								name: "Used",
 								itemStyle: {
 									normal: {
@@ -204,7 +215,9 @@ export default {
 								}
 							},
 							{
-								value: remainData,
+								realVal: remainData,
+								realD: usedD,
+								value: usedVal,
 								name: "Remain",
 								itemStyle: {
 									normal: {

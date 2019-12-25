@@ -10,7 +10,8 @@
 				<el-table-column
 					fixed
 					label="Hash"
-					min-width="100"
+					min-width="300"
+					:show-overflow-tooltip="true"
 				>
 					<template slot-scope="scope">
             <div class="white tb-link" :title="scope.row.Hash">
@@ -21,20 +22,20 @@
           </template>
 				</el-table-column>
 				<el-table-column
-					prop="Token"
 					label="Token"
-					width="180"
+					min-width="100"
+					:show-overflow-tooltip="true"
 				>
 					<template slot-scope="scope">
 						<div>
-							{{scope.row.Amount}} {{scope.row.Asset}}
+							{{ util.effectiveNumber(scope.row.Amount) }} {{scope.row.Asset}}
 						</div>
 					</template>
 				</el-table-column>
 				<el-table-column
-					prop="Status"
 					label="Status"
 					width="100"
+					:show-overflow-tooltip="true"
 				>
 					<template slot-scope="scope">
 						<span class="fontImportant">
@@ -43,38 +44,46 @@
 					</template>
 				</el-table-column>
 				<el-table-column
-					prop="Height"
 					label="Height"
 					width="100"
+					:show-overflow-tooltip="true"
 				>
+				<template slot-scope="scope">
+					<div>
+						{{'#'+scope.row.Height}}
+					</div>
+				</template>
 				</el-table-column>
 				<el-table-column
 					label="From"
-					min-width="200"
+					width="150"
+					:show-overflow-tooltip="true"
 				>
 					<template slot-scope="scope">
 						<div class="fontImportantThree tb-link" :title="scope.row.From">
 							<router-link :to="`/address?address=${scope.row.From}`">
-								{{scope.row.From}}
+								{{util.getStart6ToEnd6(scope.row.From)}}
 							</router-link>
 						</div>
 					</template>
 				</el-table-column>
 				<el-table-column
 					label="To"
-					min-width="200"
+					width="150"
+					:show-overflow-tooltip="true"
 				>
 					<template slot-scope="scope">
 						<div class="fontImportantThree tb-link" :title="scope.row.To">
 							<router-link :to="`/address?address=${scope.row.To}`">
-								{{scope.row.To}}
+								{{util.getStart6ToEnd6(scope.row.To)}}
 							</router-link>
 						</div>
 					</template>
 				</el-table-column>
 				<el-table-column
 					label="Time"
-					min-width="180"
+					width="170"
+					:show-overflow-tooltip="true"
 				>
 					<template slot-scope="scope">
             <div>
@@ -95,10 +104,12 @@
 	</div>
 </template>
 <script>
+import util from './../../assets/config/util'
 export default {
 	name: "TransactionIndex",
 	data() {
 		return {
+			util,
 			transactionList: [],
 			total: 0,
 			currentPage: 1,
@@ -122,7 +133,9 @@ export default {
 				opacity: 0.5,
 				backgroundColor: 'rgba(0,0,0,0)',
 				loader: 'dots',
-				color: '#ffffff'
+				color: '#ffffff',
+				width: 45,
+				height: 45
 			});
 
 			// get data

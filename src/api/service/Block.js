@@ -2,6 +2,7 @@ import Base from './Base'
 class Block extends Base {
   constructor(context) {
     super(context);
+    this.zeroTimestamp;
   }
 
   /**
@@ -20,10 +21,14 @@ class Block extends Base {
    * @return {Number} block timestamp
    */
   async getTimestampByBlock(height) {
-    let currentTimestamp = Date.parse(new Date()) / 1000;
-    let currentheight = await this.getBlockHeight();
-    let blockTimestamp = currentTimestamp - ((currentheight - height) * 5);
-    return blockTimestamp;
+    if(!this.zeroTimestamp) {
+      let currentheight = await this.getBlockHeight();
+      let currentTimestamp = Date.parse(new Date()) / 1000;
+      this.zeroTimestamp = currentTimestamp - (currentheight * 5);
+    }
+    let timestamp = this.zeroTimestamp + (height * 5);
+    return timestamp;
+    // return blockTimestamp;
   }
 
   /**
@@ -66,7 +71,7 @@ class Block extends Base {
     let currentheight = await this.getBlockHeight();
     const commitAll = [];
     for (let i = 0; i < limit; i++) {
-      if ((currentheight - offset - i) === 1) break;
+      if ((currentheight - offset - i) === 0) break;
       commitAll.push(
         vm.rpcClient.getBlockJson((currentheight - offset - i))
       )

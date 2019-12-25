@@ -74,9 +74,9 @@ export default new Router({
             name: 'ChartDetail',
             component: resolve => require(['@/pages/ChartDetail.vue'], resolve),
             children: [{
-                path: 'addresswarehouse',
-                name: 'Addresswarehouse',
-                component: resolve => require(['@/pages/ChartDetail/Addresswarehouse.vue'], resolve)
+                path: 'addressposition',
+                name: 'AddressPosition',
+                component: resolve => require(['@/pages/ChartDetail/AddressPosition.vue'], resolve)
             }, {
                 path: 'allNetProfit',
                 name: 'AllNetProfit',

@@ -4,7 +4,7 @@
     <section class="block-content-wrapper relative" ref="blockContentWrapper">
       <div>
         <p class="content-title no-user-select">Height:</p>
-        <p class="content-info">{{height || 0}}</p>
+        <p class="content-info">{{height && '#'+height || 0}}</p>
       </div>
       <div>
         <p class="content-title no-user-select">Hash:</p>
@@ -46,7 +46,8 @@
         <el-table-column
           fixed
           label="Hash"
-          width="120"
+          min-width="300"
+					:show-overflow-tooltip="true"
         >
           <template slot-scope="scope">
             <div class="white tb-link" :title="scope.row.Hash">
@@ -59,6 +60,8 @@
         <el-table-column
           label="Token"
           width="120"
+          min-width="100"
+					:show-overflow-tooltip="true"
         >
         <template slot-scope="scope">
           <div>
@@ -70,45 +73,48 @@
           label="Status"
           width="100"
         >
-          <template>
-            <span class="fontImportant">{{transactionObj && (transactionObj.Status === 1 ? 'Confirmed' : 'Unconfirmed')}}</span>
+          <template slot-scope="scope">
+            <span class="fontImportant" v-if="transactionObj">{{transactionObj.Status === 1 ? 'Confirmed' : 'Unconfirmed'}}</span>
           </template>
         </el-table-column>
         <el-table-column
           label="Height"
-          width="100"
+          width="110"
+					:show-overflow-tooltip="true"
         >
           <template>
-            {{height || 0}}
+            {{height && ('#'+height) || 0}}
           </template>
         </el-table-column>
         <el-table-column
           label="From"
-          min-width="200"
+          width="150"
+					:show-overflow-tooltip="true"
         >
           <template slot-scope="scope">
             <div class="fontImportantThree tb-link" :title="scope.row.From">
               <router-link :to="`/address?address=${scope.row.From}`">
-                {{scope.row.From}}
+                {{util.getStart6ToEnd6(scope.row.From)}}
               </router-link>
             </div>
           </template>
         </el-table-column>
         <el-table-column
           label="To"
-          min-width="200"
+          width="150"
+					:show-overflow-tooltip="true"
         >
           <template slot-scope="scope">
             <div class="fontImportantThree tb-link" :title="scope.row.To">
               <router-link :to="`/address?address=${scope.row.To}`">
-                {{scope.row.To}}
+                {{util.getStart6ToEnd6(scope.row.To)}}
               </router-link>
             </div>
           </template>
         </el-table-column>
         <el-table-column
           label="Time"
-          width="200"
+          width="170"
         >
         <template>
           <div>
@@ -149,7 +155,9 @@ export default {
 				opacity: 0.5,
 				backgroundColor: 'rgba(0,0,0,0)',
 				loader: 'dots',
-				color: '#ffffff'
+				color: '#ffffff',
+				width: 45,
+				height: 45
 			});
 
       // get data
@@ -169,7 +177,9 @@ export default {
 				opacity: 0.5,
 				backgroundColor: 'rgba(0,0,0,0)',
 				loader: 'dots',
-				color: '#ffffff'
+				color: '#ffffff',
+				width: 45,
+				height: 45
 			});
 
       // get data

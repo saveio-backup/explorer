@@ -15,17 +15,6 @@ export default {
 	components: {
 		headerComponent,
 		footerComponent
-	},
-	mounted() {
-		// let loader = this.$loading.show({
-		// 	// Optional parameters
-		// 	container: this.$refs.aaa,
-		// 	opacity: 0.5,
-		// 	backgroundColor: 'rgba(0,0,0,0)',
-		// 	loader: 'dots',
-		// 	color: '#ffffff'
-		// });
-		// loader.hide()
 	}
 };
 </script>
@@ -37,5 +26,8 @@ export default {
 	height: auto;
 	min-height: 100%;
 	background: rgba(32, 32, 32, 1);
+	font-family: "SF Pro SC", "HanHei SC", "SF Pro Text", "Myriad Set Pro",
+		"SF Pro Icons", "PingFang SC", "Helvetica Neue", "Helvetica", "Arial",
+		sans-serif;
 }
 </style>

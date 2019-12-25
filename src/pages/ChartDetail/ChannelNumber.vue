@@ -16,7 +16,7 @@
 				<el-table-column
 					fixed
 					label="Date"
-					min-width="100"
+					min-width="180"
 				>
 					<template slot-scope="scope">
 						<div>
@@ -27,19 +27,19 @@
 				<el-table-column
 					prop="New"
 					label="New"
-					width="180"
+					min-width="180"
 				>
 				</el-table-column>
 				<el-table-column
 					prop="Close"
 					label="Close"
-					width="180"
+					min-width="180"
 				>
 				</el-table-column>
 				<el-table-column
 					prop="Total"
 					label="Total"
-					width="180"
+					min-width="180"
 				>
 				</el-table-column>
 			</el-table>
@@ -107,14 +107,18 @@ export default {
 				opacity: 0.5,
 				backgroundColor: 'rgba(0,0,0,0)',
 				loader: 'dots',
-				color: '#ffffff'
+				color: '#ffffff',
+				width: 45,
+				height: 45
 			});
 			this.loading.channelStatTb = this.$loading.show({
 				container: this.$refs.channelNumberTb,
 				opacity: 0.5,
 				backgroundColor: 'rgba(0,0,0,0)',
 				loader: 'dots',
-				color: '#ffffff'
+				color: '#ffffff',
+				width: 45,
+				height: 45
 			});
 
 			// get data

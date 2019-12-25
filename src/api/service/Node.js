@@ -140,22 +140,32 @@ class Node extends Base {
       commitAll.push(
         vm.rpcClient.getsmartcodeeventbyeventidandheights('AFmseVrdL9f9oyCzZefL9tG6UbviRj6Fv6', 2, 1, height, address)
       )
+      commitAll.push(
+        vm.rpcClient.getRegionByIpPromise(value.IP)
+      )
     }
     for(let value of result.FS) {
       let address = value.walletAddr;
       commitAll.push(
         vm.rpcClient.getsmartcodeeventbyeventidandheights('AFmseVrdL9f9oyCzZefL9tG6UbvhzQYRMK', 7, 1, height, address)
       )
+      commitAll.push(
+        vm.rpcClient.getRegionByIpPromise(value.IP)
+      )
     }
 
     return Promise.all(commitAll).then(ResponseArr => {
       for(let i = 0;i < result.DNS.length;i ++) {
         let item = result.DNS[i];
-        item['ChannelCount'] = ResponseArr[(2 * i)].result.length - ResponseArr[(2 * i + 1)].result.length;
+        item['ChannelCount'] = ResponseArr[(3 * i)].result.length - ResponseArr[(3 * i + 1)].result.length;
+        let _index = ResponseArr[(3 * i + 2)].loc.indexOf(',');
+        item['lng'] = ResponseArr[(3 * i + 2)].loc.slice(_index + 1);
+        item['lat'] = ResponseArr[(3 * i + 2)].loc.slice(0, _index);
+        item['Region'] = ResponseArr[(3 * i + 2)].city;
       }
       for(let i = 0;i < result.FS.length; i ++) {
         let item = result.FS[i];
-        let resItem = ResponseArr[(result.DNS.length * 2 + i)].result;
+        let resItem = ResponseArr[(result.DNS.length * 3) + (i * 2)].result;
         for(let value of resItem) {
           for(let j = 0; j < value.Notify.length; j ++) {
             let notifyItem = value.Notify[j];
@@ -165,6 +175,10 @@ class Node extends Base {
           }
         }
         item["ProfitFormat"] = item["ProfitFormat"]/Math.pow(10, 9);
+        let _index = ResponseArr[(result.DNS.length * 3) + (i * 2) + 1].loc.indexOf(',');
+        item['lng'] = ResponseArr[(result.DNS.length * 3) + (i * 2) + 1].loc.slice(_index + 1);
+        item['lat'] = ResponseArr[(result.DNS.length * 3) + (i * 2) + 1].loc.slice(0, _index);
+        item['Region'] = ResponseArr[(result.DNS.length * 3) + (i * 2) + 1].city;
       }
       return result;
     })

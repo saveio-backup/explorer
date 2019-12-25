@@ -27,7 +27,7 @@
 				<el-table-column
 					fixed
 					label="Date"
-					min-width="100"
+					min-width="180"
 				>
 					<template slot-scope="scope">
 						<div v-if="selectTime === 0">
@@ -41,24 +41,24 @@
 				<el-table-column
 					prop="IndexProfitFormat"
 					label="Index Profit(ONI)"
-					width="180"
+					min-width="180"
 				>
 				</el-table-column>
 				<el-table-column
 					prop="ChannelProfitFormat"
 					label="Flow Profit(ONI)"
-					width="180"
+					min-width="180"
 				>
 				</el-table-column>
 				<el-table-column
 					prop="StorageProfitFormat"
 					label="Storage Profit(ONI)"
-					width="180"
+					min-width="180"
 				>
 				</el-table-column>
 				<el-table-column
 					label="Total(ONI)"
-					width="180"
+					min-width="180"
 				>
 					<template slot-scope="scope">
 						{{Number(scope.row.IndexProfitFormat) + Number(scope.row.ChannelProfitFormat) + Number(scope.row.StorageProfitFormat)}}
@@ -139,14 +139,18 @@ export default {
 				opacity: 0.5,
 				backgroundColor: 'rgba(0,0,0,0)',
 				loader: 'dots',
-				color: '#ffffff'
+				color: '#ffffff',
+				width: 45,
+				height: 45
 			});
 			this.loading.profitStatTb = this.$loading.show({
 				container: this.$refs.allNetProfitTb,
 				opacity: 0.5,
 				backgroundColor: 'rgba(0,0,0,0)',
 				loader: 'dots',
-				color: '#ffffff'
+				color: '#ffffff',
+				width: 45,
+				height: 45
 			});
 
 			// get data

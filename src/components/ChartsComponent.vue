@@ -116,7 +116,9 @@ export default {
 				opacity: 0.5,
 				backgroundColor: 'rgba(0,0,0,0)',
 				loader: 'dots',
-				color: '#ffffff'
+				color: '#ffffff',
+				width: 45,
+				height: 45
 			});
 
 			// get data
@@ -133,10 +135,14 @@ export default {
 		},
 		loadChartFirst() {
 			const vm = this;
+			let remainD = vm.storageStat.Remain / (vm.storageStat.Remain + vm.storageStat.Used);
+			let remainVal = remainD < 0.02 ? 0.02 : remainD;
+			let usedD = vm.storageStat.Used / (vm.storageStat.Remain + vm.storageStat.Used);
+			let usedVal = usedD < 0.02 ? 0.02 : usedD;
 			let option = {
 				//饼图名的名称、位置及样式
 				title: {
-					text: "All Network Space",
+					text: "Storage Space",
 					left: "center",
 					top: "20",
 					textStyle: {
@@ -153,7 +159,11 @@ export default {
 					//a代表系列名称(在这里就是USDJPY)，b代表数据项名称(在这里就是上涨或下跌)，
 					//c代表数据(在这里就是335或310)，
 					//d代表数据项所占的百分比数(在这里就是40.04或59.96，要显示百分比样子要自己加百分号)
-					formatter: "{d}%",
+					// formatter: "{d}%",
+					formatter: function(params) {
+						if(!params) return '';
+						return `${params.data.realD * 100}%`;
+					},
 					padding: [10, 10],
 					backgroundColor: "#FFFFFF",
 					textStyle: {
@@ -173,7 +183,7 @@ export default {
 								show: true,
 								formatter: function(params) {
 									if(!params) return '';
-									return `${params.name}:${vm.util.bytesToSize(params.value * 1024)}`
+									return `${params.name}:${vm.util.bytesToSize(params.data.realVal * 1024)}`
 								},
 								textStyle: {
 									fontSize: "14"
@@ -182,29 +192,33 @@ export default {
 						},
 						data: [
 							{
-								value: vm.storageStat.Used,
-								name: "Used",
-								itemStyle: {
-									normal: {
-										show: true,
-										borderColor: "#3F3F40",
-										borderWidth: 10,
-										color: "#CDDC39"
-									}
-								}
-							},
-							{
-								value: vm.storageStat.Remain,
+								realVal: vm.storageStat.Remain,
+								value: remainVal,
+								realD: remainD,
 								name: "Remain",
 								itemStyle: {
 									normal: {
 										show: true,
 										borderColor: "#3F3F40",
 										borderWidth: 10,
-										color: "rgba(255,255,255,0.3)"
+										color: "rgba(255,255,255,0.3)",
 									}
 								}
-							}
+							},
+							{
+								realVal: vm.storageStat.Used,
+								realD: usedD,
+								value: usedVal,
+								name: "Used",
+								itemStyle: {
+									normal: {
+										show: true,
+										borderColor: "#3F3F40",
+										borderWidth: 10,
+										color: "#CDDC39",
+									}
+								}
+							},
 						]
 					}
 				]
@@ -220,7 +234,9 @@ export default {
 				opacity: 0.5,
 				backgroundColor: 'rgba(0,0,0,0)',
 				loader: 'dots',
-				color: '#ffffff'
+				color: '#ffffff',
+				width: 45,
+				height: 45
 			});
 
 			// get data
@@ -250,7 +266,7 @@ export default {
 			}
 			let option = {
 				title: {
-					text: "All Net Day Profit",
+					text: "Profit",
 					left: "center",
 					top: "20",
 					textStyle: {
@@ -357,7 +373,9 @@ export default {
 				opacity: 0.5,
 				backgroundColor: 'rgba(0,0,0,0)',
 				loader: 'dots',
-				color: '#ffffff'
+				color: '#ffffff',
+				width: 45,
+				height: 45
 			});
 
 			// get data
@@ -383,7 +401,7 @@ export default {
 			}
 			let option = {
 				title: {
-					text: "All Net File Count",
+					text: "Number of Files",
 					left: "center",
 					top: "20",
 					textStyle: {
@@ -453,7 +471,9 @@ export default {
 				opacity: 0.5,
 				backgroundColor: 'rgba(0,0,0,0)',
 				loader: 'dots',
-				color: '#ffffff'
+				color: '#ffffff',
+				width: 45,
+				height: 45
 			});
 
 			// get data
@@ -478,7 +498,7 @@ export default {
 			}
 			let option = {
 				title: {
-					text: "全网Channel数量",
+					text: "Number of Channel",
 					left: "center",
 					top: "20",
 					textStyle: {
@@ -548,7 +568,9 @@ export default {
 				opacity: 0.5,
 				backgroundColor: 'rgba(0,0,0,0)',
 				loader: 'dots',
-				color: '#ffffff'
+				color: '#ffffff',
+				width: 45,
+				height: 45
 			});
 
 			// get data
@@ -577,7 +599,7 @@ export default {
 			}
 			let option = {
 				title: {
-					text: "Day Transaction",
+					text: "Daily Transactions",
 					left: "center",
 					top: "20",
 					textStyle: {
@@ -647,7 +669,9 @@ export default {
 				opacity: 0.5,
 				backgroundColor: 'rgba(0,0,0,0)',
 				loader: 'dots',
-				color: '#ffffff'
+				color: '#ffffff',
+				width: 45,
+				height: 45
 			});
 
 			// get data
@@ -674,7 +698,7 @@ export default {
 			}
 			let option = {
 				title: {
-					text: "Pledge Total",
+					text: "Total Stake",
 					left: "center",
 					top: "20",
 					textStyle: {

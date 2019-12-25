@@ -72,7 +72,9 @@ export default {
 	watch: {
 		mapNodes(val) {
 			if (!this.mapLoading) return;
-			this.addLayer3();
+			this.$nextTick(() => {
+				this.setData();
+			})
 		}
 	},
 	methods: {
@@ -185,6 +187,11 @@ export default {
 				type: "FeatureCollection",
 				features: arr
 			};
+		},
+		setData() {
+			const vm = this;
+			let data = vm.getData();
+			vm.map.getSource('earthquakes').setData(data);
 		},
 		addLayer3() {
 			const vm = this;

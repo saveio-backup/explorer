@@ -10,12 +10,12 @@
         <el-table-column
           fixed
           label="Height"
-          min-width="100"
+          min-width="120"
         >
           <template slot-scope="scope">
             <div class="white tb-link">
               <router-link :to="`/blocks/detail?height=${scope.row.Height}`">
-                {{scope.row.Height}}
+                {{'#'+scope.row.Height}}
               </router-link>
             </div>
           </template>
@@ -39,7 +39,7 @@
         </el-table-column>
         <el-table-column
           label="Confirmed"
-          width="120"
+          min-width="130"
         >
           <template slot-scope="scope">
             <span class="fontImportant">
@@ -98,7 +98,9 @@ export default {
 				opacity: 0.5,
 				backgroundColor: 'rgba(0,0,0,0)',
 				loader: 'dots',
-				color: '#ffffff'
+				color: '#ffffff',
+				width: 45,
+				height: 45
 			});
 
       // get data
@@ -152,7 +154,6 @@ export default {
       border-radius: 4px;
       padding: 15px 32px;
       box-sizing: border-box;
-      
 
       .pagination {
         position: absolute;

@@ -1,13 +1,14 @@
 <template>
-	<div id="addressWarehouse">
-		<div class="address-warehouse-wrapper loading-content pt30">
-			<div class="flex white between ft14 mb20 address-warehouse-desc">
+	<div id="addressPosition">
+		<div class="address-position-wrapper loading-content pt30">
+			<div class="mock-data">Mock Data</div>
+			<div class="flex white between ft14 mb20 address-position-desc">
         <div>
 					<span class="op07">
 						Address Total: 
 					</span>
 					<span class="fontImportant">
-						{{addressWarehouseObj && addressWarehouseObj.Total}}
+						{{addressPositionObj && addressPositionObj.Total}}
 					</span>
 				</div>
         <div>
@@ -15,7 +16,7 @@
 						New Address in 7 Day: 
 					</span>
 					<span class="fontImportant">
-						{{addressWarehouseObj && addressWarehouseObj.NewAddrIn7D}}
+						{{addressPositionObj && addressPositionObj.NewAddrIn7D}}
 					</span>
 				</div>
         <div>
@@ -23,20 +24,20 @@
 						New Address in 30 Day:
 					</span>
 					<span class="fontImportant">
-					 {{addressWarehouseObj && addressWarehouseObj.NewAddrIn30D}}
+					 {{addressPositionObj && addressPositionObj.NewAddrIn30D}}
 					</span>
 				</div>
       </div>
 			<div
-				class="address-warehouse-number-chart"
-				id="addressWarehouseNumberChart"
+				class="address-position-number-chart"
+				id="addressPositionNumberChart"
 			></div>
 			<div
-				class="address-warehouse-balance-chart"
-				id="addressWarehouseBalanceChart"
+				class="address-position-balance-chart"
+				id="addressPositionBalanceChart"
 			></div>
 		</div>
-		<div class="address-warehouse-tb">
+		<div class="address-position-tb">
 			<el-table
 				style="width: 100%;"
 				:data="tbList"
@@ -45,13 +46,13 @@
 					fixed
 					prop="Number"
 					label="#"
-					min-width="100"
+					width="100"
 				>
 				</el-table-column>
 				<el-table-column
 					prop="Address"
 					label="Address"
-					width="180"
+					min-width="180"
 				>
 				</el-table-column>
 				<el-table-column
@@ -91,29 +92,29 @@
 <script>
 import echarts from "echarts";
 export default {
-	name: "Addresswarehouse",
+	name: "AddressPosition",
 	data() {
 		return {
-			addressWarehouseNumberChart: null,
-			addressWarehouseBalanceChart: null,
-			addressWarehouseObj: null,
+			addressPositionNumberChart: null,
+			addressPositionBalanceChart: null,
+			addressPositionObj: null,
 			currentPage: 1
 		};
 	},
 	computed: {
 		tbList() {
-			if (!this.addressWarehouseObj) return [];
+			if (!this.addressPositionObj) return [];
 			let _start = (this.currentPage - 1) * 10;
 			let _end =
-				_start + 10 > this.addressWarehouseObj.Details.length
-					? this.addressWarehouseObj.Details.length
+				_start + 10 > this.addressPositionObj.Details.length
+					? this.addressPositionObj.Details.length
 					: _start + 10;
-			let list = this.addressWarehouseObj.Details.slice(_start, _end);
+			let list = this.addressPositionObj.Details.slice(_start, _end);
 			return list;
 		},
 		total() {
-			if (!this.addressWarehouseObj) return 0;
-			return this.addressWarehouseObj.Details.length;
+			if (!this.addressPositionObj) return 0;
+			return this.addressPositionObj.Details.length;
 		},
 		screenWidth() {
 			return this.$store.state.Home.screenWidth;
@@ -121,8 +122,8 @@ export default {
 	},
 	watch: {
 		screenWidth() {
-			this.addressWarehouseNumberChart.resize();
-			this.addressWarehouseBalanceChart.resize();
+			this.addressPositionNumberChart.resize();
+			this.addressPositionBalanceChart.resize();
 		}
 	},
 	methods: {
@@ -151,24 +152,24 @@ export default {
 							let item = res.Result.Details[i];
 							item.Number = i + 1;
 						}
-						this.addressWarehouseObj = res.Result;
-						this.setAddressWarehouseNumberChart();
-						this.setAddressWarehouseBalanceChart();
+						this.addressPositionObj = res.Result;
+						this.setAddressPositionNumberChart();
+						this.setAddressPositionBalanceChart();
 					}
 				});
 		},
-		setAddressWarehouseNumberChart() {
-			let addressWarehouseNumArr = [];
-			let addressWarehouseRatioArr = [];
+		setAddressPositionNumberChart() {
+			let addressPositionNumArr = [];
+			let addressPositionRatioArr = [];
 			let scopeArr = [];
-			for (let item of this.addressWarehouseObj.AddrCountList) {
-				addressWarehouseNumArr.push(item.Count);
-				addressWarehouseRatioArr.push(item.Ratio * 100);
+			for (let item of this.addressPositionObj.AddrCountList) {
+				addressPositionNumArr.push(item.Count);
+				addressPositionRatioArr.push(item.Ratio * 100);
 				scopeArr.push(item.Range);
 			}
 			let option = {
 				title: {
-					text: "Address Count Distribution",
+					text: "Address Distribution",
 					left: "center",
 					top: "20",
 					textStyle: {
@@ -253,7 +254,7 @@ export default {
 					{
 						name: "Count",
 						type: "bar",
-						data: addressWarehouseNumArr,
+						data: addressPositionNumArr,
 						barMaxWidth: 30,
 						itemStyle: {
 							color: "#CDDC39"
@@ -266,26 +267,26 @@ export default {
 						},
 						type: "line",
 						yAxisIndex: 1,
-						data: addressWarehouseRatioArr
+						data: addressPositionRatioArr
 					}
 				]
 			};
-			let dom = document.getElementById("addressWarehouseNumberChart");
-			this.addressWarehouseNumberChart = echarts.init(dom);
-			this.addressWarehouseNumberChart.setOption(option, true);
+			let dom = document.getElementById("addressPositionNumberChart");
+			this.addressPositionNumberChart = echarts.init(dom);
+			this.addressPositionNumberChart.setOption(option, true);
 		},
-		setAddressWarehouseBalanceChart() {
-			let addressWarehouseBalanceArr = [];
-			let addressWarehouseRatioArr = [];
+		setAddressPositionBalanceChart() {
+			let addressPositionBalanceArr = [];
+			let addressPositionRatioArr = [];
 			let scopeArr = [];
-			for (let item of this.addressWarehouseObj.AmountCountList) {
-				addressWarehouseBalanceArr.push(item.Count);
-				addressWarehouseRatioArr.push(item.Ratio * 100);
+			for (let item of this.addressPositionObj.AmountCountList) {
+				addressPositionBalanceArr.push(item.Count);
+				addressPositionRatioArr.push(item.Ratio * 100);
 				scopeArr.push(item.Range);
 			}
 			let option = {
 				title: {
-					text: "Address Balance Distribution",
+					text: "Balance Distribution",
 					left: "center",
 					top: "20",
 					textStyle: {
@@ -372,7 +373,7 @@ export default {
 					{
 						name: "Balance",
 						type: "bar",
-						data: addressWarehouseBalanceArr,
+						data: addressPositionBalanceArr,
 						barMaxWidth: 30,
 						itemStyle: {
 							color: "#CDDC39"
@@ -385,13 +386,13 @@ export default {
 						},
 						type: "line",
 						yAxisIndex: 1,
-						data: addressWarehouseRatioArr
+						data: addressPositionRatioArr
 					}
 				]
 			};
-			let dom = document.getElementById("addressWarehouseBalanceChart");
-			this.addressWarehouseBalanceChart = echarts.init(dom);
-			this.addressWarehouseBalanceChart.setOption(option, true);
+			let dom = document.getElementById("addressPositionBalanceChart");
+			this.addressPositionBalanceChart = echarts.init(dom);
+			this.addressPositionBalanceChart.setOption(option, true);
 		}
 	},
 	mounted() {
@@ -400,10 +401,10 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-#addressWarehouse {
+#addressPosition {
 	width: 100%;
 	height: auto;
-	.address-warehouse-wrapper {
+	.address-position-wrapper {
 		max-width: 1170px;
 		width: calc(100% - 30px);
 		margin: 72px auto 0;
@@ -412,20 +413,38 @@ export default {
 		box-shadow: 0px -4px 40px 0px rgba(0, 0, 0, 0.32);
 		border-radius: 4px;
 		transition: width 0.5s;
+		position: relative;
 
-		.address-warehouse-desc {
+		.mock-data {
+			width: 120px;
+			height: 26px;
+			border-radius: 13px;
+			opacity: 0.1;
+			border: 1px solid #ffffff;
+			font-size: 16px;
+			color: #ffffff;
+			user-select: none;
+			position: absolute;
+			top: -45px;
+			right: 0;
+			text-align: center;
+			line-height: 26px;
+			font-weight: 500;
+		}
+
+		.address-position-desc {
 			width: 80%;
 			margin: 0 auto;
 		}
 
-		.address-warehouse-number-chart,
-		.address-warehouse-balance-chart {
+		.address-position-number-chart,
+		.address-position-balance-chart {
 			height: 427px;
 			padding: 5px 32px;
 		}
 	}
 
-	.address-warehouse-tb {
+	.address-position-tb {
 		height: 630px;
 		position: relative;
 		margin: 66px auto 80px;

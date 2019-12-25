@@ -36,8 +36,9 @@
 				<li class="search-input-li search-input-li-mobile">
 					<el-input
 						class="search-input"
-						placeholder="ONR ID,Block,TX Hash,Contract Hash,Address"
+						placeholder="Block,TX Hash,Contract Hash,Address"
 						prefix-icon="el-icon-search"
+						@keyup.enter.native="toSearch"
 						v-model="searchContent"
 					></el-input>
 				</li>
@@ -74,12 +75,13 @@
 				<li class="search-input-li">
 					<el-input
 						class="search-input"
-						placeholder="ONR ID,Block,TX Hash,Contract Hash,Address"
+						placeholder="Block,TX Hash,Contract Hash,Address"
 						prefix-icon="el-icon-search"
 						v-model="searchContent"
+						@keyup.enter.native="toSearch"
 					></el-input>
 				</li>
-				<li @click.stop="setLangOpen"  class="no-user-select">
+				<!-- <li @click.stop="setLangOpen"  class="no-user-select">
 					<el-select
 						@change="setLanguage"
 						:class="{scroll:scroll}"
@@ -97,7 +99,7 @@
 						>
 						</el-option>
 					</el-select>
-				</li>
+				</li> -->
 			</ul>
 		</nav>
 	</div>
@@ -117,7 +119,7 @@ export default {
 			routerName: this.$route.name,
 			timeoutObj: null,
 			belong: {
-				home: ["Home",'ChartMore','Addresswarehouse','AllNetProfit','ChannelNumber','DayTransaction','FileTotal','StorageSpace','SumStake'],
+				home: ["Home",'ChartMore','AddressPosition','AllNetProfit','ChannelNumber','DayTransaction','FileTotal','StorageSpace','SumStake'],
 				blocks: ["Blocks", "BlocksIndex", "BlocksDetail"],
 				transactions: ["Transactions", "TransactionIndex", "TransactionDetail"],
 				node: ["Node"]
@@ -187,6 +189,30 @@ export default {
     },
 		setLangOpen() {
 			this.$refs['setLanguageId'].focus();
+		},
+		async toSearch() {
+			let content = this.searchContent.trim();
+			if(content.length === 0) {
+				this.$message.error('Please enter what you want to search for')
+				return;
+			}
+			let res = await this.$api2.getTypeByContent(content);
+			switch(res) {
+				case 0:
+					this.$message.error(`Relevant resources of ${content} were not found`);
+					break;
+				case 1:
+					this.$router.push({path:'/address',query: {address: content}});
+					break;
+				case 2:
+					this.$router.push({path:'/transactions/detail',query: {hash: content}});
+					break;
+				case 3:
+					this.$router.push({path:'/blocks/detail',query: {height: content}});
+					break;
+				default:
+					this.$message.error('Unknown type');
+			}
 		}
 	}
 };

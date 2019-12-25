@@ -1,27 +1,25 @@
 import Res from './res'
 
 const Ont = require('./../../static/lib/index');
-const rpcClient = new Ont.RpcClient("http://10.0.1.201:20336");
+const rpcAddr = "http://10.0.1.201:20336";
+const rpcClient = new Ont.RpcClient(rpcAddr);
 
 import axios from 'axios';
-// import indexDB from './data/db/indexDb';
 import Util from '../assets/tool/util';
 import cache from './data/index'
-// curent get transaction list
-
 
 /**
  * rewrite rpcClient function
  */
 rpcClient.getsmartcodeeventbyeventidandheights = (contract, eventId, startHeight, endHeight, address) => {
   let req = makeRequest('getsmartcodeeventbyeventidandheights', contract, eventId, startHeight, endHeight, address)
-  return axios.post('http://10.0.1.201:20336', req).then(Response => {
+  return axios.post(rpcAddr, req).then(Response => {
     return Response.data;
   })
 }
 rpcClient.getBlockHeight = () => {
   const req = makeRequest('getblockcount');
-  return axios.post('http://10.0.1.201:20336', req).then(Response => {
+  return axios.post(rpcAddr, req).then(Response => {
     return Response.data;
   });
 }
@@ -166,6 +164,11 @@ class API {
 
   async getNodes() {
     let result = await this.service.Node.getNodes();
+    return result;
+  }
+
+  async getTypeByContent(val) {
+    let result = await this.service.Other.getTypeByContent(val);
     return result;
   }
 }

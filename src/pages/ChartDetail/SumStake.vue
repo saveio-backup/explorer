@@ -16,7 +16,7 @@
 				<el-table-column
 					fixed
 					label="Date"
-					min-width="100"
+					min-width="180"
 				>
 					<template slot-scope="scope">
 						<div>
@@ -27,19 +27,19 @@
 				<el-table-column
 					prop="DNSFormat"
 					label="DNS Stake(ONI)"
-					width="180"
+					min-width="180"
 				>
 				</el-table-column>
 				<el-table-column
 					prop="FSFormat"
 					label="FS Stake(ONI)"
-					width="180"
+					min-width="180"
 				>
 				</el-table-column>
 				<el-table-column
 					prop="total"
 					label="Total Stake(ONI)"
-					width="180"
+					min-width="180"
 				>
 					<template slot-scope="scope">
 						<div>
@@ -109,14 +109,18 @@ export default {
 				opacity: 0.5,
 				backgroundColor: 'rgba(0,0,0,0)',
 				loader: 'dots',
-				color: '#ffffff'
+				color: '#ffffff',
+				width: 45,
+				height: 45
 			});
 			this.loading.stakeStatTb = this.$loading.show({
 				container: this.$refs.sumStakeTb,
 				opacity: 0.5,
 				backgroundColor: 'rgba(0,0,0,0)',
 				loader: 'dots',
-				color: '#ffffff'
+				color: '#ffffff',
+				width: 45,
+				height: 45
 			});
 
 			// get data

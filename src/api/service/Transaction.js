@@ -13,7 +13,7 @@ class Transaction extends Base {
    */
   async getTransactionbyHeight(height) {
     let res = new this.Res();
-    let result = await this.rpcClient.getsmartcodeeventbyeventidandheights('AFmseVrdL9f9oyCzZefL9tG6UbvhUMqNMV', 0, height, height, "");
+    let result = await this.rpcClient.getsmartcodeeventbyeventidandheights('AFmseVrdL9f9oyCzZefL9tG6UbvhUMqNMV', 0, height, (height + 1), "");
     if (result.error !== 0) {
       res.setError(Response.error);
       return res.get();
@@ -63,15 +63,18 @@ class Transaction extends Base {
       let arr = [];
       let balance = 0;
       for (let transaction of transactionList) {
-        for (let item of transaction.Notify) {
+        for (let i = 0;i < transaction.Notify.length;i ++) {
+          let item = transaction.Notify[i];
           if (item && Object.prototype.toString.call(item.States) === '[object Array]') {
             if (item.States[0] === 'transfer') {
-              arr.push({
+              let _timestamp = await this.context.service.Block.getTimestampByBlock(item.States[4]);
+              arr.unshift({
                 Hash: transaction.TxHash,
                 Amount: (item.States[3] / Math.pow(10, 9)),
                 Asset: "ONI",
                 From: item.States[1],
-                To: item.States[2]
+                To: item.States[2],
+                CreatedAt: _timestamp
               });
               if (item.States[1] === address) {
                 balance -= item.States[3]
@@ -93,7 +96,6 @@ class Transaction extends Base {
         TxCount: arr.length,
         CreatedAt: timestamp,
       }
-      console.log(_result);
       res.setResult(_result);
       return res.get();
     })

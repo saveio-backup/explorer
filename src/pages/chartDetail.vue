@@ -26,9 +26,9 @@
 				:class="{'chart-detail-select': routerName === 'DayTransaction'}"
 			>Day Transaction</p>
 			<p
-				@click.stop="goPage('/chartDetail/Addresswarehouse')"
-				:class="{'chart-detail-select': routerName === 'Addresswarehouse'}"
-			>Address Warehouse</p>
+				@click.stop="goPage('/chartDetail/AddressPosition')"
+				:class="{'chart-detail-select': routerName === 'AddressPosition'}"
+			>Address Position</p>
 		</section>
 		<!-- <keep-alive> -->
 		<router-view></router-view>

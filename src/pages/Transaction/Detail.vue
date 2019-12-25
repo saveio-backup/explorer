@@ -15,7 +15,7 @@
         <p class="content-info link-fontImportant">
           <template v-if="transactionDetailObj">
             <router-link :to="`/blocks/detail?height=${transactionDetailObj.Height}`">
-              {{transactionDetailObj.Height}}
+              {{'#'+transactionDetailObj.Height}}
             </router-link>
           </template>
         </p>
@@ -26,7 +26,7 @@
       </div>
       <div>
         <p class="content-title no-user-select">Fee:</p>
-        <p class="content-info">{{transactionDetailObj && transactionDetailObj.Fee}} {{transactionDetailObj && transactionDetailObj.Asset}}</p>
+        <p class="content-info">{{transactionDetailObj && util.effectiveNumber(transactionDetailObj.Fee)}} {{transactionDetailObj && transactionDetailObj.Asset}}</p>
       </div>
       <div>
         <p class="content-title no-user-select">Timestamp:</p>
@@ -49,7 +49,7 @@
           </router-link>
         </div>
         <div class="transaction-detail-num">
-          {{item.Amount}} {{item.Asset}}
+          {{util.effectiveNumber(item.Amount)}} {{item.Asset}}
         </div>
         <span class="transaction-point-to">
           <i class="ofont el-icon-d-arrow-right"></i>
@@ -64,10 +64,12 @@
   </div>
 </template>
 <script>
+import util from './../../assets/config/util'
 export default {
   name: 'TransactionDetail',
   data() {
     return {
+      util,
       transactionDetailObj: null,
       hash: '',
       loading: {
@@ -93,7 +95,9 @@ export default {
 				opacity: 0.5,
 				backgroundColor: 'rgba(0,0,0,0)',
 				loader: 'dots',
-				color: '#ffffff'
+				color: '#ffffff',
+				width: 45,
+				height: 45
 			});
       
       let res = await this.$api2.getRawTransactionJson(this.hash);

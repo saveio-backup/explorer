@@ -12,16 +12,16 @@
 								class="link-fontImportant"
 								:to="`/blocks/detail?height=${countStat.BlockHeight}`"
 							>
-								{{countStat.BlockHeight}}
+								{{'#'+countStat.BlockHeight}}
 							</router-link>
 						</template>
 					</p>
 				</li>
-				<li class="relative" ref="homeTransactionTotal">
+				<li>
 					<h4>
 						Total Transactions
 					</h4>
-					<p>
+					<p class="relative" ref="homeTransactionTotal">
 						<template v-if="countStat">
 							<router-link class="link-fontImportant" to="/transactions/index">
 								{{transactionsLength}}
@@ -45,7 +45,7 @@
 					<h4>Total Address</h4>
 					<p ref="homeAddressLength" class="relative">
 						<template v-if="countStat">
-							<router-link to="/chartDetail/Addresswarehouse" class="link-fontImportant">
+							<router-link to="/chartDetail/AddressPosition" class="link-fontImportant">
 								{{totalAddrs}}
 							</router-link>
 						</template>
@@ -94,7 +94,7 @@
 									:to="`/blocks/detail?height=${item.Height}`"
 									:title="item.Height"
 								>
-									{{ item.Height }}
+									{{ '#'+item.Height }}
 								</router-link>
 							</h4>
 							<p>{{ util.bytesToSize(item.Size*1024) }}</p>
@@ -129,7 +129,7 @@
 									:to="`transactions/detail?hash=${item.Hash}`"
 									:title="item.Hash"
 								>
-									{{item.Hash.slice(0,7)+'...'+item.Hash.slice(item.Hash.length - 8)}}
+									{{util.getStart7ToEnd8(item.Hash)}}
 								</router-link>
 							</h4>
 							<p>Invoke Smart Contract</p>
@@ -194,7 +194,9 @@ export default {
 				opacity: 0.5,
 				backgroundColor: 'rgba(0,0,0,0)',
 				loader: 'dots',
-				color: '#ffffff'
+				color: '#ffffff',
+				width: 30,
+				height: 30
 			});
 
 			// get data
@@ -215,21 +217,27 @@ export default {
 				opacity: 0.5,
 				backgroundColor: 'rgba(0,0,0,0)',
 				loader: 'dots',
-				color: '#ffffff'
+				color: '#ffffff',
+				width: 30,
+				height: 30
 			});
 			this.loading.countStatNode = this.$loading.show({
 				container: this.$refs.homeNode,
 				opacity: 0.5,
 				backgroundColor: 'rgba(0,0,0,0)',
 				loader: 'dots',
-				color: '#ffffff'
+				color: '#ffffff',
+				width: 30,
+				height: 30
 			});
 			this.loading.countStatChannel = this.$loading.show({
 				container: this.$refs.homeChannel,
 				opacity: 0.5,
 				backgroundColor: 'rgba(0,0,0,0)',
 				loader: 'dots',
-				color: '#ffffff'
+				color: '#ffffff',
+				width: 30,
+				height: 30
 			});
 
 			// get data
@@ -253,7 +261,9 @@ export default {
 				opacity: 0.5,
 				backgroundColor: 'rgba(0,0,0,0)',
 				loader: 'dots',
-				color: '#ffffff'
+				color: '#ffffff',
+				width: 45,
+				height: 45
 			});
 
 			// get data
@@ -273,14 +283,18 @@ export default {
 				opacity: 0.5,
 				backgroundColor: 'rgba(0,0,0,0)',
 				loader: 'dots',
-				color: '#ffffff'
+				color: '#ffffff',
+				width: 45,
+				height: 45
 			});
 			this.loading.transactionTotal = this.$loading.show({
 				container: this.$refs.homeTransactionTotal,
 				opacity: 0.5,
 				backgroundColor: 'rgba(0,0,0,0)',
 				loader: 'dots',
-				color: '#ffffff'
+				color: '#ffffff',
+				width: 30,
+				height: 30
 			});
 
 			// get data
@@ -408,6 +422,7 @@ export default {
 					font-size: 32px;
 					color: #cddc39;
 					height: 100%;
+					margin-top: 3px;
 
 					@media (max-width: 1024px) {
 						font-size: 22px;
