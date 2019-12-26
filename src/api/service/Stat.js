@@ -546,7 +546,6 @@ class Stat extends Base {
     let currentheight = await this.context.service.Block.getBlockHeight();
     let todayBlockNumber = this.context.service.Block.getTodayGoesBlockNumber();
     const commitAll = [];
-    // for (let i = 0; i < days; i++) {
     let endBlock = currentheight;
     let j = 0;
     while(j < days && endBlock > 1) {
@@ -664,9 +663,130 @@ class Stat extends Base {
 
         i = i - 4;
       }
-      
-
       res.setResult(arr);
+      return res.get();
+    });
+  }
+
+  async getAddressStat() {
+    const vm = this;
+    let res = new this.Res();
+    let addressList = await this.context.cache.sync.getAddressList();
+    console.log("address");
+    console.log(addressList);
+    let currentheight = await this.context.service.Block.getBlockHeight();
+    let before30DayBlockHeight = currentheight - (30 * 86400 / 5);
+    let commitAll = [];
+    for(let value of addressList) {
+      let address = new this.context.Ont.Crypto.Address(value)
+      commitAll.push(this.rpcClient.getBalance(address));
+      commitAll.push(this.rpcClient.getsmartcodeeventbyeventidandheights('AFmseVrdL9f9oyCzZefL9tG6UbvhUMqNMV', 0, before30DayBlockHeight, currentheight, value));
+    }
+    return Promise.all(commitAll).then(async ResponseArr => {
+      console.log(ResponseArr);
+      for (let Response of ResponseArr) {
+        if (Response.error !== 0) {
+          res.setError(Response.error);
+          return res.get();
+        };
+      }
+      
+      let AddrCountList = [];
+      let AmountCountList = [];
+      let AddrObj = {};
+      let Details = [];
+      let amountTotal = 0;
+      let lately7NewAdd = 0;
+      let lately30NewAdd = 0;
+      let i = 0;
+      while(ResponseArr.length > i) {
+        let response = ResponseArr[i];
+        let usdtFormat = response.result.usdt/Math.pow(10, 9);
+        let _block = vm.context.cache.sync.addressObj.obj[addressList[i/2]];
+        if((currentheight - _block) <= (30 * 86400 / 5)) {
+          lately30NewAdd ++;
+        }
+        if((currentheight - _block) <= (7 * 86400 / 5)) {
+          lately7NewAdd ++;
+        }
+        let _timestamp = await vm.context.service.Block.getTimestampByBlock(_block);
+        Details.unshift({
+          Address: addressList[i/2],
+          Balance: response.result.usdt,
+          BalanceFormat: usdtFormat,
+          TransferCountIn30D: ResponseArr[i + 1].result.length,
+          FirstTransferDate: _timestamp
+        });
+        amountTotal += parseInt(response.result.usdt);
+        let _AddrCountkey = response.result.usdt.toString().length;
+        if(!AddrObj[_AddrCountkey]) AddrObj[_AddrCountkey] = [];
+        AddrObj[_AddrCountkey].push(parseInt(response.result.usdt));
+        i = i + 2;
+      }
+
+      // 0-0.00001;
+      let countStart = (AddrObj["1"] && AddrObj["1"].length || 0)+(AddrObj["2"] && AddrObj["2"].length || 0)+(AddrObj["3"] && AddrObj["3"].length || 0);
+      let ratioStart = countStart/addressList.length;
+      AddrCountList.push({
+        Range: '0-0.00001',
+        Count: countStart,
+        Ratio: ratioStart
+      });
+
+      let amountStart = (AddrObj["1"] && vm.context.Util.sum(AddrObj["1"]) || 0)+(AddrObj["2"] && vm.context.Util.sum(AddrObj["2"]) || 0)+(AddrObj["3"] && vm.context.Util.sum(AddrObj["3"]) || 0);
+      let ratioAmountStart = amountStart / amountTotal;
+      AmountCountList.push({
+        Range: '0-0.00001',
+        Count: amountStart/Math.pow(10,9),
+        Ratio: ratioAmountStart
+      });
+
+      // 0.0001 to 1000000
+      for(let i = 4;i < 15;i ++) {
+        let _count = AddrObj[i.toString()] && AddrObj[i.toString()].length || 0;
+        let _ratio = _count/addressList.length;
+        let _range = `${vm.context.Util.accMul(1, Math.pow(10, (i - 9)))}-${vm.context.Util.accMul(1, Math.pow(10, (i - 8)))}`;
+        AddrCountList.push({
+          Range: _range,
+          Count: _count,
+          Ratio: _ratio
+        });
+
+        let _amountCount = AddrObj[i.toString()] && vm.context.Util.sum(AddrObj[i.toString()]) || 0;
+        let _amountRatio = _amountCount/amountTotal;
+        AmountCountList.push({
+          Range: _range,
+          Count: _amountCount/Math.pow(10,9),
+          Ratio: _amountRatio
+        });
+      }
+
+      // 1000000-1000000000;
+      let countEnd = (AddrObj["16"] && AddrObj["16"].length || 0)+(AddrObj["17"] && AddrObj["17"].length || 0)+(AddrObj["18"] && AddrObj["18"].length || 0);
+      let ratioEnd = countEnd/addressList.length;
+      AddrCountList.push({
+        Range: '1000000-1000000000',
+        Count: countEnd,
+        Ratio: ratioEnd
+      });
+
+      let amountEnd = (AddrObj["16"] && vm.context.Util.sum(AddrObj["16"]) || 0)+(AddrObj["17"] && vm.context.Util.sum(AddrObj["17"]) || 0)+(AddrObj["18"] && vm.context.Util.sum(AddrObj["18"]) || 0);
+      let ratioAmountEnd = amountEnd / amountTotal;
+      AmountCountList.push({
+        Range: '1000000-1000000000',
+        Count: amountEnd/Math.pow(10,9),
+        Ratio: ratioAmountEnd
+      });
+
+      let _result = {
+        Total: addressList.length,
+        NewAddrIn7D: lately7NewAdd,
+        NewAddrIn30D: lately30NewAdd,
+        Details: Details,
+        AddrCountList: AddrCountList,
+        AmountCountList: AmountCountList
+      }
+      res.setResult(_result)
       return res.get();
     });
   }

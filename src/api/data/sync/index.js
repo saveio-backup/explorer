@@ -80,9 +80,14 @@ class Sync extends Base {
       key: 'addressList'
     });
     _addressCacheList = _addressCacheList.length === 0 ? [] : _addressCacheList;
-    let _addressObj = this.context.Util.listToObj(_addressCacheList);
+    // let _addressObj = this.context.Util.listToObj(_addressCacheList);
+    let _addressObj = await this.indexDB.findData({
+      indexDbName: 'address',
+      key: 'firstTransactionBlock'
+    });
+    let _obj = _addressObj.length === 0 ? {} : _addressObj[0]
     let result = {
-      obj: _addressObj,
+      obj: _obj,
       list: _addressCacheList
     }
     return result;
@@ -369,6 +374,12 @@ class Sync extends Base {
           data: insertAddrArr
         });
 
+        await this.indexDB.updateData({
+          indexDbName: 'address',
+          key: 'firstTransactionBlock',
+          data: [vm.addressObj.obj]
+        });
+
         // update day total transaction
         await this.indexDB.updateData({
           indexDbName: 'transaction',
@@ -433,18 +444,20 @@ class Sync extends Base {
         let _fromAddr = item.States[1];
         let _toAddr = item.States[2];
         if(!this.addressObj.obj[_fromAddr]) {
-          this.addressObj.obj[_fromAddr] = true;
+          this.addressObj.obj[_fromAddr] = item.States[4];
           this.addressObj.list.push(_fromAddr);
         }
         if (!this.addressObj.obj[_toAddr]) {
-          this.addressObj.obj[_toAddr] = true;
+          this.addressObj.obj[_toAddr] = item.States[4];
           this.addressObj.list.push(_toAddr);
         }
-      } else if(Object.prototype.toString.call(item.States) === '[object Object]' && item.States.blockHeight) {
-        let _index = Math.ceil((item.States.blockHeight - vm.firstDayZeroGoesBlockHeight)/(86400/5));
+
+        let _index = Math.ceil((item.States[4] - vm.firstDayZeroGoesBlockHeight)/(86400/5));
         if(!vm.dayTransaction[_index]) vm.dayTransaction[_index] = 0;
         vm.dayTransaction[_index] ++;
-      }
+      } 
+      // else if(Object.prototype.toString.call(item.States) === '[object Object]' && item.States.blockHeight) {
+      // }
     }
   }
 }

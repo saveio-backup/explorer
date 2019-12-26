@@ -171,6 +171,11 @@ class API {
     let result = await this.service.Other.getTypeByContent(val);
     return result;
   }
+
+  async getAddressStat() {
+    let result = await this.service.Stat.getAddressStat();
+    return result;
+  }
 }
 
 export default API

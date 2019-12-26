@@ -6,14 +6,16 @@
 			class="address-position loading-content"
 			@click.stop="goPage('/chartDetail/AddressPosition')"
 		>
-			<div class="mock-data">Mock Data</div>
+			<!-- <div class="mock-data">Mock Data</div> -->
 			<section
 				class="address-number-distribution"
 				id="addressNumberDistributionChart"
+				ref="addressNumberDistribution"
 			></section>
 			<section
 				class="address-balance-distribution"
 				id="addressBalanceDistributionChart"
+				ref="addressBalanceDistribution"
 			></section>
 		</section>
 	</div>
@@ -32,7 +34,11 @@ export default {
 			addressBalanceDistributionChart: null,
 			addressStat: null,
 			addrCountList: null,
-			amountCountList: null
+			amountCountList: null,
+			loading: {
+				addressNumberDistribution: null,
+				addressBalanceDistribution: null
+			}
 		};
 	},
 	computed: {
@@ -55,27 +61,40 @@ export default {
 		init() {
 			this.getAddressStat();
 		},
-		getAddressStat() {
-			this.$axios
-				.get(
-					this.$api.getaddressstat,
-					{},
-					{
-						loading: {
-							text: "Loading...",
-							target: ".loading-content.address-position"
-						}
-					}
-				)
-				.then(data => {
-					let res = data.data
-					if (res.Error === 0) {
-						this.addrCountList = res.Result["AddrCountList"];
-						this.amountCountList = res.Result["AmountCountList"];
-						this.setAddressNumberDistribution();
-						this.setAddressBalanceDistribution();
-					}
-				});
+		async getAddressStat() {
+			// add loading
+			this.loading.addressNumberDistribution = this.$loading.show({
+				container: this.$refs.addressNumberDistribution,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff',
+				width: 45,
+				height: 45
+			});
+			this.loading.addressBalanceDistribution = this.$loading.show({
+				container: this.$refs.addressBalanceDistribution,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff',
+				width: 45,
+				height: 45
+			});
+
+			// get data
+			let res = await this.$api2.getAddressStat();
+
+			// close loading
+			this.loading.addressNumberDistribution && this.loading.addressNumberDistribution.hide();
+			this.loading.addressBalanceDistribution && this.loading.addressBalanceDistribution.hide();
+
+			if(res.error === 0) {
+				this.addrCountList = res.result["AddrCountList"];
+				this.amountCountList = res.result["AmountCountList"];
+				this.setAddressNumberDistribution();
+				this.setAddressBalanceDistribution();
+			}
 		},
 		setAddressNumberDistribution() {
 			let addrCountArr = [];

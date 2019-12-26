@@ -1,7 +1,7 @@
 <template>
 	<div id="addressPosition">
-		<div class="address-position-wrapper loading-content pt30">
-			<div class="mock-data">Mock Data</div>
+		<div class="address-position-wrapper pt30 relative" ref="addressPositionWrapper">
+			<!-- <div class="mock-data">Mock Data</div> -->
 			<div class="flex white between ft14 mb20 address-position-desc">
         <div>
 					<span class="op07">
@@ -37,7 +37,7 @@
 				id="addressPositionBalanceChart"
 			></div>
 		</div>
-		<div class="address-position-tb">
+		<div class="address-position-tb relative" ref="addressPositionTb">
 			<el-table
 				style="width: 100%;"
 				:data="tbList"
@@ -98,7 +98,11 @@ export default {
 			addressPositionNumberChart: null,
 			addressPositionBalanceChart: null,
 			addressPositionObj: null,
-			currentPage: 1
+			currentPage: 1,
+			loading: {
+				addressPositionWrapper: null,
+				addressPositionTb: null
+			}
 		};
 	},
 	computed: {
@@ -133,30 +137,44 @@ export default {
 		currentChange(page) {
 			this.currentPage = page;
 		},
-		getAddressStat() {
-			this.$axios
-				.get(
-					this.$api.getaddressstat,
-					{},
-					{
-						loading: {
-							text: "Loading...",
-							target: ".loading-content.day-transaction-chart"
-						}
-					}
-				)
-				.then(data => {
-					let res = data.data
-					if (res.Error === 0) {
-						for (let i = 0; i < res.Result.Details.length; i++) {
-							let item = res.Result.Details[i];
-							item.Number = i + 1;
-						}
-						this.addressPositionObj = res.Result;
-						this.setAddressPositionNumberChart();
-						this.setAddressPositionBalanceChart();
-					}
-				});
+		async getAddressStat() {
+			// add loading
+			this.loading.addressPositionWrapper = this.$loading.show({
+				container: this.$refs.addressPositionWrapper,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff',
+				width: 45,
+				height: 45
+			});
+			this.loading.addressPositionTb = this.$loading.show({
+				container: this.$refs.addressPositionTb,
+				opacity: 0.5,
+				backgroundColor: 'rgba(0,0,0,0)',
+				loader: 'dots',
+				color: '#ffffff',
+				width: 45,
+				height: 45
+			});
+
+			// get data
+			let res = await this.$api2.getAddressStat();
+
+			// close loading
+			this.loading.addressPositionWrapper && this.loading.addressPositionWrapper.hide();
+			this.loading.addressPositionTb && this.loading.addressPositionTb.hide();
+
+			if(res.error === 0) {
+				console.log(res);
+				for (let i = 0; i < res.result.Details.length; i++) {
+					let item = res.result.Details[i];
+					item.Number = i + 1;
+				}
+				this.addressPositionObj = res.result;
+				this.setAddressPositionNumberChart();
+				this.setAddressPositionBalanceChart();
+			}
 		},
 		setAddressPositionNumberChart() {
 			let addressPositionNumArr = [];
@@ -294,6 +312,9 @@ export default {
 						fontSize: "16",
 						fontWeight: "normal"
 					}
+				},
+				grid: {
+					left: "130px"
 				},
 				tooltip: {
 					trigger: "axis",
