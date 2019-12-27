@@ -89,10 +89,11 @@
 						:key="index"
 					>
 						<div class="block-left-area">
-							<h4 class="link-fontImportant click-link">
+							<h4 class="link-fontImportant">
 								<router-link
 									:to="`/blocks/detail?height=${item.Height}`"
 									:title="item.Height"
+									 class="click-active"
 								>
 									{{ '#'+item.Height }}
 								</router-link>
@@ -123,18 +124,19 @@
 						<div class="block-left-area">
 							<h4
 								:title="item.Hash"
-								class="link-fontImportant click-link"
+								class="link-fontImportant ft14"
 							>
 								<router-link
 									:to="`transactions/detail?hash=${item.Hash}`"
 									:title="item.Hash"
+									 class="click-active"
 								>
-									{{util.getStart7ToEnd8(item.Hash)}}
+									{{util.getStart18ToEnd18(item.Hash)}}
 								</router-link>
 							</h4>
-							<p>Invoke Smart Contract</p>
 						</div>
 						<div class="block-right-area">
+							<p>Invoke Smart Contract</p>
 							<p>{{item.ago || 'Computing'}}</p>
 						</div>
 					</li>
@@ -548,6 +550,7 @@ export default {
 				li {
 					display: flex;
 					justify-content: space-between;
+					flex-direction: column;
 
 					.block-left-area {
 						min-width: 150px;
@@ -569,8 +572,11 @@ export default {
 					.block-right-area {
 						display: flex;
 						align-items: center;
-						justify-content: flex-end;
-						width: 380px;
+						// justify-content: flex-end;
+						justify-content: space-between;
+
+						// width: 380px;
+						width: 100%;
 
 						p {
 							font-size: 14px;

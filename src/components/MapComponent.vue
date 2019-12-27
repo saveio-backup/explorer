@@ -27,6 +27,7 @@
 
 <script>
 import mapboxgl from "mapbox-gl";
+import util from './../assets/config/util';
 export default {
 	props: {
 		mapNodes: {
@@ -36,12 +37,13 @@ export default {
 	},
 	data() {
 		return {
+			util,
 			map: null,
 			mapLoading: false,
 			nodeTypes: [
 				{
 					type: "fs",
-					label: "FS节点",
+					label: "FS Node",
 					color: "rgba(205, 220, 57, 1)",
 					boxShadow: "rgba(205, 220, 57, 0.4)",
 					iconImage: "fs-point",
@@ -50,7 +52,7 @@ export default {
 				},
 				{
 					type: "dns",
-					label: "DNS节点",
+					label: "DNS Node",
 					color: "rgba(255, 100, 100, 1)",
 					boxShadow: "rgba(255, 100, 100, 0.4)",
 					iconImage: "dns-point",
@@ -149,10 +151,9 @@ export default {
           [-180, -85], // Southwest coordinates
           [180, 85]
         ]
-        // pitch: 35
       });
 			this.map.on("load", () => {
-        vm.map.addControl(new mapboxgl.FullscreenControl());
+        // vm.map.addControl(new mapboxgl.FullscreenControl());
 				for (let value of vm.nodeTypes) {
 					let dot = this.getPulsingDot({ size: 60, color: value.color });
 					vm.map.addImage(value.iconImage, dot, {
@@ -307,12 +308,12 @@ export default {
 				description = `<strong>${e.features[0].properties.Alias}</strong>
         <p>IP: ${e.features[0].properties.IP}</p>
         <p>Region: ${e.features[0].properties.Region}</p>
-        <p>Stake: ${e.features[0].properties.Stake} ONI</p>`;
+        <p>Stake: ${vm.util.effectiveNumber(e.features[0].properties.Stake)} ONI</p>`;
 			} else {
 				description = `<strong>${e.features[0].properties.Alias}</strong>
         <p>Address: ${e.features[0].properties.Address}</p>
         <p>Region: ${e.features[0].properties.Region}</p>
-        <p>Profit: ${e.features[0].properties.ProfitFormat} ONI</p>`;
+        <p>Profit: ${vm.util.effectiveNumber(e.features[0].properties.ProfitFormat)} ONI</p>`;
 			}
 			// Ensure that if the map is zoomed out such that multiple
 			// copies of the feature are visible, the popup appears

@@ -15,7 +15,7 @@
 				>
 					<template slot-scope="scope">
             <div class="white tb-link" :title="scope.row.Hash">
-              <router-link :to="`/transactions/detail?hash=${scope.row.Hash}`">
+              <router-link class="click-active" :to="`/transactions/detail?hash=${scope.row.Hash}`">
                 {{scope.row.Hash}}
               </router-link>
             </div>
@@ -61,7 +61,7 @@
 				>
 					<template slot-scope="scope">
 						<div class="fontImportantThree tb-link" :title="scope.row.From">
-							<router-link :to="`/address?address=${scope.row.From}`">
+							<router-link class="click-active" :to="`/address?address=${scope.row.From}`">
 								{{util.getStart6ToEnd6(scope.row.From)}}
 							</router-link>
 						</div>
@@ -74,7 +74,7 @@
 				>
 					<template slot-scope="scope">
 						<div class="fontImportantThree tb-link" :title="scope.row.To">
-							<router-link :to="`/address?address=${scope.row.To}`">
+							<router-link class="click-active" :to="`/address?address=${scope.row.To}`">
 								{{util.getStart6ToEnd6(scope.row.To)}}
 							</router-link>
 						</div>

@@ -4,7 +4,8 @@ import {
 } from 'constants';
 class Stat extends Base {
   constructor(context) {
-    super(context)
+    super(context);
+    this.addrPositionCache = null;
   }
 
   /**
@@ -671,9 +672,12 @@ class Stat extends Base {
   async getAddressStat() {
     const vm = this;
     let res = new this.Res();
+    // check cache
+    if(vm.addrPositionCache) {
+      res.setResult(vm.addrPositionCache)
+      return res.get();
+    }
     let addressList = await this.context.cache.sync.getAddressList();
-    console.log("address");
-    console.log(addressList);
     let currentheight = await this.context.service.Block.getBlockHeight();
     let before30DayBlockHeight = currentheight - (30 * 86400 / 5);
     let commitAll = [];
@@ -683,7 +687,6 @@ class Stat extends Base {
       commitAll.push(this.rpcClient.getsmartcodeeventbyeventidandheights('AFmseVrdL9f9oyCzZefL9tG6UbvhUMqNMV', 0, before30DayBlockHeight, currentheight, value));
     }
     return Promise.all(commitAll).then(async ResponseArr => {
-      console.log(ResponseArr);
       for (let Response of ResponseArr) {
         if (Response.error !== 0) {
           res.setError(Response.error);
@@ -778,7 +781,7 @@ class Stat extends Base {
         Ratio: ratioAmountEnd
       });
 
-      let _result = {
+      vm.addrPositionCache = {
         Total: addressList.length,
         NewAddrIn7D: lately7NewAdd,
         NewAddrIn30D: lately30NewAdd,
@@ -786,7 +789,8 @@ class Stat extends Base {
         AddrCountList: AddrCountList,
         AmountCountList: AmountCountList
       }
-      res.setResult(_result)
+      // this.addrPositionCache = 
+      res.setResult(vm.addrPositionCache)
       return res.get();
     });
   }

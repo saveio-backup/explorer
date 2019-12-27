@@ -170,7 +170,7 @@ export default {
 					// d: percentage
 					formatter: function(params) {
 						if(!params) return '';
-						return `${params.data.realD * 100}%`;
+						return `${parseFloat((params.data.realD * 100).toFixed(2))}%`;
 					},
 					padding: [10, 10],
 					backgroundColor: "#FFFFFF",

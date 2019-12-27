@@ -123,9 +123,11 @@ export default {
 						let desc = params[0].name + ' ONI';
 						for(let i = 0;i < params.length;i ++) {
 							let value = params[i];
-							desc += `<br/>${value.marker}${value.seriesName}: ${value.value}`
+							// desc += `<br/>${value.marker}${value.seriesName}: ${value.value}`
 							if(value.seriesName === 'Ratio') {
-								desc += '%';
+								desc += `<br/>${value.marker}${value.seriesName}: ${parseFloat(value.value.toFixed(4)) }%`
+							} else {
+								desc += `<br/>${value.marker}${value.seriesName}: ${value.value}`
 							}
 						}
 						return desc
@@ -240,11 +242,10 @@ export default {
 						let desc = params[0].name + ' ONI';
 						for(let i = 0;i < params.length;i ++) {
 							let value = params[i];
-							desc += `<br/>${value.marker}${value.seriesName}: ${value.value}`
 							if(value.seriesName === 'Ratio') {
-								desc += '%';
+								desc += `<br/>${value.marker}${value.seriesName}: ${parseFloat(value.value.toFixed(4))}%`
 							} else {
-								desc += ' ONI';
+								desc += `<br/>${value.marker}${value.seriesName}: ${value.value} ONI`
 							}
 						}
 						return desc

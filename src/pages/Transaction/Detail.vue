@@ -44,7 +44,7 @@
     <ul class="transaction-detail-wrapper">
       <li v-for="(item,index) in transactionDetailList" :class="{'no-border': index === (transactionDetailList.length -1)}" :key="index">
         <div class="transaction-detail-from fontImportantThree tb-link" :title="item.From">
-          <router-link :to="`/address?address=${item.From}`">
+          <router-link class="click-active" :to="`/address?address=${item.From}`">
             {{item.From}}
           </router-link>
         </div>
@@ -55,7 +55,7 @@
           <i class="ofont el-icon-d-arrow-right"></i>
         </span>
         <div class="transaction-detail-to fontImportantThree tb-link" :title="item.To">
-          <router-link :to="`/address?address=${item.To}`">
+          <router-link class="click-active" :to="`/address?address=${item.To}`">
             {{item.To}}
           </router-link>
         </div>

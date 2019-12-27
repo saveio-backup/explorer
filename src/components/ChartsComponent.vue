@@ -162,7 +162,7 @@ export default {
 					// formatter: "{d}%",
 					formatter: function(params) {
 						if(!params) return '';
-						return `${params.data.realD * 100}%`;
+						return `${parseFloat((params.data.realD * 100).toFixed(4))}%`;
 					},
 					padding: [10, 10],
 					backgroundColor: "#FFFFFF",
@@ -252,14 +252,14 @@ export default {
 		},
 		loadChartSecond() {
 			// get data
-			let indexArr = [];
-			let channelArr = [];
+			// let indexArr = [];
+			// let channelArr = [];
 			let storageArr = [];
 			let timeArr = [];
 			for (let i = 0; i < 7; i++) {
 				let item = this.profitStat[i];
-				indexArr.unshift(item.IndexProfitFormat);
-				channelArr.unshift(item.ChannelProfitFormat);
+				// indexArr.unshift(item.IndexProfitFormat);
+				// channelArr.unshift(item.ChannelProfitFormat);
 				storageArr.unshift(item.StorageProfitFormat);
 				let timeFormat = this.$dateFormat.formatMonthDayByTimestamp(item.UpdatedAt * 1000);
 				timeArr.unshift(timeFormat);
@@ -275,14 +275,14 @@ export default {
 						fontWeight: "normal"
 					}
 				},
-				legend: {
-					data: ['Index', 'Flow','Storage'],
-					left: 'center',
-					bottom: '4%',
-					textStyle: {
-						color: '#ffffff'
-					}
-				},
+				// legend: {
+				// 	data: ['Index', 'Flow','Storage'],
+				// 	left: 'center',
+				// 	bottom: '4%',
+				// 	textStyle: {
+				// 		color: '#ffffff'
+				// 	}
+				// },
 				tooltip: {
 					trigger: "axis",
 					formatter: function(params) {
@@ -330,26 +330,26 @@ export default {
 					}
 				},
 				series: [
-					{
-						name: "Index",
-						type: "bar",
-						stack: "Total",
-						data: indexArr,
-						barMaxWidth: 30,
-						itemStyle: {
-							color: "#0387E3"
-						}
-					},
-					{
-						name: "Flow",
-						type: "bar",
-						stack: "Total",
-						barMaxWidth: 30,
-						data: channelArr,
-						itemStyle: {
-							color: "#3ABAA4"
-						}
-					},
+					// {
+					// 	name: "Index",
+					// 	type: "bar",
+					// 	stack: "Total",
+					// 	data: indexArr,
+					// 	barMaxWidth: 30,
+					// 	itemStyle: {
+					// 		color: "#0387E3"
+					// 	}
+					// },
+					// {
+					// 	name: "Flow",
+					// 	type: "bar",
+					// 	stack: "Total",
+					// 	barMaxWidth: 30,
+					// 	data: channelArr,
+					// 	itemStyle: {
+					// 		color: "#3ABAA4"
+					// 	}
+					// },
 					{
 						name: "Storage",
 						type: "bar",
@@ -498,7 +498,7 @@ export default {
 			}
 			let option = {
 				title: {
-					text: "Number of Channel",
+					text: "Number of Channels",
 					left: "center",
 					top: "20",
 					textStyle: {
@@ -713,7 +713,7 @@ export default {
 					bottom: "18%",
 				},
 				legend: {
-					data:['DNS Pledge','FS Pledge'],
+					data:['DNS Stake','FS Stake'],
 					left: 'center',
 					bottom: '4%',
 					textStyle: {
@@ -769,7 +769,7 @@ export default {
 					{
 						data: dnsStakeArr,
 						type: "line",
-						name: "DNS Pledge",
+						name: "DNS Stake",
 						areaStyle: {
 							color: 'rgba(205, 220, 57, 0.2)'
 						},
@@ -780,7 +780,7 @@ export default {
 					{
 						data: fsStakeArr,
 						type: "line",
-						name: "FS Pledge",
+						name: "FS Stake",
 						areaStyle: {
 							color: 'rgba(21, 164, 198, 0.24)'
 						},

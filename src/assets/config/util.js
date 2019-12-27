@@ -28,6 +28,10 @@ const result = {
   getStart6ToEnd6(val) {
     if(val.length <= 12) return val;
     return val.slice(0,6)+'...'+val.slice(val.length - 6);
+  },
+  getStart18ToEnd18(val) {
+    if(val.length <= 36) return val;
+    return val.slice(0,18)+'...'+val.slice(val.length - 18);
   }
 }
 module.exports = result;

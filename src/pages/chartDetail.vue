@@ -12,11 +12,11 @@
 			<p
 				@click.stop="goPage('/chartDetail/fileTotal')"
 				:class="{'chart-detail-select': routerName === 'FileTotal'}"
-			>Total File</p>
+			>Number of Files</p>
 			<p
 				@click.stop="goPage('/chartDetail/channelNumber')"
 				:class="{'chart-detail-select': routerName === 'ChannelNumber'}"
-			>Channel Count</p>
+			>Number of Channels</p>
 			<p
 				@click.stop="goPage('/chartDetail/sumStake')"
 				:class="{'chart-detail-select': routerName === 'SumStake'}"
@@ -24,7 +24,7 @@
 			<p
 				@click.stop="goPage('/chartDetail/dayTransaction')"
 				:class="{'chart-detail-select': routerName === 'DayTransaction'}"
-			>Day Transaction</p>
+			>Daily Transactions</p>
 			<p
 				@click.stop="goPage('/chartDetail/AddressPosition')"
 				:class="{'chart-detail-select': routerName === 'AddressPosition'}"

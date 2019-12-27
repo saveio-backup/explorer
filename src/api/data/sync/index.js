@@ -11,6 +11,7 @@ class Sync extends Base {
       length: 0,
       total: 0,
     }
+    this.txDbCache = {};
     this.transactionList = [];
     this.cacheTransactionList = {};
 
@@ -18,6 +19,7 @@ class Sync extends Base {
     this.addressObj = {};
     this.loading = {
       transaction: false,
+      transactionIsFirst: true,
       address: false
     }
     this.NAME = 'transaction_list'
@@ -93,6 +95,29 @@ class Sync extends Base {
     return result;
   }
 
+  async getTransactionsTxCb(offset, limit) {
+    const vm = this;
+    let result;
+    if (offset === 0) {
+      result = this.transactionList.slice(vm.txCache.total - vm.txCache.length - limit - offset);
+    } else {
+      result = this.transactionList.slice(vm.txCache.total - vm.txCache.length - limit - offset, vm.txCache.total - vm.txCache.length - offset);
+    }
+    if(result.length < limit) {
+      let arr = await vm.getCacheTransacation({
+        limit: (limit - result.length),
+        offset: (vm.txCache.total - offset -limit)
+      })
+      let arr2 = [];
+      for(let value of arr) {
+        arr2.push({
+          TxHash: value
+        })
+      }
+      result = arr2.concat(result);
+    }
+    return result;
+  }  
 
   async getTransactionsTx({
     offset,
@@ -100,38 +125,18 @@ class Sync extends Base {
   }) {
     const vm = this;
     return new Promise(async (resolve,reject) => {
+      if(this.loading.transactionIsFirst !== true) {
+        let result = await vm.getTransactionsTxCb(offset, limit);
+        resolve(result);
+        return;
+      }
       let obj = setInterval(async () => {
-        if(this.loading.transaction !== true) {
+        if(this.loading.transactionIsFirst !== true) {
           clearInterval(obj);
-          let result;
-          if (offset === 0) {
-            result = this.transactionList.slice(vm.txCache.total - vm.txCache.length - limit - offset);
-          } else {
-            result = this.transactionList.slice(vm.txCache.total - vm.txCache.length - limit - offset, vm.txCache.total - vm.txCache.length - offset);
-          }
-          if(result.length < limit) {
-            let arr = await vm.getCacheTransacation({
-              limit: (limit - result.length),
-              offset: (vm.txCache.total - offset -limit)
-            })
-            // arr.map((item) => {
-            //   let tx = item;
-            //   item = {
-            //     TxHash: tx
-            //   }
-            //   return item;
-            // })
-            let arr2 = [];
-            for(let value of arr) {
-              arr2.push({
-                TxHash: value
-              })
-            }
-            result = arr2.concat(result);
-          }
+          let result = await vm.getTransactionsTxCb(offset, limit);
           resolve(result);
         }
-      }, 1000)
+      }, 200)
     });
   }
 
@@ -145,40 +150,50 @@ class Sync extends Base {
     if(offset < 0) {
       limit = offset + limit;
       offset = 0;
-      let list = await this.indexDB.findData({
-        indexDbName: 'transaction',
-        key: vm.NAME,
-        keyPath: 1
-      });
-      return list.slice(offset,(offset + limit));
+      // check cache
+      if(!this.txDbCache['1']) {
+        this.txDbCache['1'] = await this.indexDB.findData({
+          indexDbName: 'transaction',
+          key: vm.NAME,
+          keyPath: 1
+        });
+      }
+      return this.txDbCache['1'].slice(offset,(offset + limit));
     };
     // 数据存在于一个表
     if(parseInt(offset / TRANSACTION_KEY_LENGTH) === parseInt((offset + limit) / TRANSACTION_KEY_LENGTH)) {
       let keyPath = parseInt(offset / TRANSACTION_KEY_LENGTH) + 1;
-      // let keyPath = parseInt(offset / TRANSACTION_KEY_LENGTH);
-      let list = await this.indexDB.findData({
-        indexDbName: 'transaction',
-        key: vm.NAME,
-        keyPath: keyPath
-      });
-      return list.slice((offset%TRANSACTION_KEY_LENGTH),(offset%TRANSACTION_KEY_LENGTH + limit));
+      // check cache
+      if(!this.txDbCache[keyPath.toString()]) {
+        this.txDbCache[keyPath.toString()] = await this.indexDB.findData({
+          indexDbName: 'transaction',
+          key: vm.NAME,
+          keyPath: keyPath
+        });
+      }
+      return this.txDbCache[keyPath.toString()].slice((offset%TRANSACTION_KEY_LENGTH),(offset%TRANSACTION_KEY_LENGTH + limit));
     }
     // 数据存在于两个表
     if(parseInt(offset / TRANSACTION_KEY_LENGTH) !== parseInt((offset + limit) / TRANSACTION_KEY_LENGTH)) {
       let keyPath0 = parseInt(offset / TRANSACTION_KEY_LENGTH) + 1;
-      // let keyPath0 = parseInt(offset / TRANSACTION_KEY_LENGTH);
-      let list0 = await this.indexDB.findData({
-        indexDbName: 'transaction',
-        key: vm.NAME,
-        keyPath: keyPath0
-      });
+      if(!this.txDbCache[keyPath0.toString()]) {
+        this.txDbCache[keyPath0.toString()] = await this.indexDB.findData({
+          indexDbName: 'transaction',
+          key: vm.NAME,
+          keyPath: keyPath0
+        });
+      }
+
       let keyPath1 = parseInt((offset + limit) / TRANSACTION_KEY_LENGTH) + 1;
-      let list1 = await this.indexDB.findData({
-        indexDbName: 'transaction',
-        key: vm.NAME,
-        keyPath: keyPath1
-      });
-      let list = list0.concat(list1);
+      if(!this.txDbCache[keyPath1.toString()]) {
+        this.txDbCache[keyPath1.toString()] = await this.indexDB.findData({
+          indexDbName: 'transaction',
+          key: vm.NAME,
+          keyPath: keyPath1
+        });
+        
+      }
+      let list = this.txDbCache[keyPath0.toString()].concat(this.txDbCache[keyPath1.toString()]);
 
       return list.slice((offset%TRANSACTION_KEY_LENGTH),(offset%TRANSACTION_KEY_LENGTH + limit));
     }
@@ -207,6 +222,7 @@ class Sync extends Base {
     this.txCache.total = this.transactionList.length + this.txCache.length;
 
     this.loading.transaction = false;
+    this.loading.transactionIsFirst = false;
 
     this.toSyncTransaction({data: transactionResult.result});
     return this.transactionList;
@@ -352,7 +368,6 @@ class Sync extends Base {
     let dataArr = [];
 
     let addrCacheLength = this.addressObj.list.length;
-    // let dayTransactionLength = this.dayTransaction.length;
 
     for (let i = 0; i < arr.length; i++) {
       if (i % TRANSACTION_KEY_LENGTH === 0 && i !== 0) {
@@ -416,8 +431,12 @@ class Sync extends Base {
 
   async getAddressList() {
     return new Promise((resolve, reject) => {
+      if(this.loading.address !== true && this.loading.transactionIsFirst !== true) {
+        resolve(this.addressObj.list);
+        return;
+      }
       let obj = setInterval(() => {
-        if(this.loading.address !== true && this.loading.transaction !== true) {
+        if(this.loading.address !== true && this.loading.transactionIsFirst !== true) {
           clearInterval(obj);
           resolve(this.addressObj.list);
         }
@@ -427,8 +446,12 @@ class Sync extends Base {
 
   async getDayTransactionList() {
     return new Promise((resolve, reject) => {
+      if(this.loading.address !== true && this.loading.transactionIsFirst !== true) {
+        resolve(this.dayTransaction);
+        return;
+      }
       let obj = setInterval(() => {
-        if(this.loading.address !== true && this.loading.transaction !== true) {
+        if(this.loading.address !== true && this.loading.transactionIsFirst !== true) {
           clearInterval(obj);
           resolve(this.dayTransaction);
         }
@@ -455,9 +478,7 @@ class Sync extends Base {
         let _index = Math.ceil((item.States[4] - vm.firstDayZeroGoesBlockHeight)/(86400/5));
         if(!vm.dayTransaction[_index]) vm.dayTransaction[_index] = 0;
         vm.dayTransaction[_index] ++;
-      } 
-      // else if(Object.prototype.toString.call(item.States) === '[object Object]' && item.States.blockHeight) {
-      // }
+      }
     }
   }
 }

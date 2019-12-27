@@ -178,8 +178,8 @@ export default {
 				this.selectTime === 0
 					? this.allNetProfitList
 					: this.allNetProfitListMonth;
-			let indexArr = [];
-			let channelArr = [];
+			// let indexArr = [];
+			// let channelArr = [];
 			let storageArr = [];
       let timeArr = [];
       let _scale;
@@ -194,8 +194,8 @@ export default {
 					timeFormat = this.$dateFormat.formatYearMonthByTimestamp(_timestamp);
 				}
 				timeArr.unshift(timeFormat);
-				indexArr.unshift(item.IndexProfitFormat);
-				channelArr.unshift(item.ChannelProfitFormat);
+				// indexArr.unshift(item.IndexProfitFormat);
+				// channelArr.unshift(item.ChannelProfitFormat);
 				storageArr.unshift(item.StorageProfitFormat);
       }
       if(this.selectTime === 0) {
@@ -204,14 +204,14 @@ export default {
         _scale = (1 - (11.5 / date.length > 1 ? 1 : 11.5 / date.length)) * 100;
       }
 			let option = {
-				legend: {
-					data: ["Index", "Flow", "Storage"],
-					left: "center",
-					bottom: "4%",
-					textStyle: {
-						color: "#ffffff"
-					}
-				},
+				// legend: {
+				// 	data: ["Index", "Flow", "Storage"],
+				// 	left: "center",
+				// 	bottom: "4%",
+				// 	textStyle: {
+				// 		color: "#ffffff"
+				// 	}
+				// },
 				tooltip: {
 					trigger: "axis",
 					formatter: function(params) {
@@ -288,26 +288,26 @@ export default {
 					}
 				],
 				series: [
-					{
-						name: "Index",
-						type: "bar",
-						stack: "Total",
-						barMaxWidth: 30,
-						data: indexArr,
-						itemStyle: {
-							color: "#0387E3"
-						}
-					},
-					{
-						name: "Flow",
-						type: "bar",
-						stack: "Total",
-						barMaxWidth: 30,
-						data: channelArr,
-						itemStyle: {
-							color: "#3ABAA4"
-						}
-					},
+					// {
+					// 	name: "Index",
+					// 	type: "bar",
+					// 	stack: "Total",
+					// 	barMaxWidth: 30,
+					// 	data: indexArr,
+					// 	itemStyle: {
+					// 		color: "#0387E3"
+					// 	}
+					// },
+					// {
+					// 	name: "Flow",
+					// 	type: "bar",
+					// 	stack: "Total",
+					// 	barMaxWidth: 30,
+					// 	data: channelArr,
+					// 	itemStyle: {
+					// 		color: "#3ABAA4"
+					// 	}
+					// },
 					{
 						name: "Storage",
 						type: "bar",

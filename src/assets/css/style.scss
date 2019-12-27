@@ -17,14 +17,9 @@
 }
 
 .tb-link {
-  cursor: pointer;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-
-  &:active {
-    opacity: 0.7;
-  }
 }
 
 .link-fontImportant {
@@ -33,6 +28,14 @@
   &:hover {
     color: $fontImportant;
   }
+
+  &:active {
+    opacity: 0.7;
+  }
+}
+
+.click-active {
+  cursor: pointer;
 
   &:active {
     opacity: 0.7;

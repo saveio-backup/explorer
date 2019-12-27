@@ -257,7 +257,7 @@ export default {
 
 	.dns-wrapper {
 		width: 100%;
-		max-height: 345px;
+		height: 345px;
 		padding: 10px 25px;
 		overflow-y: auto;
 		background: #2a2a2b;

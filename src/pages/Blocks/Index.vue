@@ -14,7 +14,7 @@
         >
           <template slot-scope="scope">
             <div class="white tb-link">
-              <router-link :to="`/blocks/detail?height=${scope.row.Height}`">
+              <router-link class="click-active" :to="`/blocks/detail?height=${scope.row.Height}`">
                 {{'#'+scope.row.Height}}
               </router-link>
             </div>

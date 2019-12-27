@@ -65,22 +65,20 @@ class Transaction extends Base {
       for (let transaction of transactionList) {
         for (let i = 0;i < transaction.Notify.length;i ++) {
           let item = transaction.Notify[i];
-          if (item && Object.prototype.toString.call(item.States) === '[object Array]') {
-            if (item.States[0] === 'transfer') {
-              let _timestamp = await this.context.service.Block.getTimestampByBlock(item.States[4]);
-              arr.unshift({
-                Hash: transaction.TxHash,
-                Amount: (item.States[3] / Math.pow(10, 9)),
-                Asset: "ONI",
-                From: item.States[1],
-                To: item.States[2],
-                CreatedAt: _timestamp
-              });
-              if (item.States[1] === address) {
-                balance -= item.States[3]
-              } else if (item.States[2] === address) {
-                balance += item.States[3]
-              }
+          if (item && Object.prototype.toString.call(item.States) === '[object Array]' && item.States[0] === 'transfer') {
+            let _timestamp = await this.context.service.Block.getTimestampByBlock(item.States[4]);
+            arr.unshift({
+              Hash: transaction.TxHash,
+              Amount: (item.States[3] / Math.pow(10, 9)),
+              Asset: "ONI",
+              From: item.States[1],
+              To: item.States[2],
+              CreatedAt: _timestamp
+            });
+            if (item.States[1] === address) {
+              balance -= item.States[3]
+            } else if (item.States[2] === address) {
+              balance += item.States[3]
             }
           }
         }
@@ -143,16 +141,15 @@ class Transaction extends Base {
     let arr = [];
     for (let transaction of transactionList) {
       if (transaction.TxHash !== txHash) continue;
-      for (let item of transaction.Notify) {
-        if (item && Object.prototype.toString.call(item.States) === '[object Array]') {
-          if (item.States[0] === 'transfer') {
-            arr.push({
-              Amount: (item.States[3] / Math.pow(10, 9)),
-              Asset: "ONI",
-              From: item.States[1],
-              To: item.States[2],
-            })
-          }
+      for (let i = 0;i < transaction.Notify.length; i ++) {
+        let item = transaction.Notify[i];
+        if (item && Object.prototype.toString.call(item.States) === '[object Array]' && item.States[0] === 'transfer') {
+          arr.push({
+            Amount: (item.States[3] / Math.pow(10, 9)),
+            Asset: "ONI",
+            From: item.States[1],
+            To: item.States[2],
+          })
         }
       }
     }
@@ -177,8 +174,6 @@ class Transaction extends Base {
     }
 
     return Promise.all(commitAll).then(async ResponseArr => {
-      console.log('ResponseArr')
-      console.log(ResponseArr)
       for (let Response of ResponseArr) {
         if (Response.error !== 0) {
           res.setError(Response.error);
@@ -191,21 +186,16 @@ class Transaction extends Base {
         let _height,amount = 0,from,to;
         for(let i = 0;i < Response.result.Notify.length; i ++) {
           let item = Response.result.Notify[i].States;
-          if(Object.prototype.toString.call(item) === '[object Object]' && item.blockHeight) {
-            _height = item.blockHeight;
-          } else if(Object.prototype.toString.call(item) === '[object Array]' && item[0] === 'transfer') {
+          if(Object.prototype.toString.call(item) === '[object Array]' && item[0] === 'transfer') {
             if(item[3] > amount) {
               amount = item[3];
               from = item[1];
               to = item[2];
+              _height = item[4]
             }
           }
         }
 
-        if(_height === undefined || _height === 0) {
-          let _heightRes = await vm.rpcClient.getBlockHeightByTxHash(Response.result.TxHash);
-          _height = _heightRes.result;
-        }
         let timestamp = await vm.context.service.Block.getTimestampByBlock(_height);
         arr.push({
           Hash: Response.result.TxHash,
