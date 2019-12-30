@@ -1,7 +1,7 @@
 <template>
 	<div id="transaction-index">
-		<h2 class="no-user-select">TRANSACTIONS</h2>
-		<p class="no-user-select">A total of <span class="fontImportant">{{total}}</span> blocks</p>
+		<h2 class="no-user-select">{{$t('TRANSACTIONS')}}</h2>
+		<p class="no-user-select">{{$t('AtotalOf')}} <span class="fontImportant">{{total}}</span> {{$t('transactionsu')}}</p>
 		<section class="transaction-wrapper relative" ref="transactionWrapper">
 			<el-table
 				:data="transactionList"
@@ -9,7 +9,7 @@
 			>
 				<el-table-column
 					fixed
-					label="Hash"
+					:label="$t('hash')"
 					min-width="300"
 					:show-overflow-tooltip="true"
 				>
@@ -22,7 +22,7 @@
           </template>
 				</el-table-column>
 				<el-table-column
-					label="Token"
+					:label="$t('token')"
 					min-width="100"
 					:show-overflow-tooltip="true"
 				>
@@ -33,18 +33,18 @@
 					</template>
 				</el-table-column>
 				<el-table-column
-					label="Status"
+					:label="$t('status')"
 					width="100"
 					:show-overflow-tooltip="true"
 				>
 					<template slot-scope="scope">
 						<span class="fontImportant">
-              {{scope.row.Status === 1 ? 'Confirmed' : 'UnConfirmed'}}
+              {{scope.row.Status === 1 ? $t('confirmed') : $t('unConfirmed')}}
 						</span>
 					</template>
 				</el-table-column>
 				<el-table-column
-					label="Height"
+					:label="$t('height')"
 					width="100"
 					:show-overflow-tooltip="true"
 				>
@@ -55,7 +55,7 @@
 				</template>
 				</el-table-column>
 				<el-table-column
-					label="From"
+					:label="$t('from')"
 					width="150"
 					:show-overflow-tooltip="true"
 				>
@@ -68,7 +68,7 @@
 					</template>
 				</el-table-column>
 				<el-table-column
-					label="To"
+					:label="$t('to')"
 					width="150"
 					:show-overflow-tooltip="true"
 				>
@@ -81,7 +81,7 @@
 					</template>
 				</el-table-column>
 				<el-table-column
-					label="Time"
+					:label="$t('time')"
 					width="170"
 					:show-overflow-tooltip="true"
 				>
@@ -147,6 +147,8 @@ export default {
 			if(res.error === 0) {
 				this.transactionList = res.result['Detail'];
 				this.total = res.result['Total'];
+			} else {
+				this.$message.error(this.$t(`error['${res.error}']`));
 			}
 		}
 	},

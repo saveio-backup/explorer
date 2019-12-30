@@ -4,31 +4,31 @@
 			<p
 				@click.stop="goPage('/chartDetail/allNetProfit')"
 				:class="{'chart-detail-select': routerName === 'AllNetProfit'}"
-			>Profit</p>
+			>{{$t('profit')}}</p>
 			<p
 				@click.stop="goPage('/chartDetail/storageSpace')"
 				:class="{'chart-detail-select': routerName === 'StorageSpace'}"
-			>Storage Space</p>
+			>{{$t('storageSpace')}}</p>
 			<p
 				@click.stop="goPage('/chartDetail/fileTotal')"
 				:class="{'chart-detail-select': routerName === 'FileTotal'}"
-			>Number of Files</p>
+			>{{$t('numberOfFiles')}}</p>
 			<p
 				@click.stop="goPage('/chartDetail/channelNumber')"
 				:class="{'chart-detail-select': routerName === 'ChannelNumber'}"
-			>Number of Channels</p>
+			>{{$t('numberOfChannels')}}</p>
 			<p
 				@click.stop="goPage('/chartDetail/sumStake')"
 				:class="{'chart-detail-select': routerName === 'SumStake'}"
-			>Total Stake</p>
+			>{{$t('totalStake')}}</p>
 			<p
 				@click.stop="goPage('/chartDetail/dayTransaction')"
 				:class="{'chart-detail-select': routerName === 'DayTransaction'}"
-			>Daily Transactions</p>
+			>{{$t('dailyTransactions')}}</p>
 			<p
 				@click.stop="goPage('/chartDetail/AddressPosition')"
 				:class="{'chart-detail-select': routerName === 'AddressPosition'}"
-			>Address Position</p>
+			>{{$t('addressPosition')}}</p>
 		</section>
 		<!-- <keep-alive> -->
 		<router-view></router-view>

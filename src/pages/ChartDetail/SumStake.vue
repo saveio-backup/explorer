@@ -15,7 +15,7 @@
 			>
 				<el-table-column
 					fixed
-					label="Date"
+					:label="$t('date')"
 					min-width="180"
 				>
 					<template slot-scope="scope">
@@ -26,19 +26,19 @@
 				</el-table-column>
 				<el-table-column
 					prop="DNSFormat"
-					label="DNS Stake(ONI)"
+					:label="`${$t('DNSStake')}(ONI)`"
 					min-width="180"
 				>
 				</el-table-column>
 				<el-table-column
 					prop="FSFormat"
-					label="FS Stake(ONI)"
+					:label="`${$t('FSStake')}(ONI)`"
 					min-width="180"
 				>
 				</el-table-column>
 				<el-table-column
 					prop="total"
-					label="Total Stake(ONI)"
+					:label="`${$t('totalStake')}(ONI)`"
 					min-width="180"
 				>
 					<template slot-scope="scope">
@@ -88,11 +88,21 @@ export default {
 		},
 		screenWidth() {
 			return this.$store.state.Home.screenWidth;
+		},
+		lang() {
+			return this.$t("lang");
 		}
 	},
 	watch: {
 		screenWidth() {
-			this.sumStakeChart.resize();
+			if(this.sumStakeChart) {
+				this.sumStakeChart.resize();
+			}
+		},
+		lang() {
+			if(this.sumStakeChart) {
+				this.setSumStakeChart();
+			}
 		}
 	},
 	methods: {
@@ -133,9 +143,12 @@ export default {
 			if(res.error === 0) {
 				this.sumStakeList = res.result;
 				this.setSumStakeChart();
+			} else {
+				this.$message.error(this.$t(`error['${res.error}']`));
 			}
 		},
 		setSumStakeChart() {
+			const vm = this;
 			let stakeFsNumArr = [];
 			let stakeDnsNumArr = [];
 			let timeArr = [];
@@ -153,7 +166,7 @@ export default {
 					bottom: "24%"
 				},
 				legend: {
-					data:['DNS Stake','FS Stake'],
+					data:[vm.$t('DNSStake'), vm.$t('FSStake')],
 					left: 'center',
 					bottom: '4%',
 					textStyle: {
@@ -235,7 +248,7 @@ export default {
 				],
 				series: [
 					{
-						name: "DNS Stake",
+						name: vm.$t('DNSStake'),
 						data: stakeDnsNumArr,
 						type: "line",
 						areaStyle: {
@@ -248,7 +261,7 @@ export default {
 					{
 						data: stakeFsNumArr,
 						type: "line",
-						name: "FS Stake",
+						name: vm.$t('FSStake'),
 						areaStyle: {
 							color: "rgba(21, 164, 198, 0.24)"
 						},

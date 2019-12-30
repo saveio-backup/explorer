@@ -1,13 +1,13 @@
 <template>
   <div id="block-detail">
-    <h2 class="no-user-select">BLOCKS</h2>
+    <h2 class="no-user-select">{{$t('BLOCKS')}}</h2>
     <section class="block-content-wrapper relative" ref="blockContentWrapper">
       <div>
-        <p class="content-title no-user-select">Height:</p>
+        <p class="content-title no-user-select">{{$t('height')}}:</p>
         <p class="content-info">{{height && '#'+height || 0}}</p>
       </div>
       <div>
-        <p class="content-title no-user-select">Hash:</p>
+        <p class="content-title no-user-select">{{$t('hash')}}:</p>
         <p class="content-info fontImportant">
           <template v-if="transactionObj">
             <!-- <router-link :to="`/transactions/detail?hash=${transactionObj.Hash}`"> -->
@@ -17,27 +17,27 @@
         </p>
       </div>
       <div>
-        <p class="content-title no-user-select">Timestamp:</p>
+        <p class="content-title no-user-select">{{$t('timestamp')}}:</p>
         <p class="content-info">{{transactionObj && $dateFormat.formatTimeByTimestamp(transactionObj.CreatedAt*1000)}}</p>
       </div>
       <div>
-        <p class="content-title no-user-select">Produced By:</p>
+        <p class="content-title no-user-select">{{$t('producedBy')}}:</p>
         <p class="content-info fontImportantThree">{{transactionObj && transactionObj.Miner}}</p>
       </div>
       <div>
-        <p class="content-title no-user-select">Status:</p>
-        <p class="content-info fontImportant">{{transactionObj && (transactionObj.Status === 1 ? 'Confirmed' : 'Unconfirmed')}}</p>
+        <p class="content-title no-user-select">{{$t('status')}}:</p>
+        <p class="content-info fontImportant">{{transactionObj && (transactionObj.Status === 1 ? $t('confirmed') : $t('unConfirmed'))}}</p>
       </div>
       <div>
-        <p class="content-title no-user-select">Transactions:</p>
-        <p class="content-info">{{transactionList.length}} transactions</p>
+        <p class="content-title no-user-select">{{$t('transactions')}}:</p>
+        <p class="content-info">{{transactionList.length}} {{$t('transactionsu')}}</p>
       </div>
       <div class="no-boder">
-        <p class="content-title no-user-select">Size:</p>
+        <p class="content-title no-user-select">{{$t('size')}}:</p>
         <p class="content-info">{{transactionObj && util.bytesToSize(transactionObj.Size*1024)}}</p>
       </div>
     </section>
-    <h3 class="no-user-select">Transactions</h3>
+    <h3 class="no-user-select">{{$t('transactions')}}</h3>
     <section class="transactions-wrapper relative" ref="transactionsWrapper">
       <el-table
         :data="transactionList"
@@ -45,7 +45,7 @@
       >
         <el-table-column
           fixed
-          label="Hash"
+          :label="$t('hash')"
           min-width="300"
 					:show-overflow-tooltip="true"
         >
@@ -58,7 +58,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          label="Token"
+          :label="$t('token')"
           width="120"
           min-width="100"
 					:show-overflow-tooltip="true"
@@ -70,15 +70,15 @@
         </template>
         </el-table-column>
         <el-table-column
-          label="Status"
+          :label="$t('status')"
           width="100"
         >
           <template slot-scope="scope">
-            <span class="fontImportant" v-if="transactionObj">{{transactionObj.Status === 1 ? 'Confirmed' : 'Unconfirmed'}}</span>
+            <span class="fontImportant" v-if="transactionObj">{{transactionObj.Status === 1 ? $t("confirmed") : $t("unConfirmed")}}</span>
           </template>
         </el-table-column>
         <el-table-column
-          label="Height"
+          :label="$t('height')"
           width="110"
 					:show-overflow-tooltip="true"
         >
@@ -87,7 +87,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          label="From"
+          :label="$t('from')"
           width="150"
 					:show-overflow-tooltip="true"
         >
@@ -100,7 +100,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          label="To"
+          :label="$t('to')"
           width="150"
 					:show-overflow-tooltip="true"
         >
@@ -113,7 +113,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          label="Time"
+          :label="$t('time')"
           width="170"
         >
         <template>
@@ -168,7 +168,9 @@ export default {
   
       if(res.error === 0) {
         this.transactionObj = res.result;
-      }
+      } else {
+				this.$message.error(this.$t(`error['${res.error}']`));
+			}
     },
     async getTransactionbyHeight() {      
       // add loading
@@ -190,7 +192,9 @@ export default {
 
       if(res.error === 0) {
         this.transactionList = res.result;
-      }
+      } else {
+				this.$message.error(this.$t(`error['${res.error}']`));
+			}
     }
   },
   mounted() {

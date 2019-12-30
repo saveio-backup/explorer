@@ -4,7 +4,7 @@
 			<ul>
 				<li>
 					<h4>
-						Block Height
+						{{$t('blockHeight')}}
 					</h4>
 					<p ref="homeBlockHeight" class="relative">
 						<template v-if="countStat">
@@ -19,7 +19,7 @@
 				</li>
 				<li>
 					<h4>
-						Total Transactions
+						{{$t('totalTransactions')}}
 					</h4>
 					<p class="relative" ref="homeTransactionTotal">
 						<template v-if="countStat">
@@ -31,7 +31,7 @@
 				</li>
 				<li>
 					<h4>
-						Nodes
+						{{$t('nodes')}}
 					</h4>
 					<p ref="homeNode" class="relative">
 						<template v-if="countStat">
@@ -42,7 +42,9 @@
 					</p>
 				</li>
 				<li class="loading-content home-address-length">
-					<h4>Total Address</h4>
+					<h4>
+						{{$t('totalAddress')}}
+					</h4>
 					<p ref="homeAddressLength" class="relative">
 						<template v-if="countStat">
 							<router-link to="/chartDetail/AddressPosition" class="link-fontImportant">
@@ -52,7 +54,9 @@
 					</p>
 				</li>
 				<li class="last-child">
-					<h4>Channels</h4>
+					<h4>
+						{{$t('channels')}}
+					</h4>
 					<p ref="homeChannel" class="relative">
 						<template v-if="countStat">
 							<router-link to="/chartDetail/channelNumber" class="link-fontImportant">
@@ -69,14 +73,17 @@
 				class="click-link no-user-select"
 				title="More"
 			>
-				More <i class="ofont el-icon-d-arrow-right ft14"></i>
+				{{$t('more')}}
+				<i class="ofont el-icon-d-arrow-right ft14"></i>
 			</router-link>
 		</p>
 		<charts-component :type="1"></charts-component>
 		<section class="home-other-info">
 			<section class="blocks home-info relative" ref="blocks">
 				<div class="info-top ft16">
-					<h3 class="no-user-select">Blocks</h3>
+					<h3 class="no-user-select">
+						{{$t('blocks')}}
+					</h3>
 						<router-link
 							to="/blocks"
 						>
@@ -101,15 +108,19 @@
 							<p>{{ util.bytesToSize(item.Size*1024) }}</p>
 						</div>
 						<div class="block-right-area">
-							<p>{{item.TxCount}} Txns</p>
-							<p>{{item.ago || 'Computing'}}</p>
+							<p>
+								{{$t('txns')}}
+							</p>
+							<p>{{item.ago || $t('computing')}}</p>
 						</div>
 					</li>
 				</ul>
 			</section>
 			<section class="transactions home-info relative" ref="homeTransaction">
 				<div class="info-top ft16">
-					<h3 class="no-user-select">Transactions</h3>
+					<h3 class="no-user-select">
+						{{$t('transactions')}}
+					</h3>
 					<router-link
 						to="/transactions"
 					>
@@ -136,8 +147,10 @@
 							</h4>
 						</div>
 						<div class="block-right-area">
-							<p>Invoke Smart Contract</p>
-							<p>{{item.ago || 'Computing'}}</p>
+							<p>
+								{{$t('invokeSmartContract')}}
+							</p>
+							<p>{{item.ago || $t('computing')}}</p>
 						</div>
 					</li>
 				</ul>
@@ -190,6 +203,7 @@ export default {
 		},
 
 		async getAddressLength() {
+			const vm = this;
 			// add loading
 			this.loading.addressLength = this.$loading.show({
 				container: this.$refs.homeAddressLength,
@@ -209,6 +223,9 @@ export default {
 
 			if(res.error === 0) {
 				this.totalAddrs = res.result;
+			} else {
+				this.$message.error(vm.$t(`error['${res.error}']`));
+				
 			}
 		},
 
@@ -253,7 +270,7 @@ export default {
 			if(res.error === 0) {
 				this.countStat = res.result;
 			} else {
-				console.log('err',res)
+				this.$message.error(this.$t(`error['${res.error}']`));
 			}
 		},
 		async getBlocksStat() {
@@ -276,6 +293,8 @@ export default {
 			
 			if(res.error === 0) {
 				this.blockList = res.result['Detail'];
+			} else {
+				this.$message.error(this.$t(`error['${res.error}']`));
 			}
 		},
 		async getTransactions() {
@@ -309,6 +328,8 @@ export default {
 			if(res.error === 0) {
 				this.transactionsList = res.result['Detail'];
 				this.transactionsLength = res.result['Total'];
+			} else {
+				this.$message.error(this.$t(`error['${res.error}']`));
 			}
 		},
 		computedTimeAgo({currentTimestamp, timestamp}) {
@@ -318,16 +339,16 @@ export default {
 			if (moment(today).isSame(new Date(timestamp), 'day')) {  // judge isSame function
 				let hours = parseInt(((currentTimestamp - timestamp) % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
 				if (hours > 0) {
-						return hours + " hours ago";
+						return hours + this.$t('hoursAgo');
 				};
 				let minutes = parseInt(((currentTimestamp - timestamp) % (1000 * 60 * 60)) / (1000 * 60));
 				if (minutes > 0) {
-						return minutes + " minutes ago";
+						return minutes + this.$t('minutesAgo');
 				};
 				let seconds = parseInt(((currentTimestamp - timestamp) % (1000 * 60)) / 1000);
-				return seconds + ' seconds ago'
+				return seconds + this.$t('secondsAgo')
 			} else if (moment(yesterday).isSame(new Date(timestamp), 'day')) {
-				return 'yesterday'
+				return this.$t('yesterday')
 			} else {
 				return moment(timestamp).format('YYYY-MM-DD');
 			}
@@ -349,6 +370,9 @@ export default {
 	},
 	mounted() {
 		this.init();
+	},
+	beforeDestroy() {
+		clearTimeout(this.timeAgoIntervalObj);
 	}
 };
 </script>

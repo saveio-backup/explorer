@@ -5,7 +5,8 @@
 			<div class="flex white between ft14 mb20 address-position-desc">
         <div>
 					<span class="op07">
-						Address Total: 
+						<!-- Address Total -->
+						{{$t('addressTotal')}}: 
 					</span>
 					<span class="fontImportant">
 						{{addressPositionObj && addressPositionObj.Total}}
@@ -13,7 +14,8 @@
 				</div>
         <div>
 					<span class="op07">
-						New Address in 7 Day: 
+						<!-- New Address in 7 Day -->
+						{{$t('newAddressIn7Day')}}: 
 					</span>
 					<span class="fontImportant">
 						{{addressPositionObj && addressPositionObj.NewAddrIn7D}}
@@ -21,7 +23,8 @@
 				</div>
         <div>
 					<span class="op07">
-						New Address in 30 Day:
+						<!-- New Address in 30 Day -->
+						{{$t('newAddressIn30Day')}}:
 					</span>
 					<span class="fontImportant">
 					 {{addressPositionObj && addressPositionObj.NewAddrIn30D}}
@@ -51,24 +54,24 @@
 				</el-table-column>
 				<el-table-column
 					prop="Address"
-					label="Address"
+					:label="$t('address')"
 					min-width="180"
 				>
 				</el-table-column>
 				<el-table-column
 					prop="BalanceFormat"
-					label="Balance(ONI)"
+					:label="`${$t('balance')}(ONI)`"
 					width="180"
 				>
 				</el-table-column>
 				<el-table-column
 					prop="TransferCountIn30D"
-					label="Transfer Count In 30 Day"
+					:label="$t('transferCountIn30Day')"
 					width="180"
 				>
 				</el-table-column>
 				<el-table-column
-					label="First Transfer Date"
+					:label="$t('firstTransferDate')"
 					width="180"
 				>
 					<template slot-scope="scope">
@@ -122,12 +125,27 @@ export default {
 		},
 		screenWidth() {
 			return this.$store.state.Home.screenWidth;
+		},
+		lang() {
+			return this.$t("lang");
 		}
 	},
 	watch: {
 		screenWidth() {
-			this.addressPositionNumberChart.resize();
-			this.addressPositionBalanceChart.resize();
+			if(this.addressPositionNumberChart) {
+				this.addressPositionNumberChart.resize();
+			}
+			if(this.addressPositionBalanceChart) {
+				this.addressPositionBalanceChart.resize();
+			}
+		},
+		lang() {
+			if(this.addressPositionNumberChart) {
+				this.setAddressPositionNumberChart();
+			}
+			if(this.addressPositionBalanceChart) {
+				this.setAddressPositionBalanceChart();
+			}
 		}
 	},
 	methods: {
@@ -166,7 +184,6 @@ export default {
 			this.loading.addressPositionTb && this.loading.addressPositionTb.hide();
 
 			if(res.error === 0) {
-				console.log(res);
 				for (let i = 0; i < res.result.Details.length; i++) {
 					let item = res.result.Details[i];
 					item.Number = i + 1;
@@ -174,9 +191,12 @@ export default {
 				this.addressPositionObj = res.result;
 				this.setAddressPositionNumberChart();
 				this.setAddressPositionBalanceChart();
+			} else {
+				this.$message.error(this.$t(`error['${res.error}']`));
 			}
 		},
 		setAddressPositionNumberChart() {
+			const vm = this;
 			let addressPositionNumArr = [];
 			let addressPositionRatioArr = [];
 			let scopeArr = [];
@@ -187,7 +207,7 @@ export default {
 			}
 			let option = {
 				title: {
-					text: "Address Distribution",
+					text: vm.$t('addressDistribution'),
 					left: "center",
 					top: "20",
 					textStyle: {
@@ -203,7 +223,7 @@ export default {
 						let desc = params[0].name + " ONI";
 						for (let i = 0; i < params.length; i++) {
 							let value = params[i];
-							if (value.seriesName === "Ratio") {
+							if (value.seriesName === vm.$t('ratio')) {
 								desc += `<br/>${value.marker}${value.seriesName}: ${parseFloat(value.value.toFixed(4))}%`;
 							} else {
 								desc += `<br/>${value.marker}${value.seriesName}: ${value.value}`;
@@ -238,7 +258,7 @@ export default {
 				yAxis: [
 					{
 						type: "value",
-						name: "Count",
+						name:  vm.$t('count'),
 						splitLine: {
 							lineStyle: {
 								color: "rgba(255,255,255, 0.2)"
@@ -252,7 +272,7 @@ export default {
 					},
 					{
 						type: "value",
-						name: "Ratio",
+						name: vm.$t('ratio'),
 						axisLabel: {
 							formatter: "{value} %"
 						},
@@ -271,7 +291,7 @@ export default {
 				],
 				series: [
 					{
-						name: "Count",
+						name: vm.$t('count'),
 						type: "bar",
 						data: addressPositionNumArr,
 						barMaxWidth: 30,
@@ -280,7 +300,7 @@ export default {
 						}
 					},
 					{
-						name: "Ratio",
+						name: vm.$t('ratio'),
 						itemStyle: {
 							color: "#15A4C6"
 						},
@@ -295,6 +315,7 @@ export default {
 			this.addressPositionNumberChart.setOption(option, true);
 		},
 		setAddressPositionBalanceChart() {
+			const vm = this;
 			let addressPositionBalanceArr = [];
 			let addressPositionRatioArr = [];
 			let scopeArr = [];
@@ -305,7 +326,7 @@ export default {
 			}
 			let option = {
 				title: {
-					text: "Balance Distribution",
+					text: vm.$t('balanceDistribution'),
 					left: "center",
 					top: "20",
 					textStyle: {
@@ -324,7 +345,7 @@ export default {
 						let desc = params[0].name + " ONI";
 						for (let i = 0; i < params.length; i++) {
 							let value = params[i];
-							if (value.seriesName === "Ratio") {
+							if (value.seriesName === vm.$t('ratio')) {
 								desc += `<br/>${value.marker}${value.seriesName}: ${parseFloat(value.value.toFixed(4))}%`;
 							} else {
 								desc += `<br/>${value.marker}${value.seriesName}: ${value.value} ONI`;
@@ -356,7 +377,7 @@ export default {
 				yAxis: [
 					{
 						type: "value",
-						name: "Balance",
+						name: vm.$t('balance'),
 						axisLabel: {
 							formatter: "{value} ONI"
 						},
@@ -373,7 +394,7 @@ export default {
 					},
 					{
 						type: "value",
-						name: "Ratio",
+						name: vm.$t('ratio'),
 						axisLabel: {
 							formatter: "{value} %"
 						},
@@ -392,7 +413,7 @@ export default {
 				],
 				series: [
 					{
-						name: "Balance",
+						name: vm.$t('balance'),
 						type: "bar",
 						data: addressPositionBalanceArr,
 						barMaxWidth: 30,
@@ -401,7 +422,7 @@ export default {
 						}
 					},
 					{
-						name: "Ratio",
+						name: vm.$t('ratio'),
 						itemStyle: {
 							color: "#15A4C6"
 						},

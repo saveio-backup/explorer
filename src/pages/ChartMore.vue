@@ -1,7 +1,10 @@
 <template>
 	<div class="chart-detail">
 		<charts-component :type="0"></charts-component>
-		<h3>Address Position</h3>
+		<h3>
+			<!-- Address Position -->
+			{{$t('addressPosition')}}
+		</h3>
 		<section
 			class="address-position loading-content"
 			@click.stop="goPage('/chartDetail/AddressPosition')"
@@ -44,12 +47,27 @@ export default {
 	computed: {
 		screenWidth() {
 			return this.$store.state.Home.screenWidth;
+		},
+		lang() {
+			return this.$t("lang");
 		}
 	},
 	watch: {
 		screenWidth() {
-			this.addressNumberDistributionChart.resize();
-			this.addressBalanceDistributionChart.resize();
+			if(this.addressNumberDistributionChart) {
+				this.addressNumberDistributionChart.resize();
+			}
+			if(this.addressBalanceDistributionChart) {
+				this.addressBalanceDistributionChart.resize();
+			}
+		},
+		lang() {
+			if(this.addressNumberDistributionChart) {
+				this.setAddressNumberDistribution();
+			}
+			if(this.addressBalanceDistributionChart) {
+				this.setAddressBalanceDistribution();
+			}
 		}
 	},
 	methods: {
@@ -94,9 +112,12 @@ export default {
 				this.amountCountList = res.result["AmountCountList"];
 				this.setAddressNumberDistribution();
 				this.setAddressBalanceDistribution();
+			} else {
+				this.$message.error(this.$t(`error['${res.error}']`));
 			}
 		},
 		setAddressNumberDistribution() {
+			const vm = this;
 			let addrCountArr = [];
 			let addrCountRatioArr = [];
 			let scopeArr = [];
@@ -107,7 +128,7 @@ export default {
 			}
 			let option = {
 				title: {
-					text: "Address Distribution",
+					text: vm.$t('addressDistribution'),
 					left: "center",
 					top: "20",
 					textStyle: {
@@ -124,7 +145,7 @@ export default {
 						for(let i = 0;i < params.length;i ++) {
 							let value = params[i];
 							// desc += `<br/>${value.marker}${value.seriesName}: ${value.value}`
-							if(value.seriesName === 'Ratio') {
+							if(value.seriesName === vm.$t('ratio')) {
 								desc += `<br/>${value.marker}${value.seriesName}: ${parseFloat(value.value.toFixed(4)) }%`
 							} else {
 								desc += `<br/>${value.marker}${value.seriesName}: ${value.value}`
@@ -159,7 +180,7 @@ export default {
 				yAxis: [
 					{
 						type: "value",
-						name: "Count",
+						name: vm.$t('count'),
 						splitLine: {
 							lineStyle: {
 								color: "rgba(255,255,255, 0.2)"
@@ -173,7 +194,7 @@ export default {
 					},
 					{
 						type: "value",
-						name: "Ratio",
+						name: vm.$t('ratio'),
 						axisLabel: {
 							formatter: "{value} %"
 						},
@@ -192,7 +213,7 @@ export default {
 				],
 				series: [
 					{
-						name: "Count",
+						name: vm.$t('count'),
 						type: "bar",
 						data: addrCountArr,
 						barMaxWidth: 30,
@@ -201,7 +222,7 @@ export default {
 						}
 					},
 					{
-						name: "Ratio",
+						name: vm.$t('ratio'),
 						itemStyle: {
 							color: "#15A4C6"
 						},
@@ -216,6 +237,7 @@ export default {
 			this.addressNumberDistributionChart.setOption(option, true);
 		},
 		setAddressBalanceDistribution() {
+			const vm = this;
 			let amountCountArr = [];
 			let amountCountRatioArr = [];
 			let scopeArr = [];
@@ -226,7 +248,7 @@ export default {
 			}
 			let option = {
 				title: {
-					text: "Balance Distribution",
+					text: vm.$t('balanceDistribution'),
 					left: "center",
 					top: "20",
 					textStyle: {
@@ -242,7 +264,7 @@ export default {
 						let desc = params[0].name + ' ONI';
 						for(let i = 0;i < params.length;i ++) {
 							let value = params[i];
-							if(value.seriesName === 'Ratio') {
+							if(value.seriesName === vm.$t('ratio')) {
 								desc += `<br/>${value.marker}${value.seriesName}: ${parseFloat(value.value.toFixed(4))}%`
 							} else {
 								desc += `<br/>${value.marker}${value.seriesName}: ${value.value} ONI`
@@ -274,7 +296,7 @@ export default {
 				yAxis: [
 					{
 						type: "value",
-						name: "Balance",
+						name: vm.$t('balance'),
 						axisLabel: {
 							formatter: "{value}"
 						},
@@ -291,7 +313,7 @@ export default {
 					},
 					{
 						type: "value",
-						name: "Ratio",
+						name: vm.$t('ratio'),
 						axisLabel: {
 							formatter: "{value} %"
 						},
@@ -310,7 +332,7 @@ export default {
 				],
 				series: [
 					{
-						name: "Balance",
+						name: vm.$t('balance'),
 						type: "bar",
 						data: amountCountArr,
 						barMaxWidth: 30,
@@ -319,7 +341,7 @@ export default {
 						}
 					},
 					{
-						name: "Ratio",
+						name: vm.$t('ratio'),
 						itemStyle: {
 							color: "#15A4C6"
 						},

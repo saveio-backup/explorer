@@ -6,12 +6,12 @@
 					@click.stop="setSelectTime(0)"
 					class="day-transaction-chart-btn"
 					:class="{'select': selectTime === 0}"
-				>Off Chain</p>
+				>{{$t('offChain')}}</p>
 				<p
 					class="day-transaction-chart-btn ml10"
 					:class="{'select': selectTime === 1}"
 					@click.stop="setSelectTime(1)"
-				>On Chain</p>
+				>{{$t('onChain')}}</p>
 			</div>
 			<div
 				class="day-transaction-chart relative"
@@ -26,7 +26,7 @@
 			>
 				<el-table-column
 					fixed
-					label="Date"
+					:label="$t('date')"
 					min-width="180"
 				>
 				<template slot-scope="scope">
@@ -36,7 +36,7 @@
 					</template>
 				</el-table-column>
 				<el-table-column
-					label="On Chain Transaction"
+					:label="$t('onChainTransaction')"
 					min-width="180"
 				>
 					<template slot-scope="scope">
@@ -46,7 +46,7 @@
 					</template>
 				</el-table-column>
 				<el-table-column
-					label="Off Chain Transaction"
+					:label="$t('offChainTransaction')"
 					min-width="180"
 				>
 					<template slot-scope="scope">
@@ -56,7 +56,7 @@
 					</template>
 				</el-table-column>
 				<el-table-column
-					label="Total Chain Transaction"
+					:label="$t('totalChainTransaction')"
 					min-width="180"
 				>
 					<template slot-scope="scope">
@@ -114,7 +114,9 @@ export default {
 	},
 	watch: {
 		screenWidth() {
-			this.dayTransactionChart.resize();
+			if(this.dayTransactionChart) {
+				this.dayTransactionChart.resize();
+			}
 		}
 	},
 	methods: {
@@ -154,6 +156,8 @@ export default {
 			if(res.error === 0) {
 				this.dayTransactionList = res.result;
 				this.setDayTransactionChart();
+			} else {
+				this.$message.error(this.$t(`error['${res.error}']`));
 			}
 		},
 		setDayTransactionChart() {

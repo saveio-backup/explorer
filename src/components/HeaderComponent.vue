@@ -43,23 +43,26 @@
 					></el-input>
 				</li>
 				<li class="no-user-select" @click.stop="goPage('/home')" :class="{'select': belong.home.indexOf(routerName) >= 0}">
-          Explorer
+          <!-- Explorer -->
+					{{$t('explorer')}}
 				</li>
 				<li class="no-user-select" @click.stop="goPage('/blocks/index')" :class="{'select': belong.blocks.indexOf(routerName) >= 0}">
-          Blocks
+					{{$t('blocks')}}
 				</li>
 				<li class="no-user-select" @click.stop="goPage('/transactions/index')" :class="{'select': belong.transactions.indexOf(routerName) >= 0}">
-          Transactions
+          <!-- Transactions -->
+					{{$t('transactions')}}
 				</li>
 				<li class="no-user-select" @click.stop="goPage('/node')" :class="{'select': belong.node.indexOf(routerName) >= 0}">
-          Node
+          <!-- Node -->
+					{{$t('node')}}
 				</li>
 				<li class="no-user-select">
 					<el-select
 						:class="{scroll:scroll}"
 						v-model="net"
 						style='width: 85px'
-						placeholder="请选择"
+						:placeholder="$t('pleaseSelect')"
 						@click.stop=""
 					>
 						<el-option
@@ -75,19 +78,19 @@
 				<li class="search-input-li">
 					<el-input
 						class="search-input"
-						placeholder="Block,TX Hash,Contract Hash,Address"
+						:placeholder="$t('selectPlaceholder')"
 						prefix-icon="el-icon-search"
 						v-model="searchContent"
 						@keyup.enter.native="toSearch"
 					></el-input>
 				</li>
-				<!-- <li @click.stop="setLangOpen"  class="no-user-select">
+				<li @click.stop="setLangOpen"  class="no-user-select">
 					<el-select
 						@change="setLanguage"
 						:class="{scroll:scroll}"
 						v-model="value"
-						style='width: 50px'
-						placeholder="请选择"
+						:style="$t('lang') === 'zh' ? 'width: 60px;' : 'width: 50px;'"
+						:placeholder="$t('pleaseSelect')"
 						ref="setLanguageId"
 						@click.stop=""
 					>
@@ -99,7 +102,7 @@
 						>
 						</el-option>
 					</el-select>
-				</li> -->
+				</li>
 			</ul>
 		</nav>
 	</div>
@@ -111,8 +114,8 @@ export default {
 		const scrollTop = document.documentElement.scrollTop || window.pageYOffset;
 		return {
 			value: localStorage.getItem("lang") || "en",
-			net: 'TestNet',
-			netList: ['TestNet'],
+			// net: 'TestNet',
+			// netList: ['TestNet'],
 			searchContent: "",
 			scroll: scrollTop > 0 ? true : false,
       pop: false,
@@ -135,7 +138,15 @@ export default {
 				}
 			]
 		};
-  },
+	},
+	computed: {
+		net() {
+			return this.$t('testNet')
+		},
+		netList() {
+			return [this.$t('testNet')]
+		}
+	},
   watch: {
 		$route(val, old) {
       this.routerName = this.$route.name;
@@ -191,15 +202,16 @@ export default {
 			this.$refs['setLanguageId'].focus();
 		},
 		async toSearch() {
+			const vm = this;
 			let content = this.searchContent.trim();
 			if(content.length === 0) {
-				this.$message.error('Please enter what you want to search for')
+				this.$message.error(vm.$t('PleaseEnterWhatYouWantToSearchFor'))
 				return;
 			}
 			let res = await this.$api2.getTypeByContent(content);
 			switch(res) {
 				case 0:
-					this.$message.error(`Relevant resources of ${content} were not found`);
+					this.$message.error(vm.$t('relevantResourcesOf$Content$WereNotFound', {content: content}));
 					break;
 				case 1:
 					this.$router.push({path:'/address',query: {address: content}});
@@ -211,7 +223,7 @@ export default {
 					this.$router.push({path:'/blocks/detail',query: {height: content}});
 					break;
 				default:
-					this.$message.error('Unknown type');
+					this.$message.error(vm.$t('unknownType'));
 			}
 		}
 	}

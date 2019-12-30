@@ -7,7 +7,8 @@
 		>
 		</map-component>
 		<h3 class="no-user-select">
-			DNS
+			<!-- DNS -->
+			{{$t('DNS')}}
 		</h3>
 		<section class="dns-wrapper relative" ref="dnsWrapper">
 			<el-table
@@ -23,24 +24,24 @@
 				</el-table-column>
 				<el-table-column
 					prop="Alias"
-					label="DNS Node"
+					:label="$t('DNSNode')"
 					min-width="120"
 				>
 				</el-table-column>
 				<el-table-column
 					prop="Region"
-					label="Region"
+					:label="$t('region')"
 					min-width="120"
 				>
 				</el-table-column>
 				<el-table-column
 					prop="ChannelCount"
-					label="Channels"
+					:label="$t('channels')"
 					min-width="120"
 				>
 				</el-table-column>
 				<el-table-column
-					label="Stake"
+					:label="$t('stake')"
 					min-width="120"
 				>
 					<template slot-scope="scope">
@@ -52,7 +53,8 @@
 			</el-table>
 		</section>
 		<h3 class="no-user-select">
-			FS
+			<!-- FS -->
+			{{$t('FS')}}
 		</h3>
 		<section class="fs-wrapper relative" ref="fsWrapper">
 			<el-table
@@ -68,18 +70,18 @@
 				</el-table-column>
 				<el-table-column
 					prop="IP"
-					label="DNS Node"
+					:label="$t('FSNode')"
 					min-width="120"
 				>
 				</el-table-column>
 				<el-table-column
 					prop="Region"
-					label="Region"
+					:label="$t('region')"
 					min-width="120"
 				>
 				</el-table-column>
 				<el-table-column
-					label="Storage"
+					:label="$t('storage')"
 					min-width="150"
 				>
 					<template slot-scope="scope">
@@ -90,7 +92,7 @@
 				</el-table-column>
 				<el-table-column
 					prop="ProfitFormat"
-					label="Profit(ONI)"
+					:label="`${$t('profit')}(ONI)`"
 					width="150"
 				>
 					<template slot-scope="scope">
@@ -100,7 +102,7 @@
 					</template>
 				</el-table-column>
 				<el-table-column
-					label="Address"
+					:label="$t('address')"
 					min-width="220"
 					:show-overflow-tooltip="true"
 				>
@@ -210,6 +212,8 @@ export default {
 				}
 				this.nodeObj = res.result;
 				this.filterNodeObj(this.nodeObj);
+			} else {
+				this.$message.error(this.$t(`error['${res.error}']`));
 			}
 		},
 		filterNodeObj() {

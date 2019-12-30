@@ -27,6 +27,7 @@
 
 <script>
 import mapboxgl from "mapbox-gl";
+// import MapboxLanguage from '@mapbox/mapbox-gl-language';
 import util from './../assets/config/util';
 export default {
 	props: {
@@ -40,26 +41,26 @@ export default {
 			util,
 			map: null,
 			mapLoading: false,
-			nodeTypes: [
-				{
-					type: "fs",
-					label: "FS Node",
-					color: "rgba(205, 220, 57, 1)",
-					boxShadow: "rgba(205, 220, 57, 0.4)",
-					iconImage: "fs-point",
-					id: "fsPoints",
-					isShow: true
-				},
-				{
-					type: "dns",
-					label: "DNS Node",
-					color: "rgba(255, 100, 100, 1)",
-					boxShadow: "rgba(255, 100, 100, 0.4)",
-					iconImage: "dns-point",
-					id: "dnsPoints",
-					isShow: true
-				}
-			],
+			// nodeTypes: [
+			// 	{
+			// 		type: "fs",
+			// 		label: FSNode,
+			// 		color: "rgba(205, 220, 57, 1)",
+			// 		boxShadow: "rgba(205, 220, 57, 0.4)",
+			// 		iconImage: "fs-point",
+			// 		id: "fsPoints",
+			// 		isShow: true
+			// 	},
+			// 	{
+			// 		type: "dns",
+			// 		label: DNSNode,
+			// 		color: "rgba(255, 100, 100, 1)",
+			// 		boxShadow: "rgba(255, 100, 100, 0.4)",
+			// 		iconImage: "dns-point",
+			// 		id: "dnsPoints",
+			// 		isShow: true
+			// 	}
+			// ],
 			clusterObj: {
 				colors: ["rgba(255, 100, 100, 1)", "rgba(205, 220, 57, 1)"],
 				markers: {},
@@ -70,6 +71,37 @@ export default {
 				})
 			}
 		};
+	},
+	computed: {
+		FSNode() {
+			return this.$t('FSNode');
+		},
+		DNSNode() {
+			return this.$t('DNSNode');
+		},
+		nodeTypes() {
+			const vm = this;
+			return [
+				{
+					type: "fs",
+					label: vm.FSNode,
+					color: "rgba(205, 220, 57, 1)",
+					boxShadow: "rgba(205, 220, 57, 0.4)",
+					iconImage: "fs-point",
+					id: "fsPoints",
+					isShow: true
+				},
+				{
+					type: "dns",
+					label: vm.DNSNode,
+					color: "rgba(255, 100, 100, 1)",
+					boxShadow: "rgba(255, 100, 100, 0.4)",
+					iconImage: "dns-point",
+					id: "dnsPoints",
+					isShow: true
+				}
+			]
+		}
 	},
 	watch: {
 		mapNodes(val) {
@@ -150,10 +182,10 @@ export default {
         maxBounds: [
           [-180, -85], // Southwest coordinates
           [180, 85]
-        ]
-      });
+        ],
+			});
+
 			this.map.on("load", () => {
-        // vm.map.addControl(new mapboxgl.FullscreenControl());
 				for (let value of vm.nodeTypes) {
 					let dot = this.getPulsingDot({ size: 60, color: value.color });
 					vm.map.addImage(value.iconImage, dot, {
@@ -306,14 +338,14 @@ export default {
 			let description = "";
 			if (e.features[0].properties.type === "dns") {
 				description = `<strong>${e.features[0].properties.Alias}</strong>
-        <p>IP: ${e.features[0].properties.IP}</p>
-        <p>Region: ${e.features[0].properties.Region}</p>
-        <p>Stake: ${vm.util.effectiveNumber(e.features[0].properties.Stake)} ONI</p>`;
+        <p>${vm.$t('IP')}: ${e.features[0].properties.IP}</p>
+        <p>${vm.$t('region')}: ${e.features[0].properties.Region}</p>
+        <p>${vm.$t('stake')}: ${vm.util.effectiveNumber(e.features[0].properties.Stake)} ONI</p>`;
 			} else {
 				description = `<strong>${e.features[0].properties.Alias}</strong>
-        <p>Address: ${e.features[0].properties.Address}</p>
-        <p>Region: ${e.features[0].properties.Region}</p>
-        <p>Profit: ${vm.util.effectiveNumber(e.features[0].properties.ProfitFormat)} ONI</p>`;
+        <p>${vm.$t('address')}: ${e.features[0].properties.Address}</p>
+        <p>${vm.$t('region')}: ${e.features[0].properties.Region}</p>
+        <p>${vm.$t('profit')}: ${vm.util.effectiveNumber(e.features[0].properties.ProfitFormat)} ONI</p>`;
 			}
 			// Ensure that if the map is zoomed out such that multiple
 			// copies of the feature are visible, the popup appears

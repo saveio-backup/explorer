@@ -1,7 +1,7 @@
 <template>
   <div id="blocks-index">
-    <h2 class="blocks-title no-user-select">BLOCKS</h2>
-    <p class="blocks-desc no-user-select">A total of <span class="fontImportant">{{total}}</span> blocks</p>
+    <h2 class="blocks-title no-user-select">{{$t('BLOCKS')}}</h2>
+    <p class="blocks-desc no-user-select">{{$t('AtotalOf')}} <span class="fontImportant">{{total}}</span> {{$t('blocksu')}}</p>
     <section class="block-list-wrapper relative" ref="blockListWrapper">
       <el-table
         :data="blockList"
@@ -9,7 +9,7 @@
       >
         <el-table-column
           fixed
-          label="Height"
+          :label="$t('height')"
           min-width="120"
         >
           <template slot-scope="scope">
@@ -22,13 +22,13 @@
         </el-table-column>
         <el-table-column
           prop="TxCount"
-          label="Txns"
+          :label="$t('txns')"
           width="180"
         >
         </el-table-column>
         <el-table-column
           prop="Size"
-          label="Size"
+          :label="$t('size')"
           min-width="180"
         >
           <template slot-scope="scope">
@@ -38,17 +38,17 @@
           </template>
         </el-table-column>
         <el-table-column
-          label="Confirmed"
+          :label="$t('confirmed')"
           min-width="130"
         >
           <template slot-scope="scope">
             <span class="fontImportant">
-              {{scope.row.Status === 1 ? 'Confirmed' : 'UnConfirmed'}}
+              {{scope.row.Status === 1 ? $t('confirmed') : $t('unConfirmed')}}
             </span>
           </template>
         </el-table-column>
         <el-table-column
-          label="Time"
+          :label="$t('time')"
           width="240"
         >
           <template slot-scope="scope">
@@ -112,7 +112,9 @@ export default {
       if(res.error === 0) {
         this.blockList = res.result['Detail'];
         this.total = res.result['Total'];
-      }
+      } else {
+				this.$message.error(this.$t(`error['${res.error}']`));
+			}
     }
   },
   mounted() {

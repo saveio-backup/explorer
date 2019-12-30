@@ -6,12 +6,12 @@
 					class="all-net-profit-chart-btn ml10"
 					:class="{'select': selectTime === 1}"
 					@click.stop="setSelectTime(1)"
-				>Month</p>
+				>{{$t('month')}}</p>
 				<p
 					@click.stop="setSelectTime(0)"
 					class="all-net-profit-chart-btn"
 					:class="{'select': selectTime === 0}"
-				>Day</p>
+				>{{$t('day')}}</p>
 			</div>
 			<div
 				id="allNetProfitChart"
@@ -26,7 +26,7 @@
 			>
 				<el-table-column
 					fixed
-					label="Date"
+					:label="$t('date')"
 					min-width="180"
 				>
 					<template slot-scope="scope">
@@ -38,26 +38,26 @@
 						</div>
 					</template>
 				</el-table-column>
-				<el-table-column
+				<!-- <el-table-column
 					prop="IndexProfitFormat"
-					label="Index Profit(ONI)"
+					:label="`${$t('indexProfit')}(ONI)`"
 					min-width="180"
 				>
 				</el-table-column>
 				<el-table-column
 					prop="ChannelProfitFormat"
-					label="Flow Profit(ONI)"
+					:label="`${$t('flowProfit')}(ONI)`"
 					min-width="180"
 				>
-				</el-table-column>
+				</el-table-column> -->
 				<el-table-column
 					prop="StorageProfitFormat"
-					label="Storage Profit(ONI)"
+					:label="`${$t('storageProfit')}(ONI)`"
 					min-width="180"
 				>
 				</el-table-column>
 				<el-table-column
-					label="Total(ONI)"
+					:label="`${$t('totalProfit')}(ONI)`"
 					min-width="180"
 				>
 					<template slot-scope="scope">
@@ -115,11 +115,21 @@ export default {
 		},
 		screenWidth() {
 			return this.$store.state.Home.screenWidth;
+		},
+		lang() {
+			return this.$t("lang");
 		}
 	},
 	watch: {
 		screenWidth() {
-			this.allNetProfitChart.resize();
+			if(this.allNetProfitChart) {
+				this.allNetProfitChart.resize();
+			}
+		},
+		lang() {
+			if(this.allNetProfitChart) {
+				this.setAllNetProfitChart();
+			}
 		}
 	},
 	methods: {
@@ -171,9 +181,12 @@ export default {
 					this.allNetProfitListMonth = res.result;
 				}
 				this.setAllNetProfitChart();
+			} else {
+				this.$message.error(this.$t(`error['${res.error}']`));
 			}
 		},
 		setAllNetProfitChart() {
+			const vm = this;
 			let date =
 				this.selectTime === 0
 					? this.allNetProfitList
@@ -309,7 +322,7 @@ export default {
 					// 	}
 					// },
 					{
-						name: "Storage",
+						name: vm.$t('storage'),
 						type: "bar",
 						stack: "Total",
 						barMaxWidth: 30,

@@ -1,17 +1,17 @@
 <template>
   <div id="transaction-detail">
-    <h2 class="no-user-select">TRANSACTION</h2>
+    <h2 class="no-user-select">{{$t('TRANSACTION')}}</h2>
     <section class="transaction-content-wrapper relative" ref="transactionContentWrapper">
       <div>
-        <p class="content-title no-user-select">Hash:</p>
+        <p class="content-title no-user-select">{{$t('hash')}}:</p>
         <p class="content-info">{{hash}}</p>
       </div>
       <div>
-        <p class="content-title no-user-select">Token:</p>
-        <p class="content-info">{{transactionDetailObj && transactionDetailObj.Amount}} {{transactionDetailObj && transactionDetailObj.Asset}}</p>
+        <p class="content-title no-user-select">{{$t('token')}}:</p>
+        <p class="content-info">{{transactionDetailObj && transactionDetailObj.Amount || 0}} {{transactionDetailObj && transactionDetailObj.Asset}}</p>
       </div>
       <div>
-        <p class="content-title no-user-select">Block:</p>
+        <p class="content-title no-user-select">{{$t('blocku')}}:</p>
         <p class="content-info link-fontImportant">
           <template v-if="transactionDetailObj">
             <router-link :to="`/blocks/detail?height=${transactionDetailObj.Height}`">
@@ -21,23 +21,23 @@
         </p>
       </div>
       <div>
-        <p class="content-title no-user-select">Type:</p>
-        <p class="content-info">{{transactionDetailObj && (transactionDetailObj.Type === 0 ? 'Ordinary Transfer' : 'Smart Contract')}}</p>
+        <p class="content-title no-user-select">{{$t('type')}}:</p>
+        <p class="content-info">{{transactionDetailObj && (transactionDetailObj.Type === 0 ? $t('ordinaryTransfer') : $t('smartContract'))}}</p>
       </div>
       <div>
-        <p class="content-title no-user-select">Fee:</p>
+        <p class="content-title no-user-select">{{$t('fee')}}:</p>
         <p class="content-info">{{transactionDetailObj && util.effectiveNumber(transactionDetailObj.Fee)}} {{transactionDetailObj && transactionDetailObj.Asset}}</p>
       </div>
       <div>
-        <p class="content-title no-user-select">Timestamp:</p>
+        <p class="content-title no-user-select">{{$t('timestamp')}}:</p>
         <p class="content-info">
             {{transactionDetailObj && $dateFormat.formatTimeByTimestamp(transactionDetailObj.CreatedAt*1000)}}
         </p>
       </div>
       <div class="no-boder">
-        <p class="content-title no-user-select">Status:</p>
+        <p class="content-title no-user-select">{{$t('status')}}:</p>
         <p class="content-info fontImportant">
-          {{transactionDetailObj && (transactionDetailObj.Status === 1 ? 'Confirmed' : 'Unconfirmed')}}
+          {{transactionDetailObj && (transactionDetailObj.Status === 1 ? $t('confirmed') : $t('unConfirmed'))}}
         </p>
       </div>
     </section>
@@ -107,7 +107,9 @@ export default {
 
       if(res.error === 0) {
         this.transactionDetailObj = res.result;
-      }
+      } else {
+				this.$message.error(this.$t(`error['${res.error}']`));
+			}
     }
   },
   mounted() {

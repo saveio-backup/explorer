@@ -15,7 +15,7 @@
 			>
 				<el-table-column
 					fixed
-					label="Date"
+					:label="$t('date')"
 					min-width="180"
 				>
 					<template slot-scope="scope">
@@ -26,19 +26,19 @@
 				</el-table-column>
 				<el-table-column
 					prop="New"
-					label="New"
+					:label="$t('new')"
 					min-width="180"
 				>
 				</el-table-column>
 				<el-table-column
 					prop="Close"
-					label="Close"
+					:label="$t('close')"
 					min-width="180"
 				>
 				</el-table-column>
 				<el-table-column
 					prop="Total"
-					label="Total"
+					:label="$t('totalChannels')"
 					min-width="180"
 				>
 				</el-table-column>
@@ -90,7 +90,9 @@ export default {
 	},
 	watch: {
 		screenWidth() {
-			this.channelNumberChart.resize();
+			if(this.channelNumberChart) {
+				this.channelNumberChart.resize();
+			}
 		}
 	},
 	methods: {
@@ -131,6 +133,8 @@ export default {
 			if(res.error === 0) {
 				this.channelNumberList = res.result;
 				this.setChannelNumberChart();
+			} else {
+				this.$message.error(this.$t(`error['${res.error}']`));
 			}
 		},
 		setChannelNumberChart() {

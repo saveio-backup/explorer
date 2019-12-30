@@ -15,7 +15,7 @@
 			>
 				<el-table-column
 					fixed
-					label="Date"
+					:label="$t('date')"
 					min-width="180"
 				>
 					<template slot-scope="scope">
@@ -26,13 +26,13 @@
 				</el-table-column>
 				<el-table-column
 					prop="New"
-					label="New"
+					:label="$t('new')"
 					min-width="180"
 				>
 				</el-table-column>
 				<el-table-column
 					prop="Total"
-					label="Total"
+					:label="$t('totalFiles')"
 					min-width="180"
 				>
 				</el-table-column>
@@ -81,7 +81,9 @@ export default {
 	},
 	watch: {
 		screenWidth() {
-			this.fileTotalChart.resize();
+			if(this.fileTotalChart) {
+				this.fileTotalChart.resize();
+			}
 		}
 	},
 	methods: {
@@ -121,9 +123,9 @@ export default {
 
 			if(res.error === 0) {
 				this.fileTotalList = res.result;
-				console.log("fileTotalList");
-				console.log(this.fileTotalList);
 				this.setFileStat();
+			} else {
+				this.$message.error(this.$t(`error['${res.error}']`));
 			}
 		},
 		setFileStat() {

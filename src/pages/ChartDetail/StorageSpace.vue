@@ -17,7 +17,7 @@
 			>
 				<el-table-column
 					fixed
-					label="Date"
+					:label="$t('date')"
 					min-width="180"
 				>
 					<template slot-scope="scope">
@@ -27,7 +27,7 @@
 					</template>
 				</el-table-column>
 				<el-table-column
-					label="Remain(PB)"
+					:label="$t('remain')"
 					min-width="180"
 				>
 					<template slot-scope="scope">
@@ -37,7 +37,7 @@
 					</template>
 				</el-table-column>
 				<el-table-column
-					label="Used(PB)"
+					:label="$t('used')"
 					min-width="180"
 				>
 					<template slot-scope="scope">
@@ -48,7 +48,7 @@
 				</el-table-column>
 				<el-table-column
 					prop="total"
-					label="Total(PB)"
+					:label="$t('totalSpace')"
 					min-width="180"
 				>
 					<template slot-scope="scope">
@@ -104,12 +104,27 @@ export default {
 		},
 		screenWidth() {
 			return this.$store.state.Home.screenWidth;
+		},
+		lang() {
+			return this.$t("lang");
 		}
 	},
 	watch: {
 		screenWidth() {
-			this.allNetStorageChartCircle.resize();
-			this.allNetStorageChartLine.resize();
+			if(this.allNetStorageChartCircle) {
+				this.allNetStorageChartCircle.resize();
+			}
+			if(this.allNetStorageChartLine) {
+				this.allNetStorageChartLine.resize();
+			}
+		},
+		lang() {
+			if(this.allNetStorageChartCircle) {
+				this.setAllNetStorageChartCircle();
+			}
+			if(this.allNetStorageChartLine) {
+				this.setAllNetStorageChartLine();
+			}
 		}
 	},
 	methods: {
@@ -151,6 +166,8 @@ export default {
 				this.storageSpaceList = res.result['Details'];
 				this.setAllNetStorageChartCircle();
 				this.setAllNetStorageChartLine();
+			} else {
+				this.$message.error(this.$t(`error['${res.error}']`));
 			}
 		},
 		setAllNetStorageChartCircle() {
@@ -204,7 +221,7 @@ export default {
 								realVal: usedData,
 								value: remainVal,
 								realD: remainD,
-								name: "Used",
+								name: vm.$t('used'),
 								itemStyle: {
 									normal: {
 										show: true,
@@ -218,7 +235,7 @@ export default {
 								realVal: remainData,
 								realD: usedD,
 								value: usedVal,
-								name: "Remain",
+								name: vm.$t('remain'),
 								itemStyle: {
 									normal: {
 										show: true,
@@ -262,7 +279,7 @@ export default {
 					bottom: "25%"
 				},
 				legend: {
-					data: ["Used", "Remain"],
+					data: [vm.$t('used'), vm.$t('remain')],
 					left: "center",
 					bottom: "4%",
 					textStyle: {
@@ -348,7 +365,7 @@ export default {
 					{
 						data: usedArr,
 						type: "line",
-						name: "Used",
+						name: vm.$t('used'),
 						itemStyle: {
 							color: "#CDDC39"
 						}
@@ -356,7 +373,7 @@ export default {
 					{
 						data: remainArr,
 						type: "line",
-						name: "Remain",
+						name: vm.$t('remain'),
 						itemStyle: {
 							color: "#15A4C6"
 						}

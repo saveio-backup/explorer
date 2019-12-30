@@ -3,6 +3,7 @@ class Block extends Base {
   constructor(context) {
     super(context);
     this.zeroTimestamp;
+    this.cacheTimestampByHeight = {}
   }
 
   /**
@@ -28,7 +29,6 @@ class Block extends Base {
     }
     let timestamp = this.zeroTimestamp + (height * 5);
     return timestamp;
-    // return blockTimestamp;
   }
 
   /**

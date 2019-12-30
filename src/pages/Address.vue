@@ -1,37 +1,40 @@
 <template>
 	<div id="address">
 		<h2>
-			ADDRESS
+			<!-- ADDRESS -->
+			{{$t('ADDRESS')}}
 			<span>{{address}}</span>
 		</h2>
 		<section class="address-info-wrapper relative" ref="addressInfoWrapper">
 			<div class="address-info-balance">
 				<h4>
-					Balance
+					<!-- Balance -->
+					{{$t('balance')}}
 				</h4>
 				<p>{{transactionObj && transactionObj.BalanceFormat}}</p>
 			</div>
 			<div class="address-info-usd">
-				<h4>USD Value</h4>
+				<h4>{{$t('USDValue')}}</h4>
 				<p>{{transactionObj && transactionObj.BalanceFormat + '$'}}</p>
 			</div>
 			<div class="address-info-total">
-				<h4>Created Time</h4>
+				<h4>{{$t('createdTime')}}</h4>
 				<p>{{transactionObj && $dateFormat.formatTimeByTimestamp(transactionObj.CreatedAt*1000)}}</p>
 			</div>
 			<div class="address-info-channels">
-				<h4>Channels</h4>
+				<h4>{{$t('channels')}}</h4>
 				<p>{{transactionObj && transactionObj.ChannelCount}}</p>
 			</div>
 		</section>
 		<h3>
-			Transactions
+			<!-- Transactions -->
+			{{$t('transactions')}}
 		</h3>
 		<section class="transaction-wrapper relative" ref="transactionWrapper">
 			<el-table :data="list" min-height="250" max-height="1050">
 				<el-table-column
 					fixed
-					label="Hash"
+					:label="$t('hash')"
 					min-width="300"
 					:show-overflow-tooltip="true"
 				>
@@ -44,7 +47,7 @@
           </template>
 				</el-table-column>
 				<el-table-column
-					label="Status"
+					:label="$t('status')"
 					width="100"
 					:show-overflow-tooltip="true"
 				>
@@ -55,7 +58,7 @@
           </template>
 				</el-table-column>
 				<el-table-column
-					label="Amount"
+					:label="$t('amount')"
 					min-width="120"
 					:show-overflow-tooltip="true"
 				>
@@ -66,7 +69,7 @@
         </template>
 				</el-table-column>
 				<el-table-column
-					label="From"
+					:label="$t('from')"
 					min-width="140"
 					:show-overflow-tooltip="true"
 				>
@@ -77,7 +80,7 @@
         </template>
 				</el-table-column>
 				<el-table-column
-					label="To"
+					:label="$t('to')"
 					min-width="140"
 					:show-overflow-tooltip="true"
 				>
@@ -88,7 +91,7 @@
           </template>
 				</el-table-column>
 				<el-table-column
-					label="Time"
+					:label="$t('time')"
 					width="170"
 					:show-overflow-tooltip="true"
 				>
@@ -178,6 +181,8 @@ export default {
 			if(res.error === 0) {
 				this.transactionObj = res.result;
 				this.transactionList = res.result.Txs;
+			} else {
+				this.$message.error(this.$t(`error['${res.error}']`));
 			}
 		},
     goAddress(address) {
