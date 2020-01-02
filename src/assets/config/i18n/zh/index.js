@@ -99,7 +99,8 @@ const obj = {
   FS: 'FS',
   FSNode: 'FS节点',
   IP: 'IP',
-  testNet: '测试网'
+  testNet: '测试网',
+  noData: '暂无数据'
 }
 
 export default obj;

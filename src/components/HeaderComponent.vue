@@ -205,13 +205,13 @@ export default {
 			const vm = this;
 			let content = this.searchContent.trim();
 			if(content.length === 0) {
-				this.$message.error(vm.$t('PleaseEnterWhatYouWantToSearchFor'))
+				this.$router.push({path:'/noFind'});
 				return;
 			}
 			let res = await this.$api2.getTypeByContent(content);
 			switch(res) {
 				case 0:
-					this.$message.error(vm.$t('relevantResourcesOf$Content$WereNotFound', {content: content}));
+					this.$router.push({path:'/noFind'});
 					break;
 				case 1:
 					this.$router.push({path:'/address',query: {address: content}});
@@ -223,7 +223,7 @@ export default {
 					this.$router.push({path:'/blocks/detail',query: {height: content}});
 					break;
 				default:
-					this.$message.error(vm.$t('unknownType'));
+					this.$router.push({path:'/noFind'});
 			}
 		}
 	}

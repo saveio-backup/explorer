@@ -12,6 +12,7 @@
 			<el-table
 				style="width: 100%;"
 				:data="tbList"
+				:empty-text="$t('noData')"
 			>
 				<el-table-column
 					fixed

@@ -42,6 +42,7 @@
       <el-table
         :data="transactionList"
         style="width: 100%;"
+        :empty-text="$t('noData')"
       >
         <el-table-column
           fixed
@@ -134,7 +135,7 @@ export default {
     return {
       util,
       transactionObj: null,
-      height: null,
+      // height: null,
       transactionList: [],
       loading: {
         blockInfo: null,
@@ -142,9 +143,18 @@ export default {
       }
     }
   },
+  computed: {
+    height() {
+      return parseInt(this.$route.query.height);
+    }
+  },
+  watch: {
+    height() {
+      this.init();
+    }
+  },
   methods: {
     init() {
-      this.height = parseInt(this.$route.query.height);
       this.getBlockbyHeight()
       this.getTransactionbyHeight()
     },

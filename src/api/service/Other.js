@@ -12,10 +12,15 @@ class Other extends Base {
   async getTypeByContent(val) {
     let addressReg = /^A[1-9A-HJ-NP-Za-km-z]{33}$/;
     let blockReg = /^\d+$/
-    if(addressReg.test(val)) {
+    if(addressReg.test(val) && this.context.cache.sync.addressObj.obj && this.context.cache.sync.addressObj.obj[val]) {
       return 1;
     } else if(val.length === 64) {
-      return 2;
+      let res = await this.rpcClient.getRawTransaction(val);
+      if(res.error === 0) {
+        return 2;
+      } else {
+        return 0;
+      }
     } else if(blockReg.test(val)) {
       if(val == 0) return 0;
       let blockHeight = await this.context.service.Block.getBlockHeight();

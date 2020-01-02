@@ -109,6 +109,11 @@ export default new Router({
             }]
         },
         {
+            path: '/noFind',
+            name: 'NoFind',
+            component: resolve => require(['@/pages/NoFind.vue'], resolve)
+        },
+        {
             path: '/',
             redirect: '/home'
         },

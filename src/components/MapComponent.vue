@@ -27,8 +27,8 @@
 
 <script>
 import mapboxgl from "mapbox-gl";
-// import MapboxLanguage from '@mapbox/mapbox-gl-language';
-import util from './../assets/config/util';
+import MapboxLanguage from "@mapbox/mapbox-gl-language";
+import util from "./../assets/config/util";
 export default {
 	props: {
 		mapNodes: {
@@ -41,26 +41,26 @@ export default {
 			util,
 			map: null,
 			mapLoading: false,
-			// nodeTypes: [
-			// 	{
-			// 		type: "fs",
-			// 		label: FSNode,
-			// 		color: "rgba(205, 220, 57, 1)",
-			// 		boxShadow: "rgba(205, 220, 57, 0.4)",
-			// 		iconImage: "fs-point",
-			// 		id: "fsPoints",
-			// 		isShow: true
-			// 	},
-			// 	{
-			// 		type: "dns",
-			// 		label: DNSNode,
-			// 		color: "rgba(255, 100, 100, 1)",
-			// 		boxShadow: "rgba(255, 100, 100, 0.4)",
-			// 		iconImage: "dns-point",
-			// 		id: "dnsPoints",
-			// 		isShow: true
-			// 	}
-			// ],
+			nodeTypes: [
+				{
+					type: "fs",
+					label: '',
+					color: "rgba(205, 220, 57, 1)",
+					boxShadow: "rgba(205, 220, 57, 0.4)",
+					iconImage: "fs-point",
+					id: "fsPoints",
+					isShow: true
+				},
+				{
+					type: "dns",
+					label: '',
+					color: "rgba(255, 100, 100, 1)",
+					boxShadow: "rgba(255, 100, 100, 0.4)",
+					iconImage: "dns-point",
+					id: "dnsPoints",
+					isShow: true
+				}
+			],
 			clusterObj: {
 				colors: ["rgba(255, 100, 100, 1)", "rgba(205, 220, 57, 1)"],
 				markers: {},
@@ -74,33 +74,13 @@ export default {
 	},
 	computed: {
 		FSNode() {
-			return this.$t('FSNode');
+			return this.$t("FSNode");
 		},
 		DNSNode() {
-			return this.$t('DNSNode');
+			return this.$t("DNSNode");
 		},
-		nodeTypes() {
-			const vm = this;
-			return [
-				{
-					type: "fs",
-					label: vm.FSNode,
-					color: "rgba(205, 220, 57, 1)",
-					boxShadow: "rgba(205, 220, 57, 0.4)",
-					iconImage: "fs-point",
-					id: "fsPoints",
-					isShow: true
-				},
-				{
-					type: "dns",
-					label: vm.DNSNode,
-					color: "rgba(255, 100, 100, 1)",
-					boxShadow: "rgba(255, 100, 100, 0.4)",
-					iconImage: "dns-point",
-					id: "dnsPoints",
-					isShow: true
-				}
-			]
+		lang() {
+			return this.$t("lang");
 		}
 	},
 	watch: {
@@ -108,11 +88,41 @@ export default {
 			if (!this.mapLoading) return;
 			this.$nextTick(() => {
 				this.setData();
-			})
+			});
+		},
+		lang() {
+			this.nodeTypes[0].label = this.$t("FSNode");
+			this.nodeTypes[1].label = this.$t("DNSNode");
+
+			if(!this.map) return;
+			var layers = this.map.getStyle().layers;
+			let arr = [];
+			for (var i = 0; i < layers.length; i++) {
+				let id = layers[i].id;
+				arr.push(id);
+				console.log(layers[i]);
+				if(layers[i].type !== 'symbol' || id.indexOf('cluster') >= 0) continue;
+				try {
+					this.map.setLayoutProperty(id, "text-field", "{name_" + this.$t('lang') + "}");
+				} catch (e) {
+					console.log(e);
+				}
+			}
+			console.log(arr.toString());
 		}
 	},
 	methods: {
 		init() {
+			this.nodeTypes[0].label = this.$t("FSNode");
+			this.nodeTypes[1].label = this.$t("DNSNode");
+
+			try{
+				mapboxgl.accessToken =
+					"pk.eyJ1IjoibGlueGluY2hlbmciLCJhIjoiY2syMndzZjNrMGowMTNsb3gzcG9jbWx1OCJ9.lhDlDLOTjC9Yx2hBhJspcw";
+				mapboxgl.setRTLTextPlugin(
+					"https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.1.0/mapbox-gl-rtl-text.js"
+				);
+			}catch(e) {}
 			this.initMap();
 		},
 		getPulsingDot({ size = 100, color = "rgba(255, 255, 255, 1)" }) {
@@ -171,21 +181,26 @@ export default {
 		},
 		initMap() {
 			const vm = this;
-			mapboxgl.accessToken =
-				"pk.eyJ1IjoibGlueGluY2hlbmciLCJhIjoiY2syMndzZjNrMGowMTNsb3gzcG9jbWx1OCJ9.lhDlDLOTjC9Yx2hBhJspcw";
 			this.map = new mapboxgl.Map({
 				container: "map",
-				style: "mapbox://styles/mapbox/dark-v10",
+				// style: "mapbox://styles/mapbox/dark-v10",
+				style: "mapbox://styles/mapbox/dark-v9",
 				center: [30, 20], // starting position
-        zoom: 1.2, // starting zoom
-        minZoom: 1.2,
-        maxBounds: [
-          [-180, -85], // Southwest coordinates
-          [180, 85]
-        ],
+				zoom: 1.2, // starting zoom
+				minZoom: 1.2,
+				maxBounds: [
+					[-180, -85], // Southwest coordinates
+					[180, 85]
+				]
 			});
 
+			// let language = new MapboxLanguage({
+			// 	defaultLanguage: vm.$t("lang")
+			// });
+			// vm.map.addControl(language);
 			this.map.on("load", () => {
+				// console.log(vm.map._updatedLayers());
+
 				for (let value of vm.nodeTypes) {
 					let dot = this.getPulsingDot({ size: 60, color: value.color });
 					vm.map.addImage(value.iconImage, dot, {
@@ -198,15 +213,15 @@ export default {
 			});
 		},
 		getData() {
-      let arr = [];
-      let showArr = [];
-      for(let value of this.nodeTypes) {
-        if(value.isShow) {
-          showArr.push(value.type);
-        }
-      }
+			let arr = [];
+			let showArr = [];
+			for (let value of this.nodeTypes) {
+				if (value.isShow) {
+					showArr.push(value.type);
+				}
+			}
 			for (let value of this.mapNodes) {
-        if(showArr.indexOf(value.type) === -1) continue; 
+				if (showArr.indexOf(value.type) === -1) continue;
 				arr.push({
 					type: "Feature",
 					properties: value,
@@ -224,7 +239,7 @@ export default {
 		setData() {
 			const vm = this;
 			let data = vm.getData();
-			vm.map.getSource('earthquakes').setData(data);
+			vm.map.getSource("earthquakes").setData(data);
 		},
 		addLayer3() {
 			const vm = this;
@@ -236,7 +251,7 @@ export default {
 				// from 12/22/15 to 1/21/16 as logged by USGS' Earthquake hazards program.
 				data: data /* 指向GEOJSON文件的url路径 */,
 				cluster: true /* 如果数据是一系列特征的点的集合，将cluster属性设置为true可以根据半径将点聚集成组 */,
-        clusterMaxZoom: 14, // Max zoom to cluster points on
+				clusterMaxZoom: 14, // Max zoom to cluster points on
 				clusterRadius: 50 // Radius of each cluster when clustering points (defaults to 50)
 			});
 
@@ -303,9 +318,9 @@ export default {
 					"text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
 					"text-size": 12 /* 该属性表示字体大小 */
 				}
-      });
-      
-      // add event
+			});
+
+			// add event
 			vm.map.on("click", "clusters", function(e) {
 				var features = vm.map.queryRenderedFeatures(e.point, {
 					layers: ["clusters"]
@@ -330,22 +345,26 @@ export default {
 			});
 			vm.map.on("mouseenter", "unclustered-points", vm.mouseenterMarker);
 			vm.map.on("mouseleave", "unclustered-points", vm.mouseleaveupdateMarker);
-    },
-    mouseenterMarker(e) {
+		},
+		mouseenterMarker(e) {
 			const vm = this;
 			this.map.getCanvas().style.cursor = "pointer";
 			let coordinates = e.features[0].geometry.coordinates.slice();
 			let description = "";
 			if (e.features[0].properties.type === "dns") {
 				description = `<strong>${e.features[0].properties.Alias}</strong>
-        <p>${vm.$t('IP')}: ${e.features[0].properties.IP}</p>
-        <p>${vm.$t('region')}: ${e.features[0].properties.Region}</p>
-        <p>${vm.$t('stake')}: ${vm.util.effectiveNumber(e.features[0].properties.Stake)} ONI</p>`;
+        <p>${vm.$t("IP")}: ${e.features[0].properties.IP}</p>
+        <p>${vm.$t("region")}: ${e.features[0].properties.Region}</p>
+        <p>${vm.$t("stake")}: ${vm.util.effectiveNumber(
+					e.features[0].properties.Stake
+				)} ONI</p>`;
 			} else {
 				description = `<strong>${e.features[0].properties.Alias}</strong>
-        <p>${vm.$t('address')}: ${e.features[0].properties.Address}</p>
-        <p>${vm.$t('region')}: ${e.features[0].properties.Region}</p>
-        <p>${vm.$t('profit')}: ${vm.util.effectiveNumber(e.features[0].properties.ProfitFormat)} ONI</p>`;
+        <p>${vm.$t("address")}: ${e.features[0].properties.Address}</p>
+        <p>${vm.$t("region")}: ${e.features[0].properties.Region}</p>
+        <p>${vm.$t("profit")}: ${vm.util.effectiveNumber(
+					e.features[0].properties.ProfitFormat
+				)} ONI</p>`;
 			}
 			// Ensure that if the map is zoomed out such that multiple
 			// copies of the feature are visible, the popup appears
@@ -396,8 +415,8 @@ export default {
 		toggle(item) {
 			// let visibility = this.map.getLayoutProperty(item.id, "visibility");
 			item.isShow = !item.isShow;
-      let data = this.getData();
-      this.map.getSource('earthquakes').setData(data);
+			let data = this.getData();
+			this.map.getSource("earthquakes").setData(data);
 		},
 		addLayer2() {
 			const vm = this;
@@ -596,10 +615,11 @@ export default {
 </style>
 <style lang="scss">
 .mapboxgl-popup {
-	max-width: 400px!important;
+	max-width: 400px !important;
 	font: 14px/20px "Helvetica Neue", Arial, Helvetica, sans-serif;
 }
-.mapboxgl-ctrl-logo,.mapboxgl-ctrl-attrib-inner {
-  display: none !important;
+.mapboxgl-ctrl-logo,
+.mapboxgl-ctrl-attrib-inner {
+	display: none !important;
 }
 </style>

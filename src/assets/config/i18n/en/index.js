@@ -92,7 +92,6 @@ const obj = {
   USDValue: 'USD Value',
   createdTime: 'Created Time',
   amount: 'Amount',
-
   DNS: 'DNS',
   DNSNode: 'DNS Node',
   region: 'Region',
@@ -100,7 +99,8 @@ const obj = {
   FS: 'FS',
   FSNode: 'FS Node',
   IP: 'IP',
-  testNet: 'TestNet'
+  testNet: 'TestNet',
+  noData: 'no data'
 }
 
 export default obj;

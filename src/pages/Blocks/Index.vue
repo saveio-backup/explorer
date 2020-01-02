@@ -6,6 +6,7 @@
       <el-table
         :data="blockList"
         style="width: 100%;"
+        :empty-text="$t('noData')"
       >
         <el-table-column
           fixed

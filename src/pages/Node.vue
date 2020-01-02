@@ -14,6 +14,7 @@
 			<el-table
 				:data="dnsList"
 				style="width:100%;"
+				:empty-text="$t('noData')"
 			>
 				<el-table-column
 					fixed
@@ -60,6 +61,7 @@
 			<el-table
 				:data="fsList"
 				style="width: 100%;"
+				:empty-text="$t('noData')"
 			>
 				<el-table-column
 					fixed
@@ -103,7 +105,7 @@
 				</el-table-column>
 				<el-table-column
 					:label="$t('address')"
-					min-width="220"
+					min-width="250"
 					:show-overflow-tooltip="true"
 				>
 					<template slot-scope="scope">

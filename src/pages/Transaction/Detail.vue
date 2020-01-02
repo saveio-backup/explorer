@@ -71,7 +71,7 @@ export default {
     return {
       util,
       transactionDetailObj: null,
-      hash: '',
+      // hash: '',
       loading: {
         transactionsInfo: null
       }
@@ -81,11 +81,18 @@ export default {
     transactionDetailList() {
       if(!this.transactionDetailObj) return [];
       return this.transactionDetailObj.Details;
+    },
+    hash() {
+      return this.$route.query.hash;
+    }
+  },
+  watch: {
+    hash() {
+      this.init();
     }
   },
   methods: {
     init() {
-      this.hash = this.$route.query.hash;
       this.getTransactionByHash();
     },
     async getTransactionByHash() {

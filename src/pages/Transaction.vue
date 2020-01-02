@@ -1,8 +1,6 @@
 <template>
   <div id="transaction">
-    <keep-alive>
-      <router-view></router-view>
-    </keep-alive>
+    <router-view></router-view>
   </div>
 </template>
 <script>

@@ -31,7 +31,7 @@
 			{{$t('transactions')}}
 		</h3>
 		<section class="transaction-wrapper relative" ref="transactionWrapper">
-			<el-table :data="list" min-height="250" max-height="1050">
+			<el-table :data="list" min-height="250" max-height="1050" :empty-text="$t('noData')">
 				<el-table-column
 					fixed
 					:label="$t('hash')"
@@ -121,7 +121,7 @@ export default {
 		return {
 			util,
       transactionObj: null,
-			address: '',
+			// address: '',
 			transactionList: [],
 			loading: {
 				transactionInfo: null,
@@ -140,11 +140,19 @@ export default {
 			let start = (vm.currentPage - 1) * PAGE_NUMBER;
 			let end = vm.currentPage * PAGE_NUMBER;
 			return vm.transactionList.slice(start, end);
+		},
+		address() {
+			return this.$route.query.address;
+		}
+	},
+	watch: {
+		address() {
+			this.init();
 		}
 	},
   methods: {
     init() {
-      this.address = this.$route.query.address;
+			this.currentPage = 1;
 			this.getTransactionByAddress();
 		},
 		currentChange(page) {
