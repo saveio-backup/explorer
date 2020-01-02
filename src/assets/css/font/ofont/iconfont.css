@@ -1,0 +1,73 @@
+@font-face {font-family: "ofont";
+  src: url('iconfont.eot?t=1570787175807'); /* IE9 */
+  src: url('iconfont.eot?t=1570787175807#iefix') format('embedded-opentype'), /* IE6-IE8 */
+  url('data:application/x-font-woff2;charset=utf-8;base64,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') format('woff2'),
+  url('iconfont.woff?t=1570787175807') format('woff'),
+  url('iconfont.ttf?t=1570787175807') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+ */
+  url('iconfont.svg?t=1570787175807#ofont') format('svg'); /* iOS 4.1- */
+}
+
+.ofont {
+  font-family: "ofont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.ofont-twitter-old:before {
+  content: "\e8aa";
+}
+
+.ofont-menu:before {
+  content: "\e6a9";
+}
+
+.ofont-twitter:before {
+  content: "\ec9c";
+}
+
+.ofont-play-tri:before {
+  content: "\e751";
+}
+
+.ofont-linkedin-old:before {
+  content: "\e698";
+}
+
+.ofont-facebook:before {
+  content: "\e6d4";
+}
+
+.ofont-facebook-old:before {
+  content: "\e601";
+}
+
+.ofont-linkedin:before {
+  content: "\e768";
+}
+
+.ofont-telegram-old:before {
+  content: "\e715";
+}
+
+.ofont-github:before {
+  content: "\e691";
+}
+
+.ofont-shouce:before {
+  content: "\e898";
+}
+
+.ofont-time:before {
+  content: "\e7ba";
+}
+
+.ofont-telegram:before {
+  content: "\f246";
+}
+
+.ofont-play:before {
+  content: "\e621";
+}
+

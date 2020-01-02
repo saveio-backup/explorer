@@ -1,0 +1,96 @@
+@import './reset.scss';
+@import './global.scss';
+@import './atom.scss';
+@import './ele-style.scss';
+
+// color
+.white {
+  color: white;
+}
+
+.fontImportant {
+  color: $fontImportant;
+}
+
+.fontImportantThree {
+  color: $fontImportantThree;
+}
+
+.tb-link {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.link-fontImportant {
+  cursor: pointer;
+
+  &:hover {
+    color: $fontImportant;
+  }
+
+  &:active {
+    opacity: 0.7;
+  }
+}
+
+.click-active {
+  cursor: pointer;
+
+  &:active {
+    opacity: 0.7;
+  }
+}
+
+.click-link {
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.7;
+  }
+
+  &:active {
+    opacity: 1;
+  }
+}
+
+.no-user-select {
+  user-select: none;
+}
+
+// flex
+.flex {
+  display: flex;
+
+  &.between {
+    justify-content: space-between;
+  }
+
+  &.around {
+    justify-content: space-around
+  }
+
+  &.jc-center {
+    justify-content: center
+  }
+
+  &.jc-end {
+    justify-content: flex-end
+  }
+
+  &.ai-center {
+    align-items: center;
+  }
+
+  &.column {
+    flex-direction: column;
+  }
+}
+
+.op07 {
+  opacity: 0.7;
+}
+
+.relative {
+  position: relative;
+}
